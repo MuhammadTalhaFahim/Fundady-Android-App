@@ -7,7 +7,6 @@ import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 import AppButton from '../../components/common/AppButton';
 import MovieCard from '../../components/cards/MovieCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const API_URL = 'https://fundady.com/api/v1/movies';
@@ -35,7 +34,6 @@ const HomeScreen = ({ navigation }) => {
                 });
                 setMovies(sortedMovies);
             }
-
         } catch (error) {
             console.error('Error fetching movies:', error);
         } finally {
@@ -70,8 +68,8 @@ const HomeScreen = ({ navigation }) => {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
-            <MainHeader scrollY={scrollY} />
+        <View style={styles.container}>
+            <MainHeader scrollY={scrollY} variant="home" />
             <Animated.ScrollView
                 style={styles.scrollView}
                 bounces={false}
@@ -97,7 +95,14 @@ const HomeScreen = ({ navigation }) => {
                                     title="Play"
                                     style={styles.playButton}
                                     textStyle={{ color: colors.black }}
-                                    onPress={() => handleMoviePress(featuredMovie)}
+                                    onPress={() => {
+                                        const videoUrl = featuredMovie.links && featuredMovie.links.length > 0 ? featuredMovie.links[0].movie_link : null;
+                                        if (videoUrl) {
+                                            navigation.navigate('VideoPlayer', { videoUrl });
+                                        } else {
+                                            handleMoviePress(featuredMovie); // Fallback to details if no link
+                                        }
+                                    }}
                                 />
                                 <AppButton
                                     title="My List"
@@ -153,7 +158,7 @@ const HomeScreen = ({ navigation }) => {
                     )}
                 </View>
             </Animated.ScrollView>
-        </SafeAreaView>
+        </View>
     );
 };
 
