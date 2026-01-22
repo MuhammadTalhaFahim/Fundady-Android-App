@@ -1,5 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image, Dimensions, TouchableOpacity } from 'react-native';
+import {
+    View,
+    StyleSheet,
+    ScrollView,
+    Image,
+    Dimensions,
+    TouchableOpacity,
+    Platform,
+    StatusBar,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -15,7 +24,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <MainHeader variant="inner" />
+            <View style={styles.headerContainer}>
+                <MainHeader variant="inner" />
+            </View>
             <ScrollView style={styles.scrollView}>
                 <View>
                     <Image
@@ -28,7 +39,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 <View style={styles.content}>
                     <AppText variant="bold" size="headingLg">{movie.title}</AppText>
                     <View style={styles.infoRow}>
-                        <AppText color={colors.success} variant="bold">{movie.release_date?.split('-')[0]}</AppText>
+                        <AppText color={colors.success} variant="bold">{movie.release_date?.split('-')[0] || 'N/A'}</AppText>
                         <AppText color={colors.textMuted} style={styles.badge}>{movie.imdb_rating || 'N/A'}</AppText>
                         <AppText color={colors.textSecondary}>{movie.runtime ? `${movie.runtime} min` : 'N/A'}</AppText>
                     </View>
@@ -70,6 +81,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.background,
+    },
+    headerContainer: {
+        backgroundColor: colors.black,
+        paddingTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight,
+        paddingBottom: spacing.sm,
     },
     scrollView: {
         flex: 1,

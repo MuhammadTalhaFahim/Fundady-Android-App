@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Dimensions,
+    Animated
 } from 'react-native';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -31,6 +32,7 @@ const MOCK_CHANNELS = [
 ];
 
 const LiveTvScreen = () => {
+    const scrollY = React.useRef(new Animated.Value(0)).current;
     const [selectedChannel, setSelectedChannel] = useState(MOCK_CHANNELS[0]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredChannels, setFilteredChannels] = useState(MOCK_CHANNELS);
@@ -47,47 +49,9 @@ const LiveTvScreen = () => {
 
     return (
         <View style={styles.container}>
-            <MainHeader variant="inner" />
+            <MainHeader variant="home" title="TVon" scrollY={scrollY} />
 
-            {/* Video Player Section */}
-            <View style={styles.playerContainer}>
-                <Video
-                    ref={videoRef}
-                    source={{ uri: selectedChannel.url }}
-                    style={styles.video}
-                    resizeMode="contain"
-                    controls={true}
-                    onLoad={() => setLoading(false)}
-                    onLoadStart={() => setLoading(true)}
-                />
-                {loading && (
-                    <View style={styles.loader}>
-                        <ActivityIndicator size="large" color={colors.primary} />
-                    </View>
-                )}
-            </View>
-
-            {/* Selection Header */}
-            <View style={styles.selectionHeader}>
-                <View style={styles.selectionTitleContainer}>
-                    <AppText variant="bold" size="lg">Select Channel</AppText>
-                    <Icon name="keyboard-arrow-down" size={24} color={colors.white} />
-                </View>
-
-                <View style={styles.searchBar}>
-                    <Icon name="search" size={20} color={colors.textMuted} style={styles.searchIcon} />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search Channel"
-                        placeholderTextColor={colors.textMuted}
-                        value={searchQuery}
-                        onChangeText={handleSearch}
-                    />
-                </View>
-            </View>
-
-            {/* Channel List */}
-            <FlatList
+            {/* <Animated.FlatList
                 data={filteredChannels}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
@@ -99,7 +63,52 @@ const LiveTvScreen = () => {
                 )}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
-            />
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: false },
+                )}
+                scrollEventThrottle={16}
+                ListHeaderComponent={
+                    <>
+                        Video Player Section
+                        <View style={styles.playerContainer}>
+                            <Video
+                                ref={videoRef}
+                                source={{ uri: selectedChannel.url }}
+                                style={styles.video}
+                                resizeMode="contain"
+                                controls={true}
+                                onLoad={() => setLoading(false)}
+                                onLoadStart={() => setLoading(true)}
+                            />
+                            {loading && (
+                                <View style={styles.loader}>
+                                    <ActivityIndicator size="large" color={colors.primary} />
+                                </View>
+                            )}
+                        </View>
+
+                        Selection Header
+                        <View style={styles.selectionHeader}>
+                            <View style={styles.selectionTitleContainer}>
+                                <AppText variant="bold" size="lg">Select Channel</AppText>
+                                <Icon name="keyboard-arrow-down" size={24} color={colors.white} />
+                            </View>
+
+                            <View style={styles.searchBar}>
+                                <Icon name="search" size={20} color={colors.textMuted} style={styles.searchIcon} />
+                                <TextInput
+                                    style={styles.searchInput}
+                                    placeholder="Search Channel"
+                                    placeholderTextColor={colors.textMuted}
+                                    value={searchQuery}
+                                    onChangeText={handleSearch}
+                                />
+                            </View>
+                        </View>
+                    </>
+                }
+            /> */}
         </View>
     );
 };

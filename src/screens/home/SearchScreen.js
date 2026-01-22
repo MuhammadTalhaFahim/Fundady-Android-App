@@ -1,224 +1,266 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    View,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    FlatList,
-    Image,
-    Platform,
-    ActivityIndicator,
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Image,
+  Platform,
+  ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme/colors';
 import { spacing, iconSizes } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
+import MainHeader from '../../components/headers/MainHeader';
 
-const API_URL = 'https://fundady.com/api/v1/movies';
+const SEARCH_API_URL = 'https://fundady.com/api/v1/search';
 const POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
 
 const SearchScreen = ({ navigation }) => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [allMovies, setAllMovies] = useState([]);
-    const [filteredMovies, setFilteredMovies] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const inputRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef(null);
 
-    useEffect(() => {
-        fetchAllMovies();
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, []);
+  // Standardized fetch function with cancellation support
+  const fetchResults = async (query, signal) => {
+    setLoading(true);
+    try {
+      const url = query.trim()
+        ? `${SEARCH_API_URL}?title=${encodeURIComponent(query)}`
+        : SEARCH_API_URL;
 
-    const fetchAllMovies = async () => {
-        try {
-            const response = await fetch(API_URL);
-            const json = await response.json();
-            if (json.status) {
-                setAllMovies(json.data);
-                // Initially show some movies as "Top Searches"
-                setFilteredMovies(json.data.slice(0, 15));
-            }
-        } catch (error) {
-            console.error('Error fetching movies for search:', error);
-        } finally {
-            setLoading(false);
-        }
+      const response = await fetch(url, { signal });
+      const json = await response.json();
+      if (json.status) {
+        // The search API returns results in json.data.data
+        const data = json.data?.data || json.data || [];
+        setResults(data);
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Search error:', error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    // Perform initial load immediately, debounce user typing
+    if (searchQuery === '') {
+      fetchResults('', signal);
+    } else {
+      const timer = setTimeout(() => {
+        fetchResults(searchQuery, signal);
+      }, 400);
+
+      return () => {
+        clearTimeout(timer);
+        controller.abort();
+      };
+    }
+
+    return () => {
+      controller.abort();
     };
+  }, [searchQuery]);
 
-    const handleSearch = (text) => {
-        setSearchQuery(text);
-        if (text.trim() === '') {
-            setFilteredMovies(allMovies.slice(0, 15));
-        } else {
-            const filtered = allMovies.filter((movie) =>
-                movie.title.toLowerCase().includes(text.toLowerCase())
-            );
-            setFilteredMovies(filtered);
-        }
-    };
+  const handleSearch = text => {
+    setSearchQuery(text);
+  };
 
-    const clearSearch = () => {
-        setSearchQuery('');
-        setFilteredMovies(allMovies.slice(0, 15));
-    };
+  const clearSearch = () => {
+    setSearchQuery('');
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
-    const renderSearchItem = ({ item }) => (
-        <View style={styles.searchItemContainer}>
+  const renderSearchItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.searchItemRow}
+      onPress={() => navigation.navigate('MovieDetail', { movie: item })}
+    >
+      <Image
+        source={{ uri: `${POSTER_BASE_URL}${item.poster}` }}
+        style={styles.itemPosterThumbnail}
+      />
+      <AppText style={styles.itemTitleText} numberOfLines={1}>
+        {item.title}
+      </AppText>
+      <Icon
+        name="play-circle-outline"
+        size={28}
+        color={colors.white}
+        style={styles.playIcon}
+      />
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      {/* Netflix Style Header */}
+      <View style={styles.headerContainer}>
+        <MainHeader variant="inner" />
+
+        {/* Search Bar Row */}
+        <View style={styles.searchBarRow}>
+          <View style={styles.searchBarWrapper}>
+            <Icon
+              name="search"
+              size={24}
+              color={colors.textSecondary}
+              style={styles.searchIconInBar}
+            />
+            <TextInput
+              ref={inputRef}
+              style={styles.searchInputField}
+              placeholder="Search shows, movies, sports..."
+              placeholderTextColor={colors.textSecondary}
+              value={searchQuery}
+              onChangeText={handleSearch}
+            />
             <TouchableOpacity
-                style={styles.searchItemDetails}
-                onPress={() => navigation.navigate('MovieDetail', { movie: item })}
+              onPress={searchQuery.length > 0 ? clearSearch : null}
             >
-                <Image
-                    source={{ uri: `${POSTER_BASE_URL}${item.poster}` }}
-                    style={styles.itemPoster}
-                />
-                <AppText style={styles.itemTitle} numberOfLines={1}>
-                    {item.title}
-                </AppText>
+              <Icon
+                name={searchQuery.length > 0 ? 'close' : 'mic'}
+                size={24}
+                color={colors.textSecondary}
+              />
             </TouchableOpacity>
-            <TouchableOpacity
-                style={styles.playButtonIcon}
-                onPress={() => {
-                    const videoUrl = item.links && item.links.length > 0 ? item.links[0].movie_link : null;
-                    if (videoUrl) {
-                        navigation.navigate('VideoPlayer', { videoUrl });
-                    } else {
-                        alert('Video link not available');
-                    }
-                }}
-            >
-                <Icon name="play-circle-outline" size={35} color={colors.white} />
-            </TouchableOpacity>
+          </View>
         </View>
-    );
+      </View>
 
-    return (
-        <View style={styles.container}>
-            {/* Search Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name="arrow-back" size={iconSizes.lg} color={colors.textPrimary} />
-                </TouchableOpacity>
-                <TextInput
-                    ref={inputRef}
-                    style={styles.searchInput}
-                    placeholder="Search for a movie, series, etc."
-                    placeholderTextColor={colors.textSecondary}
-                    value={searchQuery}
-                    onChangeText={handleSearch}
-                    autoFocus={true}
-                />
-                {searchQuery.length > 0 && (
-                    <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
-                        <Icon name="close" size={24} color={colors.textSecondary} />
-                    </TouchableOpacity>
-                )}
-            </View>
+      {loading && results.length === 0 ? (
+        <View style={styles.centeredView}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <View style={styles.contentView}>
+          <FlatList
+            data={results}
+            renderItem={renderSearchItem}
+            keyExtractor={item => item.id.toString()}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContentStyle}
+            // ListEmptyComponent={
+            //     !loading ? (
+            //         <View style={styles.noResultsBox}>
+            //             <AppText color={colors.textSecondary}>No results found for "{searchQuery}"</AppText>
+            //         </View>
+            //     ) : null
+            // }
 
-            {loading ? (
-                <View style={styles.centered}>
-                    <ActivityIndicator size="large" color={colors.primary} />
-                </View>
-            ) : (
-                <View style={styles.content}>
-                    <AppText variant="bold" size="lg" style={styles.sectionTitle}>
-                        {searchQuery.trim() === '' ? 'Top Searches' : 'Movies & TV'}
+            ListEmptyComponent={
+              !loading ? (
+                <View style={styles.noResultsBox}>
+                  {searchQuery === '' ? (
+                    <AppText color={colors.textSecondary}>
+                      Search what you want
                     </AppText>
-                    <FlatList
-                        data={filteredMovies}
-                        renderItem={renderSearchItem}
-                        keyExtractor={(item) => item.id.toString()}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.listContainer}
-                        ListEmptyComponent={
-                            <View style={styles.emptyContainer}>
-                                <AppText color={colors.textSecondary}>No results found for "{searchQuery}"</AppText>
-                            </View>
-                        }
-                    />
+                  ) : (
+                    <AppText color={colors.textSecondary}>
+                      No results found for "{searchQuery}"
+                    </AppText>
+                  )}
                 </View>
-            )}
+              ) : null
+            }
+          />
         </View>
-    );
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: colors.background,
-    },
-    header: {
-        height: Platform.OS === 'ios' ? 100 : 70,
-        backgroundColor: colors.backgroundLight,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: Platform.OS === 'ios' ? 40 : 10,
-        paddingHorizontal: spacing.sm,
-    },
-    backButton: {
-        padding: spacing.xs,
-    },
-    searchInput: {
-        flex: 1,
-        height: 40,
-        backgroundColor: colors.backgroundCard,
-        borderRadius: 4,
-        color: colors.textPrimary,
-        paddingHorizontal: spacing.md,
-        marginHorizontal: spacing.sm,
-        fontSize: 16,
-    },
-    clearButton: {
-        padding: spacing.xs,
-    },
-    content: {
-        flex: 1,
-    },
-    sectionTitle: {
-        padding: spacing.md,
-        color: colors.textPrimary,
-    },
-    listContainer: {
-        paddingBottom: spacing.xl,
-    },
-    searchItemContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: colors.backgroundLight,
-        marginBottom: 2,
-    },
-    searchItemDetails: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    playButtonIcon: {
-        padding: spacing.md,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    itemPoster: {
-        width: 120,
-        height: 70,
-        resizeMode: 'cover',
-    },
-    itemTitle: {
-        flex: 1,
-        marginLeft: spacing.md,
-        fontSize: 14,
-        color: colors.textPrimary,
-    },
-    centered: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyContainer: {
-        padding: spacing.xl,
-        alignItems: 'center',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  headerContainer: {
+    backgroundColor: colors.black,
+    paddingTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight,
+    paddingBottom: spacing.sm,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  iconPadding: {
+    padding: spacing.xs,
+  },
+  searchBarRow: {
+    paddingHorizontal: spacing.sm,
+  },
+  searchBarWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2b2b2b',
+    borderRadius: 4,
+    paddingHorizontal: spacing.sm,
+    height: 50,
+  },
+  searchIconInBar: {
+    marginRight: spacing.sm,
+  },
+  searchInputField: {
+    flex: 1,
+    color: colors.white,
+    fontSize: 16,
+    height: '100%',
+  },
+  contentView: {
+    flex: 1,
+  },
+  resultsLabel: {
+    padding: spacing.md,
+    color: colors.white,
+  },
+  listContentStyle: {
+    paddingBottom: spacing.xl,
+  },
+  searchItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    marginBottom: 2,
+  },
+  itemPosterThumbnail: {
+    width: 140,
+    height: 80,
+    resizeMode: 'cover',
+  },
+  itemTitleText: {
+    flex: 1,
+    marginLeft: spacing.md,
+    fontSize: 15,
+    color: colors.white,
+  },
+  playIcon: {
+    padding: spacing.md,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noResultsBox: {
+    padding: spacing.xl,
+    alignItems: 'center',
+  },
 });
 
 export default SearchScreen;

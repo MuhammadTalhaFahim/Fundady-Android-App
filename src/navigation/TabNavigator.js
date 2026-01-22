@@ -7,6 +7,8 @@ import HomeStack from './HomeStack';
 import CinemaStack from './CinemaStack';
 import SeriesStack from './SeriesStack';
 import TvOnStack from './TvOnStack';
+import SportsStack from './SportsStack';
+
 
 // Theme
 import { colors } from '../theme/colors';
@@ -21,12 +23,11 @@ const TabNavigator = () => {
                 tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: colors.textMuted,
                 tabBarStyle: {
-                    backgroundColor: colors.backgroundLight,
-                    borderTopColor: colors.backgroundCard,
-                    borderTopWidth: 1,
+                    backgroundColor: colors.background,
+                    borderTopWidth: 0,
                     height: 60,
-                    paddingBottom: 8,
-                    paddingTop: 8,
+                    elevation: 0,
+                    shadowOpacity: 0,
                 },
                 headerShown: false,
             }}>
@@ -35,7 +36,7 @@ const TabNavigator = () => {
                 component={HomeStack}
                 options={{
                     tabBarIcon: ({ color }) => (
-                        <Icon name="home" size={iconSizes.lg} color={color} />
+                        <Icon name="home" size={iconSizes.md} color={color} />
                     ),
                     tabBarLabel: 'Home',
                 }}
@@ -45,7 +46,7 @@ const TabNavigator = () => {
                 component={CinemaStack}
                 options={{
                     tabBarIcon: ({ color }) => (
-                        <Icon name="movie" size={iconSizes.lg} color={color} />
+                        <Icon name="movie" size={iconSizes.md} color={color} />
                     ),
                     tabBarLabel: 'Movies',
                 }}
@@ -55,9 +56,19 @@ const TabNavigator = () => {
                 component={SeriesStack}
                 options={{
                     tabBarIcon: ({ color }) => (
-                        <Icon name="tv" size={iconSizes.lg} color={color} />
+                        <Icon name="tv" size={iconSizes.md} color={color} />
                     ),
                     tabBarLabel: 'Series',
+                }}
+            />
+             <Tab.Screen
+                name="Sports"
+                component={SportsStack}
+                options={{
+                    tabBarIcon: ({ color }) => (
+                        <Icon name="sports-soccer" size={iconSizes.md} color={color} />
+                    ),
+                    tabBarLabel: 'Sports',
                 }}
             />
             <Tab.Screen
@@ -65,11 +76,12 @@ const TabNavigator = () => {
                 component={TvOnStack}
                 options={{
                     tabBarIcon: ({ color }) => (
-                        <Icon name="live-tv" size={iconSizes.lg} color={color} />
+                        <Icon name="live-tv" size={iconSizes.md} color={color} />
                     ),
                     tabBarLabel: 'TV On',
                 }}
             />
+             
         </Tab.Navigator>
     );
 };
