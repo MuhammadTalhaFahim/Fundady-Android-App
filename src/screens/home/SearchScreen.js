@@ -108,7 +108,7 @@ const SearchScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Netflix Style Header */}
       <View style={styles.headerContainer}>
-        <MainHeader variant="inner" />
+      <MainHeader variant="inner" showSearch={false} />
 
         {/* Search Bar Row */}
         <View style={styles.searchBarRow}>

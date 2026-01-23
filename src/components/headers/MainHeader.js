@@ -14,7 +14,14 @@ import { spacing, iconSizes } from '../../theme/spacing';
 import AppText from '../common/AppText';
 import { useNavigation } from '@react-navigation/native';
 
-const MainHeader = ({ onSearchPress, variant = 'home', scrollY, title, showLogo = false }) => {
+const MainHeader = ({
+  onSearchPress,
+  variant = 'home',
+  scrollY,
+  title,
+  showLogo = false,
+  showSearch = true,
+}) => {
   const navigation = useNavigation();
 
   const backgroundColor = scrollY
@@ -33,18 +40,28 @@ const MainHeader = ({ onSearchPress, variant = 'home', scrollY, title, showLogo 
     navigation.goBack();
   };
 
-  const handleRightIconPress = () => {
-    if (variant === 'inner') {
-      // Placeholder for download functionality
-      console.log('Download pressed');
-    } else {
-      if (onSearchPress) {
-        onSearchPress();
-      } else {
-        navigation.navigate('Search');
-      }
-    }
-  };
+  // const handleRightIconPress = () => {
+  //   if (variant === 'inner') {
+  //     console.log('Download pressed');
+  //   } else {
+  //     if (onSearchPress) {
+  //       onSearchPress();
+  //     } else {
+  //       navigation.navigate('Search');
+  //     }
+  //   }
+  // };
+
+  
+    const handleRightIconPress = () => {
+        console.log('Search icon pressed');
+        if (onSearchPress) {
+            onSearchPress();
+        } else {
+            navigation.navigate('Search');
+        }
+    };
+
 
   return (
     <Animated.View
@@ -68,8 +85,8 @@ const MainHeader = ({ onSearchPress, variant = 'home', scrollY, title, showLogo 
               resizeMode="contain"
             />
             <AppText variant="medium" size="lg" style={[styles.homeText]}>
-                            {title || 'Home'}
-                        </AppText>
+              {title || 'Home'}
+            </AppText>
           </View>
         ) : (
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
@@ -79,17 +96,19 @@ const MainHeader = ({ onSearchPress, variant = 'home', scrollY, title, showLogo 
       </View>
 
       <View style={styles.rightContainer}>
-        <TouchableOpacity
-          onPress={handleRightIconPress}
-          style={styles.iconButton}
-        >
-          <Icon
-            name={variant === 'inner' ? '' : 'search'}
-            // name={variant === 'inner' ? "file-download" : "search"}
-            size={iconSizes.lg}
-            color={iconColor}
-          />
-        </TouchableOpacity>
+        {showSearch && (
+          <TouchableOpacity
+            onPress={handleRightIconPress}
+            style={styles.iconButton}
+          >
+            <Icon
+              // name={variant === 'inner' ? '' : 'search'}
+              name="search"
+              size={iconSizes.lg}
+              color={iconColor}
+            />
+          </TouchableOpacity>
+        )}
       </View>
     </Animated.View>
   );
