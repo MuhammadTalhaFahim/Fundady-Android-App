@@ -158,7 +158,7 @@ const HomeScreen = ({ navigation }) => {
                     <TouchableOpacity style={styles.filterTab}>
                         <AppText variant="medium" size="md" color={colors.textPrimary}>Movies</AppText>
                     </TouchableOpacity> */}
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
                         onPress={() => setShowCategoryModal(true)}
                     >
@@ -166,7 +166,7 @@ const HomeScreen = ({ navigation }) => {
                             {selectedCategory || 'Categories'}
                         </AppText>
                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
                 {/* Featured Banner */}
                 {featuredGalleryItem && (
@@ -218,7 +218,7 @@ const HomeScreen = ({ navigation }) => {
                                             }
                                         }}
                                     >
-                                        <Icon name="play-arrow" size={24} color={colors.black} />
+                                        <Icon name="play-arrow" size={24} color={colors.white} />
                                         <AppText variant="bold" style={styles.playButtonText}>Play</AppText>
                                     </TouchableOpacity>
 
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
     netflixPlayButton: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.primary,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
         maxWidth: 150,
     },
     playButtonText: {
-        color: colors.black,
+        color: colors.white,
         marginLeft: spacing.xs,
         fontSize: 16,
     },

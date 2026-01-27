@@ -110,26 +110,63 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     )}
                 </View>
 
+
                 <View style={styles.content}>
+                        <View style={styles.actionButtonsHeader}>
+                        <TouchableOpacity
+                            style={styles.circularPlayButton}
+                            onPress={() => {
+                                const videoUrl =
+                                    movie.links && movie.links.length > 0
+                                        ? movie.links[0].movie_link
+                                        : null;
+                                if (videoUrl) {
+                                    navigation.navigate('VideoPlayer', {
+                                        videoUrl,
+                                        movieTitle: movie.title,
+                                    });
+                                } else {
+                                    alert('Video link not available');
+                                }
+                            }}
+                        >
+                            <Icon name="play-arrow" size={32} color={colors.white} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.circularDownloadButton}>
+                            <Icon name="file-download" size={28} color={colors.white} />
+                        </TouchableOpacity>
+                    </View>
+
                     <View style={styles.logoAndTitle}>
-                        <AppText
+                        {/* <AppText
                             variant="bold"
                             color={colors.primary}
                             size="xs"
                             style={styles.netflixLogo}
                         >
                             F U N D A D Y
-                        </AppText>
+                        </AppText> */}
                         <AppText variant="bold" size="headingLg" style={styles.movieTitle}>
                             {movie.title}
                         </AppText>
                     </View>
+                    
                     <View style={styles.infoRow}>
                         <AppText color={colors.textSecondary} style={styles.infoItem}>
                             {movie.release_date?.split('-')[0] || 'N/A'}
                         </AppText>
-                        <View style={styles.ratingBadge}>
+                        {/* <View style={styles.ratingBadge}>
                             <AppText color={colors.textPrimary} size="xs" variant="bold">
+                                {movie.imdb_rating || 'N/A'}
+                            </AppText>
+                        </View> */}
+                          <View style={styles.ratingBadge}>
+                            <AppText color={colors.black} size="xs" variant="bold" style={styles.imdbText}>
+                                IMDb 
+                            </AppText>
+                            <AppText color={colors.black} size="xs" variant="bold">
+                                {" "}
                                 {movie.imdb_rating || 'N/A'}
                             </AppText>
                         </View>
@@ -140,19 +177,23 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             <AppText color={colors.white} size="xs" variant="bold">
                                 HD
                             </AppText>
+                            
                         </View>
                     </View>
 
                     {/* Action Buttons */}
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         style={styles.netflixPlayButton}
                         onPress={() => {
                             const videoUrl =
                                 movie.links && movie.links.length > 0
                                     ? movie.links[0].movie_link
                                     : null;
-                            if (videoUrl) {
-                                navigation.navigate('VideoPlayer', { videoUrl });
+                           if (videoUrl) {
+                                navigation.navigate('VideoPlayer', {
+                                    videoUrl,
+                                    movieTitle: movie.title,
+                                });
                             } else {
                                 alert('Video link not available');
                             }
@@ -169,7 +210,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         <AppText variant="bold" style={styles.downloadButtonText}>
                             Download
                         </AppText>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     {/* Description Section */}
                     <View style={styles.descriptionSection}>
@@ -315,12 +356,40 @@ const styles = StyleSheet.create({
         marginRight: spacing.sm,
         fontSize: 14,
     },
-    ratingBadge: {
-        backgroundColor: '#333',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 2,
-        marginRight: spacing.sm,
+    // ratingBadge: {
+    //     backgroundColor: '#333',
+    //     paddingHorizontal: 6,
+    //     paddingVertical: 2,
+    //     borderRadius: 2,
+    //     marginRight: spacing.sm,
+    // },
+
+    actionButtonsHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: spacing.md,
+        gap: spacing.lg,
+    },
+    circularPlayButton: {
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: colors.white,
+    },
+    circularDownloadButton: {
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: colors.white,
     },
     hdBadge: {
         borderWidth: 1,
@@ -328,6 +397,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 4,
         paddingVertical: 1,
         borderRadius: 2,
+    },
+      ratingBadge: {
+        backgroundColor: '#f5c518',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        marginRight: spacing.sm,
     },
     netflixPlayButton: {
         backgroundColor: colors.white,
@@ -338,25 +416,25 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         marginBottom: spacing.sm,
     },
-    playButtonText: {
-        color: colors.black,
-        marginLeft: spacing.xs,
-        fontSize: 16,
-    },
-    netflixDownloadButton: {
-        backgroundColor: '#333',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: spacing.sm,
-        borderRadius: 4,
-        marginBottom: spacing.md,
-    },
-    downloadButtonText: {
-        color: colors.white,
-        marginLeft: spacing.xs,
-        fontSize: 16,
-    },
+    // playButtonText: {
+    //     color: colors.black,
+    //     marginLeft: spacing.xs,
+    //     fontSize: 16,
+    // },
+    // netflixDownloadButton: {
+    //     backgroundColor: '#333',
+    //     flexDirection: 'row',
+    //     alignItems: 'center',
+    //     justifyContent: 'center',
+    //     paddingVertical: spacing.sm,
+    //     borderRadius: 4,
+    //     marginBottom: spacing.md,
+    // },
+    // downloadButtonText: {
+    //     color: colors.white,
+    //     marginLeft: spacing.xs,
+    //     fontSize: 16,
+    // },
     descriptionSection: {
         marginBottom: spacing.sm,
     },

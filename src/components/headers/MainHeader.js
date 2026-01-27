@@ -71,6 +71,7 @@ const MainHeader = ({
         variant === 'inner' && styles.innerContainer,
       ]}
     >
+      
       <StatusBar
         translucent
         backgroundColor="transparent"
