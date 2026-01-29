@@ -43,6 +43,7 @@ const SportsScreen = () => {
     return (
         <View style={styles.container}>
             <MainHeader variant="home" title="Sports" scrollY={scrollY} />
+<<<<<<< HEAD
             <Animated.ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
@@ -52,6 +53,9 @@ const SportsScreen = () => {
                 )}
                 scrollEventThrottle={16}
             >
+=======
+            {/* <View style={styles.stickyFilterContainer}>
+>>>>>>> 44aadc5 (phase 1 changes)
                 <View style={styles.filterBar}>
                     <TouchableOpacity
                         style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
@@ -63,6 +67,7 @@ const SportsScreen = () => {
                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
                     </TouchableOpacity>
                 </View>
+<<<<<<< HEAD
 
                 <AppText variant="bold" size="xl" style={styles.title}>
                     Sports
@@ -70,6 +75,22 @@ const SportsScreen = () => {
                 <AppText style={styles.subtitle}>
                     Coming Soon: Live sports coverage and highlights.
                 </AppText>
+=======
+            </View> */}
+
+            <Animated.ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: false },
+                )}
+                scrollEventThrottle={16}
+            >
+                <View style={styles.soonContainer}>
+        <AppText style={styles.subtitle}>Coming Soon.</AppText>
+      </View>
+>>>>>>> 44aadc5 (phase 1 changes)
             </Animated.ScrollView>
 
             <CategoryModal
@@ -89,6 +110,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     scrollContent: {
+<<<<<<< HEAD
         paddingTop: 100, // Account for absolute header
         paddingHorizontal: spacing.md,
     },
@@ -98,13 +120,34 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         color: colors.textMuted,
+=======
+        paddingTop: spacing.xs,
+        paddingHorizontal: spacing.md,
+    },
+    subtitle: {
+        color: colors.textMuted,
+    textAlign: 'center',
+  },
+  soonContainer:{
+    marginTop: spacing.xxxl+30,
+     paddingHorizontal: spacing.md,
+  },
+    stickyFilterContainer: {
+        paddingTop: Platform.OS === 'ios' ? 100 : 90,
+        zIndex: 10,
+>>>>>>> 44aadc5 (phase 1 changes)
     },
     filterBar: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
         paddingVertical: spacing.sm,
+<<<<<<< HEAD
         marginBottom: spacing.md,
+=======
+        paddingHorizontal: spacing.md,
+        backgroundColor: colors.background,
+>>>>>>> 44aadc5 (phase 1 changes)
     },
     filterTab: {
         flexDirection: 'row',
