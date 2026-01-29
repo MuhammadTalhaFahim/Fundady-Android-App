@@ -92,11 +92,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             source={require('../../assets/videos/intro.mp4')}
                             style={styles.introVideo}
                             resizeMode="cover"
-<<<<<<< HEAD
-                            muted={true}
-=======
                             muted={false}
->>>>>>> 44aadc5 (phase 1 changes)
                             onEnd={() => setShowVideo(false)}
                             onError={e => {
                                 console.log('Video error:', e);
@@ -116,11 +112,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
 
                 <View style={styles.content}>
-<<<<<<< HEAD
-                        <View style={styles.actionButtonsHeader}>
-=======
                     <View style={styles.actionButtonsHeader}>
->>>>>>> 44aadc5 (phase 1 changes)
                         <TouchableOpacity
                             style={styles.circularPlayButton}
                             onPress={() => {
@@ -159,11 +151,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             {movie.title}
                         </AppText>
                     </View>
-<<<<<<< HEAD
-                    
-=======
-
->>>>>>> 44aadc5 (phase 1 changes)
                     <View style={styles.infoRow}>
                         <AppText color={colors.textSecondary} style={styles.infoItem}>
                             {movie.release_date?.split('-')[0] || 'N/A'}
@@ -173,15 +160,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 {movie.imdb_rating || 'N/A'}
                             </AppText>
                         </View> */}
-<<<<<<< HEAD
-                          <View style={styles.ratingBadge}>
-                            <AppText color={colors.black} size="xs" variant="bold" style={styles.imdbText}>
-                                IMDb 
-=======
                         <View style={styles.ratingBadge}>
                             <AppText color={colors.black} size="xs" variant="bold" style={styles.imdbText}>
                                 IMDb
->>>>>>> 44aadc5 (phase 1 changes)
                             </AppText>
                             <AppText color={colors.black} size="xs" variant="bold">
                                 {" "}
@@ -195,11 +176,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             <AppText color={colors.white} size="xs" variant="bold">
                                 HD
                             </AppText>
-<<<<<<< HEAD
-                            
-=======
-
->>>>>>> 44aadc5 (phase 1 changes)
                         </View>
                     </View>
 
@@ -407,11 +383,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
         width: 60,
         height: 60,
-<<<<<<< HEAD
-        borderRadius: 30,
-=======
         borderRadius: 20,
->>>>>>> 44aadc5 (phase 1 changes)
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
@@ -424,11 +396,7 @@ const styles = StyleSheet.create({
         paddingVertical: 1,
         borderRadius: 2,
     },
-<<<<<<< HEAD
-      ratingBadge: {
-=======
     ratingBadge: {
->>>>>>> 44aadc5 (phase 1 changes)
         backgroundColor: '#f5c518',
         flexDirection: 'row',
         alignItems: 'center',
@@ -511,20 +479,13 @@ const styles = StyleSheet.create({
     },
     similarMoviesGrid: {
         paddingBottom: spacing.xl,
-<<<<<<< HEAD
-=======
         paddingHorizontal: spacing.xs,
->>>>>>> 44aadc5 (phase 1 changes)
     },
     similarMovieCard: {
         width: (width - spacing.sm * 2) / 3 - 8,
         height: 200,
-<<<<<<< HEAD
-        margin: 4,
-=======
         marginHorizontal: 4,
         marginVertical: 4,
->>>>>>> 44aadc5 (phase 1 changes)
     },
 });
 

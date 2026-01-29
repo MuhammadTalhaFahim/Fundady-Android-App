@@ -82,24 +82,8 @@ const CinemaListScreen = () => {
                     <ActivityIndicator size="large" color={colors.primary} />
                 </View>
             ) : (
-<<<<<<< HEAD
-                <Animated.FlatList
-                    data={filteredMovies}
-                    renderItem={({ item }) => <MovieGridItem item={item} />}
-                    keyExtractor={(item) => item.id.toString()}
-                    numColumns={3}
-                    contentContainerStyle={styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                    onScroll={Animated.event(
-                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                        { useNativeDriver: false },
-                    )}
-                    scrollEventThrottle={16}
-                    ListHeaderComponent={
-=======
                 <>
                     <View style={styles.stickyFilterContainer}>
->>>>>>> 44aadc5 (phase 1 changes)
                         <View style={styles.filterBar}>
                             <TouchableOpacity
                                 style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
@@ -111,10 +95,6 @@ const CinemaListScreen = () => {
                                 <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
                             </TouchableOpacity>
                         </View>
-<<<<<<< HEAD
-                    }
-                />
-=======
                     </View>
 
                     <Animated.FlatList
@@ -131,7 +111,6 @@ const CinemaListScreen = () => {
                         scrollEventThrottle={16}
                     />
                 </>
->>>>>>> 44aadc5 (phase 1 changes)
             )}
 
             <CategoryModal
@@ -152,35 +131,24 @@ const styles = StyleSheet.create({
     },
     listContent: {
         padding: spacing.md,
-<<<<<<< HEAD
-        paddingTop: Platform.OS === 'ios' ? 100 : 90,
-=======
         paddingTop: spacing.xs,
->>>>>>> 44aadc5 (phase 1 changes)
     },
     centered: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-<<<<<<< HEAD
-=======
     stickyFilterContainer: {
         paddingTop: Platform.OS === 'ios' ? 100 : 90,
         zIndex: 10,
     },
->>>>>>> 44aadc5 (phase 1 changes)
     filterBar: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
         paddingVertical: spacing.sm,
-<<<<<<< HEAD
-        marginBottom: spacing.sm,
-=======
         paddingHorizontal: spacing.md,
         backgroundColor: colors.background,
->>>>>>> 44aadc5 (phase 1 changes)
     },
     filterTab: {
         flexDirection: 'row',

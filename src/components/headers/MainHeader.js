@@ -127,11 +127,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-<<<<<<< HEAD
-    zIndex: 10,
-=======
     zIndex: 100,
->>>>>>> 44aadc5 (phase 1 changes)
   },
   innerContainer: {
     position: 'relative',

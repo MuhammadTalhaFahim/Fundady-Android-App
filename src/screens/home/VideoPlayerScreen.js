@@ -63,11 +63,6 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             Orientation.lockToPortrait();
             StatusBar.setHidden(false, 'fade');
 
-<<<<<<< HEAD
-            if (NavigationBar && typeof NavigationBar.show === 'function') {
-                NavigationBar.show();
-            }
-=======
             const restoreNav = async () => {
                 if (NavigationBar) {
                     try {
@@ -83,7 +78,6 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 }
             };
             restoreNav();
->>>>>>> 44aadc5 (phase 1 changes)
 
             if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
         };
@@ -163,11 +157,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.videoWrapper}>
-<<<<<<< HEAD
-                {/* <Video
-=======
                 <Video
->>>>>>> 44aadc5 (phase 1 changes)
                     ref={videoRef}
                     source={{ uri: videoUrl }}
                     style={styles.video}
@@ -178,11 +168,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                     onProgress={onProgress}
                     onBuffer={({ isBuffering }) => setLoading(isBuffering)}
                     controls={false}
-<<<<<<< HEAD
-                /> */}
-=======
                 />
->>>>>>> 44aadc5 (phase 1 changes)
 
                 {/* Overlay Toggle Area - Fixed Touch Detection */}
                 <Pressable

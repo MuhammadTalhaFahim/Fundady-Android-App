@@ -1,17 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-<<<<<<< HEAD
-    View,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    ActivityIndicator,
-    Modal,
-    Dimensions,
-    ScrollView as RNScrollView,
-    Animated,
-    Platform,
-=======
   View,
   StyleSheet,
   FlatList,
@@ -22,7 +10,6 @@ import {
   ScrollView as RNScrollView,
   Animated,
   Platform,
->>>>>>> 44aadc5 (phase 1 changes)
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -32,92 +19,11 @@ import MovieGridItem from '../../components/common/MovieGridItem';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CategoryModal from '../../components/common/CategoryModal';
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 44aadc5 (phase 1 changes)
 const MOVIES_API_URL = 'https://fundady.com/api/v1/movies';
 const CATEGORIES_API_URL = 'https://fundady.com/api/v1/categories';
 const TABS = ['Web Series', 'TV Shows', 'TV Serials'];
 
 const WebSeriesScreen = () => {
-<<<<<<< HEAD
-    const scrollY = React.useRef(new Animated.Value(0)).current;
-    const [activeTab, setActiveTab] = useState(TABS[0]);
-    const [allData, setAllData] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [showCategoryModal, setShowCategoryModal] = useState(false);
-    const [filteredData, setFilteredData] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        filterData();
-    }, [activeTab, allData, selectedCategory]);
-
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const [moviesRes, catsRes] = await Promise.all([
-                fetch(MOVIES_API_URL),
-                fetch(CATEGORIES_API_URL)
-            ]);
-            const moviesJson = await moviesRes.json();
-            const catsJson = await catsRes.json();
-
-            if (moviesJson.status) setAllData(moviesJson.data);
-            if (catsJson.status) setCategories(catsJson.data);
-        } catch (error) {
-            console.error('Error fetching series data:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const filterData = () => {
-        if (!allData.length) return;
-
-        let filtered = [];
-        // First filter by active tab type
-        if (activeTab === 'Web Series') {
-            filtered = allData.filter(item =>
-                item.categories?.toLowerCase().includes('web series') ||
-                item.genre?.toLowerCase().includes('web series')
-            );
-        } else if (activeTab === 'TV Shows') {
-            filtered = allData.filter(item =>
-                item.categories?.toLowerCase().includes('show') ||
-                item.genre?.toLowerCase().includes('reality-tv')
-            );
-            if (filtered.length === 0) filtered = allData.slice(10, 20); // Dummy for variety
-        } else {
-            filtered = allData.filter(item =>
-                item.categories?.toLowerCase().includes('serial') ||
-                item.genre?.toLowerCase().includes('family')
-            );
-            if (filtered.length === 0) filtered = allData.slice(20, 30); // Dummy for variety
-        }
-
-        // Then filter by selected category
-        if (selectedCategory) {
-            filtered = filtered.filter(item =>
-                item.categories?.split(',').map(c => c.trim()).includes(selectedCategory)
-            );
-        }
-
-        setFilteredData(filtered);
-    };
-
-    return (
-        <View style={styles.container}>
-            <MainHeader variant="home" title="Series" scrollY={scrollY} />
-
-            {/* <View style={styles.tabsContainer}>
-=======
   const scrollY = React.useRef(new Animated.Value(0)).current;
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [allData, setAllData] = useState([]);
@@ -203,7 +109,6 @@ const WebSeriesScreen = () => {
       </View>
       {/* 
             <View style={styles.tabsContainer}>
->>>>>>> 44aadc5 (phase 1 changes)
                 {TABS.map(tab => (
                     <TouchableOpacity
                         key={tab}
@@ -219,11 +124,6 @@ const WebSeriesScreen = () => {
                         </AppText>
                     </TouchableOpacity>
                 ))}
-<<<<<<< HEAD
-            </View>
-
-            {loading ? (
-=======
             </View> */}
       {/* 
             <View style={styles.filterBarContainer}>
@@ -241,7 +141,6 @@ const WebSeriesScreen = () => {
             </View> */}
 
       {/* {loading ? (
->>>>>>> 44aadc5 (phase 1 changes)
                 <View style={styles.centered}>
                     <ActivityIndicator size="large" color={colors.primary} />
                 </View>
@@ -281,81 +180,6 @@ const WebSeriesScreen = () => {
                     }
                 />
             )} */}
-<<<<<<< HEAD
-            
-            <CategoryModal
-                isVisible={showCategoryModal}
-                onClose={() => setShowCategoryModal(false)}
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-            />
-        </View>
-    );
-};
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: colors.background,
-    },
-    tabsContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: spacing.md,
-        paddingTop: spacing.xxl + 50, // Offset for absolute header
-        backgroundColor: colors.background,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.backgroundCard,
-    },
-    tab: {
-        paddingVertical: spacing.md,
-        paddingHorizontal: spacing.md,
-        marginRight: spacing.sm,
-    },
-    activeTab: {
-        borderBottomWidth: 3,
-        borderBottomColor: colors.primary,
-    },
-    listContent: {
-        padding: spacing.md,
-        paddingBottom: spacing.xl,
-    },
-    centered: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyContainer: {
-        flex: 1,
-        paddingTop: 100,
-        alignItems: 'center',
-    },
-    filterBar: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        paddingVertical: spacing.sm,
-        marginBottom: spacing.sm,
-    },
-    filterTab: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: spacing.md,
-        paddingVertical: 6,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.4)',
-        backgroundColor: 'rgba(0,0,0,0.2)',
-    },
-    activeFilterTab: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primary,
-    },
-});
-
-export default WebSeriesScreen;
-
-=======
 
       <CategoryModal
         isVisible={showCategoryModal}
@@ -442,4 +266,3 @@ const styles = StyleSheet.create({
 });
 
 export default WebSeriesScreen;
->>>>>>> 44aadc5 (phase 1 changes)

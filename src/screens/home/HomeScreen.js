@@ -23,20 +23,14 @@ const MOVIES_POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
 const GALLERY_API_URL = 'https://fundady.com/api/v1/gallery';
 const GALLERY_POSTER_BASE_URL = 'https://fundady.com/FrontGallery/';
 const CATEGORIES_API_URL = 'https://fundady.com/api/v1/categories';
-<<<<<<< HEAD
-=======
 const WEB_SERIES_API_URL = 'https://fundady.com/api/tvshows/web_series';
 const TV_SHOWS_POSTER_BASE_URL = 'https://fundady.com/TVShowsPoster/';
->>>>>>> 44aadc5 (phase 1 changes)
 
 const HomeScreen = ({ navigation }) => {
     const scrollY = useRef(new Animated.Value(0)).current;
     const [movies, setMovies] = useState([]);
     const [gallery, setGallery] = useState([]);
-<<<<<<< HEAD
-=======
     const [webSeries, setWebSeries] = useState([]);
->>>>>>> 44aadc5 (phase 1 changes)
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -45,16 +39,12 @@ const HomeScreen = ({ navigation }) => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-<<<<<<< HEAD
-            await Promise.all([fetchMovies(), fetchGallery(), fetchCategories()]);
-=======
             await Promise.all([
                 fetchMovies(),
                 fetchGallery(),
                 fetchCategories(),
                 fetchWebSeries(),
             ]);
->>>>>>> 44aadc5 (phase 1 changes)
             setLoading(false);
         };
         fetchData();
@@ -102,8 +92,6 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
-<<<<<<< HEAD
-=======
     const fetchWebSeries = async () => {
         try {
             const response = await fetch(WEB_SERIES_API_URL);
@@ -122,7 +110,6 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
->>>>>>> 44aadc5 (phase 1 changes)
     const handleMoviePress = movie => {
         navigation.navigate('MovieDetail', { movie });
     };
@@ -146,20 +133,6 @@ const HomeScreen = ({ navigation }) => {
 
     const currentFilteredMovies = getFilteredMovies();
 
-<<<<<<< HEAD
-    const bollywoodMovies = currentFilteredMovies.filter(m =>
-        m.categories?.split(',').map(c => c.trim()).includes('Hindi'),
-    ).slice(0, 20);
-    const hollywoodMovies = currentFilteredMovies.filter(m =>
-        m.categories?.split(',').map(c => c.trim()).includes('English'),
-    ).slice(0, 20);
-    const webSeries = currentFilteredMovies.filter(
-        m => {
-            const cats = m.categories?.split(',').map(c => c.trim()) || [];
-            return !cats.includes('Hindi') && !cats.includes('English');
-        }
-    ).slice(0, 20);
-=======
     const bollywoodMovies = currentFilteredMovies
         .filter(m => m.categories?.toLowerCase().includes('hindi'))
         .sort((a, b) => {
@@ -179,7 +152,6 @@ const HomeScreen = ({ navigation }) => {
         .slice(0, 20);
 
     const latestWebSeries = webSeries.slice(0, 20);
->>>>>>> 44aadc5 (phase 1 changes)
 
     const renderMovieItem = ({ item }) => (
         <MovieCard
@@ -189,8 +161,6 @@ const HomeScreen = ({ navigation }) => {
         />
     );
 
-<<<<<<< HEAD
-=======
     const renderWebSeriesItem = ({ item }) => (
         <MovieCard
             imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
@@ -199,7 +169,6 @@ const HomeScreen = ({ navigation }) => {
         />
     );
 
->>>>>>> 44aadc5 (phase 1 changes)
     if (loading) {
         return (
             <View style={[styles.container, styles.centered]}>
@@ -212,8 +181,6 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.container}>
             <MainHeader scrollY={scrollY} variant="home" />
 
-<<<<<<< HEAD
-=======
             {/* Sticky Overlay Filter Bar - Shows only when scrolled enough */}
             <Animated.View
                 style={[
@@ -248,7 +215,6 @@ const HomeScreen = ({ navigation }) => {
                 </View>
             </Animated.View>
 
->>>>>>> 44aadc5 (phase 1 changes)
             <Animated.ScrollView
                 style={styles.scrollView}
                 bounces={false}
@@ -257,19 +223,6 @@ const HomeScreen = ({ navigation }) => {
                     { useNativeDriver: false },
                 )}
                 scrollEventThrottle={16}
-<<<<<<< HEAD
-                contentContainerStyle={{ paddingTop: Platform.OS === 'ios' ? 100 : 90 }}
-            >
-                {/* Filter Bar - Now inside ScrollView */}
-                <View style={styles.filterBar}>
-                    {/* <TouchableOpacity style={styles.filterTab}>
-                        <AppText variant="medium" size="md" color={colors.textPrimary}>Shows</AppText>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.filterTab}>
-                        <AppText variant="medium" size="md" color={colors.textPrimary}>Movies</AppText>
-                    </TouchableOpacity> */}
-                    {/* <TouchableOpacity
-=======
                 contentContainerStyle={{ paddingTop: 0 }}
             >
                 {/* Space for the header overlaying the banner initially */}
@@ -278,7 +231,6 @@ const HomeScreen = ({ navigation }) => {
                 {/* Inline Filter Bar - Moves with scroll until sticky overlay takes over */}
                 {/* <View style={styles.inlineFilterBar}>
                     <TouchableOpacity
->>>>>>> 44aadc5 (phase 1 changes)
                         style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
                         onPress={() => setShowCategoryModal(true)}
                     >
@@ -286,14 +238,9 @@ const HomeScreen = ({ navigation }) => {
                             {selectedCategory || 'Categories'}
                         </AppText>
                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
-<<<<<<< HEAD
-                    </TouchableOpacity> */}
-                </View>
-=======
                     </TouchableOpacity>
                 </View> */}
 
->>>>>>> 44aadc5 (phase 1 changes)
                 {/* Featured Banner */}
                 {featuredGalleryItem && (
                     <ImageBackground
@@ -337,12 +284,6 @@ const HomeScreen = ({ navigation }) => {
                                     <TouchableOpacity
                                         style={styles.netflixPlayButton}
                                         onPress={() => {
-<<<<<<< HEAD
-                                            if (featuredGalleryItem.movie_url) {
-                                                navigation.navigate('VideoPlayer', {
-                                                    videoUrl: featuredGalleryItem.movie_url,
-                                                });
-=======
                                             const movie = movies.find(m => m.id === featuredGalleryItem.movie_id);
                                             if (movie) {
                                                 const videoUrl = movie.links && movie.links.length > 0
@@ -356,7 +297,6 @@ const HomeScreen = ({ navigation }) => {
                                                 } else {
                                                     alert('Video link not available');
                                                 }
->>>>>>> 44aadc5 (phase 1 changes)
                                             }
                                         }}
                                     >
@@ -411,11 +351,7 @@ const HomeScreen = ({ navigation }) => {
                         </>
                     )}
 
-<<<<<<< HEAD
-                    {webSeries.length > 0 && (
-=======
                     {latestWebSeries.length > 0 && (
->>>>>>> 44aadc5 (phase 1 changes)
                         <>
                             <AppText
                                 variant="bold"
@@ -426,13 +362,8 @@ const HomeScreen = ({ navigation }) => {
                             </AppText>
                             <FlatList
                                 horizontal
-<<<<<<< HEAD
-                                data={webSeries}
-                                renderItem={renderMovieItem}
-=======
                                 data={latestWebSeries}
                                 renderItem={renderWebSeriesItem}
->>>>>>> 44aadc5 (phase 1 changes)
                                 keyExtractor={item => `web-${item.id}`}
                                 showsHorizontalScrollIndicator={false}
                                 contentContainerStyle={styles.listContent}
@@ -520,9 +451,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-<<<<<<< HEAD
-    filterBar: {
-=======
     stickyFilterContainer: {
         paddingTop: Platform.OS === 'ios' ? 100 : 90,
         backgroundColor: colors.background,
@@ -534,22 +462,18 @@ const styles = StyleSheet.create({
         right: 0,
     },
     inlineFilterBar: {
->>>>>>> 44aadc5 (phase 1 changes)
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
         paddingVertical: spacing.sm,
         marginHorizontal: spacing.md,
     },
-<<<<<<< HEAD
-=======
     filterBar: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
         paddingVertical: spacing.sm,
     },
->>>>>>> 44aadc5 (phase 1 changes)
     filterTab: {
         flexDirection: 'row',
         alignItems: 'center',
