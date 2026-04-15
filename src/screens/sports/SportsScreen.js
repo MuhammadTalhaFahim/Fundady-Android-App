@@ -6,44 +6,110 @@ import {
     Modal,
     TouchableOpacity,
     Dimensions,
-    ScrollView as RNScrollView,
+    FlatList,
+    ActivityIndicator,
     Platform,
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
+import MovieCard from '../../components/cards/MovieCard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CategoryModal from '../../components/common/CategoryModal';
+import { movieService } from '../../services/movieService';
+import { MOVIES_POSTER_BASE_URL } from '../../utils/constants';
 
-const CATEGORIES_API_URL = 'https://fundady.com/api/v1/categories';
+const { width } = Dimensions.get('window');
+const TABS = ['WWE', 'Cricket', 'Football'];
 
-const SportsScreen = () => {
+
+const SportsScreen = ({ navigation }) => {
     const scrollY = React.useRef(new Animated.Value(0)).current;
+    const [activeTab, setActiveTab] = useState(TABS[0]);
+    const [allData, setAllData] = useState([]);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        fetchData();
+    }, [activeTab]);
 
-    const fetchCategories = async () => {
+    const fetchData = async () => {
+        setLoading(true);
+        setAllData([]); // Reset data on tab change
         try {
-            const response = await fetch(CATEGORIES_API_URL);
-            const json = await response.json();
-            if (json.status) {
-                setCategories(json.data);
+            let dataPromise;
+            if (activeTab === 'WWE') dataPromise = movieService.getWWE();
+            else if (activeTab === 'Cricket') dataPromise = movieService.getCricket();
+            else dataPromise = movieService.getFootball();
+
+            const [dataRes, catsRes] = await Promise.all([
+                dataPromise,
+                movieService.getSeriesCategories()
+            ]);
+
+            // Robust data extraction
+            if (dataRes) {
+                const tabKey = activeTab.toLowerCase();
+                const extractedData =
+                    dataRes.data?.[tabKey]?.data ||
+                    dataRes.data?.data ||
+                    dataRes.data ||
+                    (Array.isArray(dataRes) ? dataRes : []);
+
+                setAllData(Array.isArray(extractedData) ? extractedData : []);
+            }
+
+            if (catsRes && (catsRes.data || Array.isArray(catsRes))) {
+                setCategories(catsRes.data || (Array.isArray(catsRes) ? catsRes : []));
             }
         } catch (error) {
-            console.error('Error fetching categories:', error);
+            console.error('Error fetching sports data:', error);
+            setAllData([]);
+        } finally {
+            setLoading(false);
         }
     };
+
+    const getFilteredData = () => {
+        if (!selectedCategory) return allData;
+        return allData.filter(item =>
+            item.name?.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+            item.title?.toLowerCase().includes(selectedCategory.toLowerCase())
+        );
+    };
+
+    const filteredData = getFilteredData();
 
     return (
         <View style={styles.container}>
             <MainHeader variant="home" title="Sports" scrollY={scrollY} />
-            {/* <View style={styles.stickyFilterContainer}>
+
+            <View style={styles.tabsContainer}>
+                {TABS.map(tab => (
+                    <TouchableOpacity
+                        key={tab}
+                        style={[styles.tab, activeTab === tab && styles.activeTab]}
+                        onPress={() => {
+                            setActiveTab(tab);
+                            setSelectedCategory(null);
+                        }}
+                    >
+                        <AppText
+                            variant={activeTab === tab ? 'bold' : 'medium'}
+                            size="md"
+                            color={activeTab === tab ? colors.textPrimary : colors.textSecondary}
+                        >
+                            {tab}
+                        </AppText>
+                    </TouchableOpacity>
+                ))}
+            </View>
+
+            {/* <View style={styles.filterBarContainer}>
                 <View style={styles.filterBar}>
                     <TouchableOpacity
                         style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
@@ -57,19 +123,41 @@ const SportsScreen = () => {
                 </View>
             </View> */}
 
-            <Animated.ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                onScroll={Animated.event(
-                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                    { useNativeDriver: false },
-                )}
-                scrollEventThrottle={16}
-            >
-                <View style={styles.soonContainer}>
-        <AppText style={styles.subtitle}>Coming Soon.</AppText>
-      </View>
-            </Animated.ScrollView>
+            {loading ? (
+                <View style={styles.centered}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            ) : (
+                <Animated.FlatList
+                    data={filteredData}
+                    renderItem={({ item }) => {
+                        const cardWidth = (width - spacing.md * 2) / 3 - 8;
+                        return (
+                            <MovieCard
+                                imageUrl={`${MOVIES_POSTER_BASE_URL}${item.poster}`}
+                                onPress={() => navigation.navigate('MovieDetail', { movie: item })}
+                                width={cardWidth}
+                                height={cardWidth * 1.5}
+                                style={{ margin: 4 }}
+                            />
+                        );
+                    }}
+                    keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+                    numColumns={3}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: false },
+                    )}
+                    scrollEventThrottle={16}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <AppText color={colors.textSecondary}>No content found for {activeTab}</AppText>
+                        </View>
+                    }
+                />
+            )}
 
             <CategoryModal
                 isVisible={showCategoryModal}
@@ -87,20 +175,39 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.background,
     },
-    scrollContent: {
-        paddingTop: spacing.xs,
+    tabsContainer: {
+        flexDirection: 'row',
         paddingHorizontal: spacing.md,
+        paddingTop: spacing.xxl + 50, // Offset for absolute header
+        backgroundColor: colors.background,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.backgroundCard,
     },
-    subtitle: {
-        color: colors.textMuted,
-    textAlign: 'center',
-  },
-  soonContainer:{
-    marginTop: spacing.xxxl+30,
-     paddingHorizontal: spacing.md,
-  },
-    stickyFilterContainer: {
-        paddingTop: Platform.OS === 'ios' ? 100 : 90,
+    tab: {
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.md,
+        marginRight: spacing.sm,
+    },
+    activeTab: {
+        borderBottomWidth: 3,
+        borderBottomColor: colors.primary,
+    },
+    listContent: {
+        padding: spacing.md,
+        paddingBottom: spacing.xl,
+        paddingTop: spacing.xs,
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyContainer: {
+        flex: 1,
+        paddingTop: 100,
+        alignItems: 'center',
+    },
+    filterBarContainer: {
         zIndex: 10,
     },
     filterBar: {

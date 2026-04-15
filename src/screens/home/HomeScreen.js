@@ -7,6 +7,7 @@ import {
     Dimensions,
     FlatList,
     ActivityIndicator,
+    Platform,
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -18,13 +19,13 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Modal, TouchableOpacity, ScrollView as RNScrollView } from 'react-native';
 
 const { width } = Dimensions.get('window');
-const MOVIES_API_URL = 'https://fundady.com/api/v1/movies';
-const MOVIES_POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
-const GALLERY_API_URL = 'https://fundady.com/api/v1/gallery';
-const GALLERY_POSTER_BASE_URL = 'https://fundady.com/FrontGallery/';
-const CATEGORIES_API_URL = 'https://fundady.com/api/v1/categories';
-const WEB_SERIES_API_URL = 'https://fundady.com/api/tvshows/web_series';
-const TV_SHOWS_POSTER_BASE_URL = 'https://fundady.com/TVShowsPoster/';
+
+import { movieService } from '../../services/movieService';
+
+const MOVIES_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/MoviesPoster/';
+const GALLERY_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/FrontGallery/';
+const TV_SHOWS_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/TvShowPoster/';
+
 
 const HomeScreen = ({ navigation }) => {
     const scrollY = useRef(new Animated.Value(0)).current;
@@ -52,8 +53,7 @@ const HomeScreen = ({ navigation }) => {
 
     const fetchMovies = async () => {
         try {
-            const response = await fetch(MOVIES_API_URL);
-            const json = await response.json();
+            const json = await movieService.getMovies();
             if (json.status) {
                 // Sort movies by latest updated_at or created_at
                 const sortedMovies = json.data.sort((a, b) => {
@@ -70,8 +70,7 @@ const HomeScreen = ({ navigation }) => {
 
     const fetchGallery = async () => {
         try {
-            const response = await fetch(GALLERY_API_URL);
-            const json = await response.json();
+            const json = await movieService.getGallery();
             if (json.status) {
                 setGallery(json.data);
             }
@@ -82,8 +81,7 @@ const HomeScreen = ({ navigation }) => {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch(CATEGORIES_API_URL);
-            const json = await response.json();
+            const json = await movieService.getCategories();
             if (json.status) {
                 setCategories(json.data);
             }
@@ -94,8 +92,7 @@ const HomeScreen = ({ navigation }) => {
 
     const fetchWebSeries = async () => {
         try {
-            const response = await fetch(WEB_SERIES_API_URL);
-            const json = await response.json();
+            const json = await movieService.getWebSeries();
             if (json.status && json.data?.tvshows?.data) {
                 // Sort by latest
                 const sorted = json.data.tvshows.data.sort((a, b) => {
@@ -202,7 +199,7 @@ const HomeScreen = ({ navigation }) => {
                 ]}
                 pointerEvents="box-none"
             >
-                <View style={styles.filterBar}>
+                {/* <View style={styles.filterBar}>
                     <TouchableOpacity
                         style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
                         onPress={() => setShowCategoryModal(true)}
@@ -212,7 +209,7 @@ const HomeScreen = ({ navigation }) => {
                         </AppText>
                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
                     </TouchableOpacity>
-                </View>
+                </View> */}
             </Animated.View>
 
             <Animated.ScrollView

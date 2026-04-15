@@ -17,10 +17,10 @@ import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 import MovieCard from '../../components/cards/MovieCard';
+import { movieService } from '../../services/movieService';
+import { MOVIES_POSTER_BASE_URL as POSTER_BASE_URL } from '../../utils/constants';
 
 const { width } = Dimensions.get('window');
-const MOVIES_API_URL = 'https://fundady.com/api/v1/movies';
-const POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
 
 const MovieDetailScreen = ({ route, navigation }) => {
     const { movie } = route.params;
@@ -35,18 +35,23 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
     const fetchSimilarMovies = async () => {
         try {
-            const response = await fetch(MOVIES_API_URL);
-            const json = await response.json();
+            const json = await movieService.getMovies();
             if (json.status) {
                 // Filter movies by similar categories (excluding the current movie)
                 const currentCats =
                     movie.categories?.split(',').map(c => c.trim()) || [];
-                const filtered = json.data.filter(m => {
+                let filtered = json.data.filter(m => {
                     if (m.id === movie.id) return false;
                     const mCats = m.categories?.split(',').map(c => c.trim()) || [];
                     return mCats.some(cat => currentCats.includes(cat));
                 });
-                setSimilarMovies(filtered);
+
+                // Fallback: If no similar movies found, just show any movies (except current)
+                if (filtered.length === 0) {
+                    filtered = json.data.filter(m => m.id !== movie.id);
+                }
+
+                setSimilarMovies(filtered.slice(0, 15)); // Limit result for performance
             }
         } catch (error) {
             console.error('Error fetching similar movies:', error);
@@ -61,14 +66,16 @@ const MovieDetailScreen = ({ route, navigation }) => {
         setIsInMyList(!isInMyList);
     };
 
-    const renderSimilarMovie = ({ item }) => {
-        const cardWidth = (width - spacing.sm * 2) / 3 - 8;
+    const renderSimilarMovie = (item, index) => {
+        const spacingTotal = spacing.md * 2 + spacing.xs * 2; // Parent padding + grid padding
+        const cardWidth = (width - spacingTotal) / 3 - 2;
         return (
             <MovieCard
+                key={item.id?.toString() || index.toString()}
                 imageUrl={`${POSTER_BASE_URL}${item.poster}`}
                 onPress={() => navigation.push('MovieDetail', { movie: item })}
                 width={cardWidth}
-                height={styles.similarMovieCard.height}
+                height={cardWidth * 1.5}
                 style={styles.similarMovieCard}
             />
         );
@@ -100,21 +107,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             }}
                         />
                     ) : (
-                        <View style={styles.posterWrapper}>
-                            <Image
-                                source={{ uri: `${POSTER_BASE_URL}${movie.poster}` }}
-                                style={styles.poster}
-                                resizeMode="cover"
-                            />
-                        </View>
-                    )}
-                </View>
-
-
-                <View style={styles.content}>
-                    <View style={styles.actionButtonsHeader}>
                         <TouchableOpacity
-                            style={styles.circularPlayButton}
+                            activeOpacity={0.9}
+                            style={styles.posterWrapper}
                             onPress={() => {
                                 const videoUrl =
                                     movie.links && movie.links.length > 0
@@ -124,42 +119,39 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                     navigation.navigate('VideoPlayer', {
                                         videoUrl,
                                         movieTitle: movie.title,
+                                        posterUrl: `${POSTER_BASE_URL}${movie.poster}`,
                                     });
                                 } else {
                                     alert('Video link not available');
                                 }
                             }}
                         >
-                            <Icon name="play-arrow" size={32} color={colors.white} />
+                            <Image
+                                source={{ uri: `${POSTER_BASE_URL}${movie.poster}` }}
+                                style={styles.poster}
+                                resizeMode="cover"
+                            />
+                            <View style={styles.playOverlay}>
+                                <View style={styles.youtubePlayButton}>
+                                    <Icon name="play-arrow" size={50} color={colors.white} />
+                                </View>
+                            </View>
                         </TouchableOpacity>
+                    )}
+                </View>
 
-                        <TouchableOpacity style={styles.circularDownloadButton}>
-                            <Icon name="file-download" size={28} color={colors.white} />
-                        </TouchableOpacity>
-                    </View>
 
+                <View style={styles.content}>
                     <View style={styles.logoAndTitle}>
-                        {/* <AppText
-                            variant="bold"
-                            color={colors.primary}
-                            size="xs"
-                            style={styles.netflixLogo}
-                        >
-                            F U N D A D Y
-                        </AppText> */}
                         <AppText variant="bold" size="headingLg" style={styles.movieTitle}>
                             {movie.title}
                         </AppText>
                     </View>
+
                     <View style={styles.infoRow}>
                         <AppText color={colors.textSecondary} style={styles.infoItem}>
                             {movie.release_date?.split('-')[0] || 'N/A'}
                         </AppText>
-                        {/* <View style={styles.ratingBadge}>
-                            <AppText color={colors.textPrimary} size="xs" variant="bold">
-                                {movie.imdb_rating || 'N/A'}
-                            </AppText>
-                        </View> */}
                         <View style={styles.ratingBadge}>
                             <AppText color={colors.black} size="xs" variant="bold" style={styles.imdbText}>
                                 IMDb
@@ -177,6 +169,21 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 HD
                             </AppText>
                         </View>
+                    </View>
+
+                    <View style={styles.youtubeActionsRow}>
+                        <TouchableOpacity style={styles.youtubeDownloadButton}>
+                            <Icon name="file-download" size={20} color={colors.white} />
+                            <AppText variant="bold" style={styles.downloadText}>Download</AppText>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.youtubeIconButton}>
+                            <Icon name="share" size={20} color={colors.white} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.youtubeIconButton} onPress={toggleMyList}>
+                            <Icon name={isInMyList ? "check" : "add"} size={22} color={colors.white} />
+                        </TouchableOpacity>
                     </View>
 
                     {/* Action Buttons */}
@@ -250,52 +257,25 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         </AppText>
                     </View>
 
-                    {/* User Action Row */}
-                    <View style={styles.userActionRow}>
-                        <TouchableOpacity style={styles.actionItem} onPress={toggleMyList}>
-                            <Icon
-                                name={isInMyList ? 'check' : 'add'}
-                                size={30}
-                                color={colors.white}
-                            />
-                            <AppText
-                                size="xs"
-                                color={colors.textSecondary}
-                                style={styles.actionLabel}
-                            >
-                                My List
-                            </AppText>
-                        </TouchableOpacity>
-                        {/* <TouchableOpacity style={styles.actionItem}>
-                            <Icon name="thumb-up-off-alt" size={28} color={colors.white} />
-                            <AppText size="xs" color={colors.textSecondary} style={styles.actionLabel}>Rate</AppText>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionItem}>
-                            <Icon name="share" size={28} color={colors.white} />
-                            <AppText size="xs" color={colors.textSecondary} style={styles.actionLabel}>Share</AppText>
-                        </TouchableOpacity> */}
-                    </View>
 
-                    {/* More Like This Section */}
-                    <View style={styles.tabHeader}>
-                        <View style={styles.activeTabIndicator} />
-                        <AppText
-                            variant="bold"
-                            color={colors.white}
-                            style={styles.tabTitle}
-                        >
-                            More Like This
-                        </AppText>
-                    </View>
+                    {similarMovies.length > 0 && (
+                        <>
+                            <View style={styles.tabHeader}>
+                                <View style={styles.activeTabIndicator} />
+                                <AppText
+                                    variant="bold"
+                                    color={colors.white}
+                                    style={styles.tabTitle}
+                                >
+                                    More Like This
+                                </AppText>
+                            </View>
 
-                    <FlatList
-                        data={similarMovies}
-                        renderItem={renderSimilarMovie}
-                        keyExtractor={item => item.id.toString()}
-                        numColumns={3}
-                        scrollEnabled={false}
-                        contentContainerStyle={styles.similarMoviesGrid}
-                    />
+                            <View style={styles.similarMoviesGrid}>
+                                {similarMovies.map((item, index) => renderSimilarMovie(item, index))}
+                            </View>
+                        </>
+                    )}
                 </View>
             </ScrollView>
         </View>
@@ -362,32 +342,49 @@ const styles = StyleSheet.create({
     //     marginRight: spacing.sm,
     // },
 
-    actionButtonsHeader: {
+    playOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    youtubePlayButton: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: colors.white,
+    },
+    youtubeActionsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: spacing.md,
-        gap: spacing.lg,
+        marginBottom: spacing.lg,
+        gap: spacing.sm,
     },
-    circularPlayButton: {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+    youtubeDownloadButton: {
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: colors.white,
+        backgroundColor: '#272727', // YouTube dark grey
+        paddingHorizontal: spacing.lg,
+        paddingVertical: 10,
+        borderRadius: 25,
+        gap: spacing.xs,
     },
-    circularDownloadButton: {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        width: 60,
-        height: 60,
-        borderRadius: 20,
-        alignItems: 'center',
+    downloadText: {
+        color: colors.white,
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    youtubeIconButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#272727',
         justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: colors.white,
+        alignItems: 'center',
     },
     hdBadge: {
         borderWidth: 1,
@@ -478,14 +475,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     similarMoviesGrid: {
-        paddingBottom: spacing.xl,
-        paddingHorizontal: spacing.xs,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        gap: 2,
     },
     similarMovieCard: {
-        width: (width - spacing.sm * 2) / 3 - 8,
-        height: 200,
-        marginHorizontal: 4,
-        marginVertical: 4,
+        marginBottom: 8,
     },
 });
 

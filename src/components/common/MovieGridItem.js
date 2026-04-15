@@ -8,7 +8,6 @@ const COLUMN_COUNT = 3;
 const ITEM_WIDTH = (width - spacing.md * 2) / COLUMN_COUNT;
 const ITEM_HEIGHT = ITEM_WIDTH * 1.5;
 
-const POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
 
 const MovieGridItem = ({ item }) => {
     const navigation = useNavigation();

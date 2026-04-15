@@ -7,7 +7,11 @@ const Stack = createNativeStackNavigator();
 const TvOnStack = () => {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="LiveTvMain" component={LiveTvScreen} />
+            <Stack.Screen 
+                name="LiveTvMain" 
+                component={LiveTvScreen} 
+                options={{ orientation: 'landscape', animation: 'fade' }}
+            />
         </Stack.Navigator>
     );
 };

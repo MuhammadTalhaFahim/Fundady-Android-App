@@ -1,13 +1,58 @@
 import { apiClient } from './apiClient';
 
 export const movieService = {
-    getTrendingMovies: async () => {
-        return await apiClient.get('/trending/movie/day');
+    getMovies: async () => {
+        return await apiClient.get('/v1/movies');
     },
-    getPopularMovies: async () => {
-        return await apiClient.get('/movie/popular');
+    getGallery: async () => {
+        return await apiClient.get('/v1/gallery');
     },
-    getMovieDetails: async (movieId) => {
-        return await apiClient.get(`/movie/${movieId}`);
+    getCategories: async () => {
+        return await apiClient.get('/v1/categories');
     },
+    getWebSeries: async () => {
+        return await apiClient.get('/tvshows/web_series');
+    },
+    getTVSerials: async () => {
+        return await apiClient.get('/tvshows/tv_serials');
+    },
+    getTVShows: async () => {
+        return await apiClient.get('/tvshows/tv_shows?genre=reality');
+    },
+    search: async (query) => {
+        return await apiClient.get('https://entertainment-demo.squadcloud.co/api/v1/search', { title: query });
+    },
+    getSportsCategories: async () => {
+        return await apiClient.get('https://entertainment-demo.squadcloud.co/api/v1/categories');
+    },
+    getYears: async () => {
+        return await apiClient.get('/v1/years');
+    },
+    getGenres: async () => {
+        return await apiClient.get('/v1/genres');
+    },
+    getSeriesCategories: async () => {
+        return await apiClient.get('/v1/series_categories');
+    },
+    getWWE: async () => {
+        return await apiClient.get('/sports/wwe');
+    },
+    getCricket: async () => {
+        return await apiClient.get('/sports/cricket');
+    },
+    getFootball: async () => {
+        return await apiClient.get('/sports/football');
+    },
+    getTVChannels: async () => {
+        return await apiClient.get('/tvon/channel-list');
+    },
+    getTVCategories: async () => {
+        return await apiClient.get('/tvon/channel-category');
+    },
+    searchTVChannels: async (name, categoryId) => {
+        let url = `/tvon/channel-list?status=1`;
+        if (name) url += `&name=${name}`;
+        if (categoryId) url += `&category_id=${categoryId}`;
+        return await apiClient.get(url);
+    }
 };

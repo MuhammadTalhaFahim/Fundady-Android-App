@@ -21,7 +21,7 @@ import AppText from '../../components/common/AppText';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const VideoPlayerScreen = ({ route, navigation }) => {
-    const { videoUrl, movieTitle } = route.params;
+    const { videoUrl, movieTitle, posterUrl } = route.params;
     const videoRef = useRef(null);
     const controlTimerRef = useRef(null);
 
@@ -33,6 +33,14 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const [isSpeedModalVisible, setIsSpeedModalVisible] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
+
+    // Buffer configuration for better loading on slow networks
+    const bufferConfig = {
+        minBufferMs: 15000,
+        maxBufferMs: 50000,
+        bufferForPlaybackMs: 2500,
+        bufferForPlaybackAfterRebufferMs: 5000
+    };
 
     useEffect(() => {
         Orientation.lockToLandscape();
@@ -168,6 +176,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                     onProgress={onProgress}
                     onBuffer={({ isBuffering }) => setLoading(isBuffering)}
                     controls={false}
+                    bufferConfig={bufferConfig}
+                    poster={posterUrl}
+                    posterResizeMode="cover"
+                    playInBackground={false}
+                    playWhenInactive={false}
                 />
 
                 {/* Overlay Toggle Area - Fixed Touch Detection */}
@@ -189,13 +202,17 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                         {/* Lock State UI */}
                         {isLocked ? (
                             <View style={styles.lockOverlay} pointerEvents="box-none">
-                                <TouchableOpacity
-                                    style={styles.unlockButton}
-                                    onPress={toggleLock}
-                                >
-                                    <Icon name="lock" size={30} color={colors.white} />
-                                    <AppText size="xs" color={colors.white} style={styles.lockLabel}>Screen Locked</AppText>
-                                </TouchableOpacity>
+                                <View style={styles.topBar}>
+                                    <View style={styles.iconButton} />
+                                    <View style={{ flex: 1 }} />
+                                    <TouchableOpacity
+                                        style={styles.unlockButton}
+                                        onPress={toggleLock}
+                                    >
+                                        <Icon name="lock" size={30} color={colors.white} />
+                                        <AppText size="xs" color={colors.white} style={styles.lockLabel}>Screen Locked</AppText>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         ) : (
                             <>
@@ -327,19 +344,18 @@ const styles = StyleSheet.create({
     },
     lockOverlay: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     unlockButton: {
         alignItems: 'center',
         backgroundColor: 'rgba(0,0,0,0.4)',
-        padding: 20,
+        padding: 15,
         borderRadius: 10,
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.3)',
     },
     lockLabel: {
-        marginTop: 10,
+        marginTop: 8,
+        fontSize: 10,
     },
     topBar: {
         flexDirection: 'row',

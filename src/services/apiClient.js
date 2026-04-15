@@ -7,7 +7,10 @@ class ApiClient {
 
     async get(endpoint, params = {}) {
         const queryString = new URLSearchParams(params).toString();
-        const url = `${this.baseUrl}${endpoint}${queryString ? `?${queryString}` : ''}`;
+        const isAbsolute = endpoint.startsWith('http');
+        const url = isAbsolute
+            ? `${endpoint}${queryString ? (endpoint.includes('?') ? `&${queryString}` : `?${queryString}`) : ''}`
+            : `${this.baseUrl}${endpoint}${queryString ? `?${queryString}` : ''}`;
 
         try {
             const response = await fetch(url);

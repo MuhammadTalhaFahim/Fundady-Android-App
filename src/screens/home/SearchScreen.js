@@ -16,8 +16,8 @@ import { spacing, iconSizes } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 
-const SEARCH_API_URL = 'https://fundady.com/api/v1/search';
-const POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
+const SEARCH_API_URL = 'https://entertainment-demo.squadcloud.co/api/v1/search';
+const POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/MoviesPoster/';
 
 const SearchScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');

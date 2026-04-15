@@ -1,6 +1,14 @@
-export const API_BASE_URL = 'https://api.themoviedb.org/3'; // Using TMDB as an example
-export const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
-export const MOVIE_API_KEY = 'YOUR_API_KEY_HERE'; // User will need to provide this
+export const API_BASE_URL = 'https://entertainment-demo.squadcloud.co/api';
+export const MOVIES_API_URL = `${API_BASE_URL}/v1/movies`;
+export const GALLERY_API_URL = `${API_BASE_URL}/v1/gallery`;
+export const CATEGORIES_API_URL = `${API_BASE_URL}/v1/categories`;
+export const WEB_SERIES_API_URL = `${API_BASE_URL}/tvshows/web_series`;
+
+export const MOVIES_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/MoviesPoster/';
+export const GALLERY_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/FrontGallery/';
+export const TV_SHOWS_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/TvShowPoster/';
+
+export const IMAGE_BASE_URL = MOVIES_POSTER_BASE_URL; // Default fallback
 
 export const CATEGORIES = {
     TRENDING: 'Trending Now',
