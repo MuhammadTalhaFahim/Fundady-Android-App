@@ -40,7 +40,11 @@ const RootNavigator = () => {
                     />
                     <Stack.Screen name="Search" component={SearchScreen} />
                     <Stack.Screen name="MovieDetail" component={MovieDetailScreen} />
-                    <Stack.Screen name="VideoPlayer" component={VideoPlayerScreen} />
+                    <Stack.Screen 
+                        name="VideoPlayer" 
+                        component={VideoPlayerScreen} 
+                        options={{ orientation: 'landscape', animation: 'fade' }}
+                    />
                     <Stack.Screen name="CinemaDetail" component={CinemaDetailScreen} />
                     <Stack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
                     <Stack.Screen name="ChannelDetail" component={ChannelDetailScreen} />

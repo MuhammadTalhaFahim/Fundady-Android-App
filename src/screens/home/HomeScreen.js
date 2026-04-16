@@ -22,9 +22,9 @@ const { width } = Dimensions.get('window');
 
 import { movieService } from '../../services/movieService';
 
-const MOVIES_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/MoviesPoster/';
-const GALLERY_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/FrontGallery/';
-const TV_SHOWS_POSTER_BASE_URL = 'https://entertainment-demo.squadcloud.co/TvShowPoster/';
+const MOVIES_POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
+const GALLERY_POSTER_BASE_URL = 'https://fundady.com/FrontGallery/';
+const TV_SHOWS_POSTER_BASE_URL = 'https://fundady.com/TvShowPoster/';
 
 
 const HomeScreen = ({ navigation }) => {
@@ -161,7 +161,7 @@ const HomeScreen = ({ navigation }) => {
     const renderWebSeriesItem = ({ item }) => (
         <MovieCard
             imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
-            onPress={() => navigation.navigate('MovieDetail', { movie: item })}
+            onPress={() => navigation.navigate('SeriesDetail', { movie: item })}
             style={styles.movieCard}
         />
     );
@@ -281,19 +281,33 @@ const HomeScreen = ({ navigation }) => {
                                     <TouchableOpacity
                                         style={styles.netflixPlayButton}
                                         onPress={() => {
-                                            const movie = movies.find(m => m.id === featuredGalleryItem.movie_id);
-                                            if (movie) {
-                                                const videoUrl = movie.links && movie.links.length > 0
-                                                    ? movie.links[0].movie_link
-                                                    : null;
-                                                if (videoUrl) {
-                                                    navigation.navigate('VideoPlayer', {
-                                                        videoUrl,
-                                                        movieTitle: movie.title,
-                                                    });
-                                                } else {
-                                                    alert('Video link not available');
-                                                }
+                                            // Ignore the gallery HTML URL, we need the direct stream link
+                                            let videoUrl = null;
+                                            let dualaudioUrl = null;
+                                            let movieTitle = featuredGalleryItem.title;
+
+                                            // Find the real media object (movie or web series) 
+                                            const media = movies.find(m => m.id === featuredGalleryItem.movie_id) || webSeries.find(w => w.id === featuredGalleryItem.movie_id);
+                                            const isSeries = media?.show_type === 'Web_Series';
+                                            
+                                            // Extract the direct media stream link
+                                            if (media && media.links && media.links.length > 0) {
+                                                const ep = media.links[0];
+                                                videoUrl = isSeries ? ep.tvShow_link : ep.movie_link;
+                                                dualaudioUrl = isSeries ? ep.dual_link : ep.dualaudio_link;
+                                            }
+
+                                            if (videoUrl) {
+                                                navigation.navigate('VideoPlayer', {
+                                                    videoUrl,
+                                                    dualaudioUrl,
+                                                    movieTitle,
+                                                    isSeries: isSeries,
+                                                    episodes: isSeries ? media.links : [],
+                                                    initialIndex: 0,
+                                                });
+                                            } else {
+                                                alert('Video link not available');
                                             }
                                         }}
                                     >
@@ -551,4 +565,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomeScreen;
+export default HomeScreen; 

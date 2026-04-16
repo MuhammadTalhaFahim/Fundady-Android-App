@@ -9,7 +9,12 @@ import {
     Platform,
     StatusBar,
     FlatList,
+    Modal,
+    Linking,
+    PermissionsAndroid,
+    Share,
 } from 'react-native';
+import ReactNativeBlobUtil from 'react-native-blob-util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 import { colors } from '../../theme/colors';
@@ -28,6 +33,81 @@ const MovieDetailScreen = ({ route, navigation }) => {
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
     const [isInMyList, setIsInMyList] = useState(false);
     const [similarMovies, setSimilarMovies] = useState([]);
+    const [isDownloadModalVisible, setIsDownloadModalVisible] = useState(false);
+
+    // Download links
+    const downloadLink = movie.links && movie.links.length > 0 ? movie.links[0].download_link : null;
+    const dualDownloadLink = movie.links && movie.links.length > 0 ? movie.links[0].dual_download_link : null;
+
+    const handleDownloadPress = () => {
+        if (!downloadLink && !dualDownloadLink) {
+            alert('Download not available for this movie.');
+            return;
+        }
+
+        if (dualDownloadLink && dualDownloadLink !== '') {
+            // Show modal if we have a dual audio download link
+            setIsDownloadModalVisible(true);
+        } else if (downloadLink) {
+            // Directly download if only one link exists
+            executeDownload(downloadLink);
+        }
+    };
+
+    const downloadTrack = (url) => {
+        setIsDownloadModalVisible(false);
+        if (url) {
+            executeDownload(url);
+        }
+    };
+
+    const executeDownload = async (url) => {
+        try {
+            if (Platform.OS === 'android') {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                    {
+                        title: 'Storage Permission Required',
+                        message: 'Fundady needs access to your storage to download the movie.',
+                        buttonPositive: 'OK',
+                    }
+                );
+                
+                if (granted !== PermissionsAndroid.RESULTS.GRANTED && Platform.Version < 33) {
+                    alert('Storage Permission Denied');
+                    return;
+                }
+            }
+
+            const fileName = url.substring(url.lastIndexOf('/') + 1) || `${movie.title.replace(/\s+/g, '_')}.mp4`;
+            
+            ReactNativeBlobUtil.config({
+                addAndroidDownloads: {
+                    useDownloadManager: true, // native download manager
+                    notification: true, // show system tray notification
+                    title: `${movie.title} - Fundady`,
+                    description: 'Downloading movie...',
+                    mime: 'video/mp4',
+                    mediaScannable: true,
+                }
+            })
+            .fetch('GET', url)
+            .then((res) => {
+                if (Platform.OS === 'ios') {
+                    ReactNativeBlobUtil.ios.previewDocument(res.path());
+                } else {
+                    console.log('Download initiated via System DownloadManager.');
+                }
+            })
+            .catch((err) => {
+                console.error("Download Error", err);
+                alert('Download failed to start.');
+            });
+
+        } catch (err) {
+            console.warn(err);
+        }
+    };
 
     useEffect(() => {
         fetchSimilarMovies();
@@ -64,6 +144,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
     const toggleMyList = () => {
         setIsInMyList(!isInMyList);
+    };
+
+    const handleShare = async () => {
+        try {
+            await Share.share({
+                message: `Check out "${movie.title}" on Fundady! \n\n${movie.description ? movie.description.substring(0, 150) + '...' : ''}`,
+                url: 'https://fundady.com',
+            });
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
     };
 
     const renderSimilarMovie = (item, index) => {
@@ -115,10 +206,16 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                     movie.links && movie.links.length > 0
                                         ? movie.links[0].movie_link
                                         : null;
+                                const dualaudioUrl =
+                                    movie.links && movie.links.length > 0
+                                        ? movie.links[0].dualaudio_link
+                                        : null;
                                 if (videoUrl) {
                                     navigation.navigate('VideoPlayer', {
                                         videoUrl,
+                                        dualaudioUrl,
                                         movieTitle: movie.title,
+                                        isSeries: false,
                                         posterUrl: `${POSTER_BASE_URL}${movie.poster}`,
                                     });
                                 } else {
@@ -172,12 +269,12 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     </View>
 
                     <View style={styles.youtubeActionsRow}>
-                        <TouchableOpacity style={styles.youtubeDownloadButton}>
+                        <TouchableOpacity style={styles.youtubeDownloadButton} onPress={handleDownloadPress}>
                             <Icon name="file-download" size={20} color={colors.white} />
                             <AppText variant="bold" style={styles.downloadText}>Download</AppText>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.youtubeIconButton}>
+                        <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
                             <Icon name="share" size={20} color={colors.white} />
                         </TouchableOpacity>
 
@@ -278,6 +375,30 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     )}
                 </View>
             </ScrollView>
+
+            <Modal
+                visible={isDownloadModalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setIsDownloadModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Select Audio</AppText>
+                        <View style={styles.modalOptions}>
+                            <TouchableOpacity style={styles.modalOption} onPress={() => downloadTrack(downloadLink)}>
+                                <AppText color={colors.white} style={styles.modalOptionText}>English (Default)</AppText>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.modalOption} onPress={() => downloadTrack(dualDownloadLink)}>
+                                <AppText color={colors.white} style={styles.modalOptionText}>Hindi (Dual Audio)</AppText>
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity style={styles.modalCancelButton} onPress={() => setIsDownloadModalVisible(false)}>
+                            <AppText variant="bold" color="#E50914">CANCEL</AppText>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -482,6 +603,37 @@ const styles = StyleSheet.create({
     },
     similarMovieCard: {
         marginBottom: 8,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '60%',
+        backgroundColor: '#1a1a1a',
+        borderRadius: 8,
+        padding: 24,
+    },
+    modalTitle: {
+        fontSize: 18,
+        marginBottom: 20,
+    },
+    modalOptions: {
+        marginBottom: 20,
+    },
+    modalOption: {
+        paddingVertical: 14,
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+    },
+    modalOptionText: {
+        fontSize: 16,
+    },
+    modalCancelButton: {
+        alignSelf: 'flex-end',
+        padding: 10,
     },
 });
 

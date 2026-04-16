@@ -169,7 +169,7 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
         </AppText>
         <View style={styles.channelLogoContainer}>
           <Image
-            source={{ uri: `https://entertainment-demo.squadcloud.co/TvShowPoster/${item.poster}` }}
+            source={{ uri: `https://fundady.com/TvShowPoster/${item.poster}` }}
             style={styles.channelLogoList}
             resizeMode="contain"
           />

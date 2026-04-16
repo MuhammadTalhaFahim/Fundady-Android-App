@@ -20,10 +20,10 @@ export const movieService = {
         return await apiClient.get('/tvshows/tv_shows?genre=reality');
     },
     search: async (query) => {
-        return await apiClient.get('https://entertainment-demo.squadcloud.co/api/v1/search', { title: query });
+        return await apiClient.get('https://fundady.com/api/v1/search', { title: query });
     },
     getSportsCategories: async () => {
-        return await apiClient.get('https://entertainment-demo.squadcloud.co/api/v1/categories');
+        return await apiClient.get('https://fundady.com/api/v1/categories');
     },
     getYears: async () => {
         return await apiClient.get('/v1/years');
