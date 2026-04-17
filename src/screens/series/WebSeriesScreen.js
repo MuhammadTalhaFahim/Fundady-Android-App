@@ -227,7 +227,12 @@ const WebSeriesScreen = ({ navigation }) => {
             return (
               <MovieCard
                 imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
-                onPress={() => navigation.navigate('SeriesDetail', { movie: item })}
+                onPress={() => {
+                  let type = 'web_series';
+                  if (activeTab === 'TV Shows') type = 'tv_show';
+                  if (activeTab === 'TV Serials') type = 'tv_serial';
+                  navigation.navigate('SeriesDetail', { id: item.id, contentType: type });
+                }}
                 width={cardWidth}
                 height={cardWidth * 1.5}
                 style={{ margin: 4 }}

@@ -13,6 +13,7 @@ import {
     Linking,
     PermissionsAndroid,
     Share,
+    ActivityIndicator,
 } from 'react-native';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -23,25 +24,124 @@ import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 import MovieCard from '../../components/cards/MovieCard';
 import { movieService } from '../../services/movieService';
-import { MOVIES_POSTER_BASE_URL as POSTER_BASE_URL } from '../../utils/constants';
+import { MOVIES_POSTER_BASE_URL as POSTER_BASE_URL, SPORTS_POSTER_BASE_URL } from '../../utils/constants';
 
 const { width } = Dimensions.get('window');
 
 const MovieDetailScreen = ({ route, navigation }) => {
-    const { movie } = route.params;
+    const { id, contentType } = route.params;
+    const [movie, setMovie] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [showVideo, setShowVideo] = useState(true);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
     const [isInMyList, setIsInMyList] = useState(false);
     const [similarMovies, setSimilarMovies] = useState([]);
     const [isDownloadModalVisible, setIsDownloadModalVisible] = useState(false);
 
-    // Download links
-    const downloadLink = movie.links && movie.links.length > 0 ? movie.links[0].download_link : null;
-    const dualDownloadLink = movie.links && movie.links.length > 0 ? movie.links[0].dual_download_link : null;
+    useEffect(() => {
+        const fetchMovieData = async () => {
+            setLoading(true);
+            try {
+                // Determine which APIs to call based on contentType
+                let detailPromise;
+                let similarPromise;
+
+                if (contentType === 'cricket') {
+                    detailPromise = movieService.getCricketById(id);
+                    similarPromise = movieService.getCricket();
+                } else if (contentType === 'wwe') {
+                    detailPromise = movieService.getWWEById(id);
+                    similarPromise = movieService.getWWE();
+                } else if (contentType === 'football') {
+                    detailPromise = movieService.getFootballById(id);
+                    similarPromise = movieService.getFootball();
+                } else {
+                    detailPromise = movieService.getMovieById(id);
+                    similarPromise = movieService.getMovies();
+                }
+
+                const [movieRes, allMoviesRes] = await Promise.all([
+                    detailPromise,
+                    similarPromise
+                ]);
+
+                if (movieRes) {
+                    // Extract data from standard wrapper (status/data) or direct array
+                    const responseData = movieRes.data || movieRes;
+                    
+                    // Robust extraction for different response structures
+                    let movieData = null;
+                    if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
+                        // Sports might be nested or direct
+                        movieData = (responseData?.[contentType]?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+                    } else {
+                        // Movies standard
+                        movieData = (responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+                    }
+                    
+                    if (movieData) {
+                        setMovie(movieData);
+                    } else {
+                        throw new Error('No data found');
+                    }
+
+                    // Process similar items
+                    const allData = allMoviesRes?.data || allMoviesRes;
+                    if (allData) {
+                        let availableData = [];
+                        if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
+                            availableData = allData?.[contentType]?.data || allData?.data || (Array.isArray(allData) ? allData : []);
+                        } else {
+                            availableData = allData?.data || (Array.isArray(allData) ? allData : []);
+                        }
+
+                        const currentCats = movieData.categories?.split(',').map(c => c.trim()) || [];
+                        let filtered = availableData.filter(m => {
+                            if (m.id === movieData.id) return false;
+                            const mCats = m.categories?.split(',').map(c => c.trim()) || [];
+                            return mCats.length > 0 ? mCats.some(cat => currentCats.includes(cat)) : true;
+                        });
+
+                        if (filtered.length === 0) {
+                            filtered = availableData.filter(m => m.id !== movieData.id);
+                        }
+                        setSimilarMovies(filtered.slice(0, 15));
+                    }
+                } else {
+                    alert('Content details not found');
+                    navigation.goBack();
+                }
+            } catch (error) {
+                console.error('Error fetching content details:', error);
+                alert('Failed to load content details');
+                navigation.goBack();
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchMovieData();
+        }
+    }, [id]);
+
+    const fetchSimilarMovies = () => {
+        // This is now handled within the main useEffect for speed
+    };
+
+    // Derived values (handle null movie)
+    // Sports use video_link directly, Movies use links array or movie_url
+    const streamLink = movie?.video_link || movie?.movie_url || (movie?.links && movie.links.length > 0 ? movie.links[0].movie_link : null);
+    const dualStreamLink = movie?.links && movie.links.length > 0 ? movie.links[0].dualaudio_link : null;
+    const downloadLink = movie?.download_link || (movie?.links && movie.links.length > 0 ? movie.links[0].download_link : null);
+    const dualDownloadLink = movie?.links && movie.links.length > 0 ? movie.links[0].dual_download_link : null;
+    
+    const descriptionText = movie?.description || '';
+    const shouldShowMore = descriptionText.length > 150;
 
     const handleDownloadPress = () => {
         if (!downloadLink && !dualDownloadLink) {
-            alert('Download not available for this movie.');
+            alert('Download not available for this content.');
             return;
         }
 
@@ -52,6 +152,20 @@ const MovieDetailScreen = ({ route, navigation }) => {
             // Directly download if only one link exists
             executeDownload(downloadLink);
         }
+    };
+
+    const handlePlayPress = () => {
+        if (!streamLink && !dualStreamLink) {
+            alert('Live stream not available');
+            return;
+        }
+        navigation.navigate('VideoPlayer', {
+            videoUrl: streamLink,
+            dualaudioUrl: dualStreamLink,
+            movieTitle: movie.title,
+            isSeries: false,
+            posterUrl: `${contentType === 'cricket' || contentType === 'wwe' || contentType === 'football' ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL}${movie.poster}`
+        });
     };
 
     const downloadTrack = (url) => {
@@ -109,35 +223,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
         }
     };
 
-    useEffect(() => {
-        fetchSimilarMovies();
-    }, [movie]);
-
-    const fetchSimilarMovies = async () => {
-        try {
-            const json = await movieService.getMovies();
-            if (json.status) {
-                // Filter movies by similar categories (excluding the current movie)
-                const currentCats =
-                    movie.categories?.split(',').map(c => c.trim()) || [];
-                let filtered = json.data.filter(m => {
-                    if (m.id === movie.id) return false;
-                    const mCats = m.categories?.split(',').map(c => c.trim()) || [];
-                    return mCats.some(cat => currentCats.includes(cat));
-                });
-
-                // Fallback: If no similar movies found, just show any movies (except current)
-                if (filtered.length === 0) {
-                    filtered = json.data.filter(m => m.id !== movie.id);
-                }
-
-                setSimilarMovies(filtered.slice(0, 15)); // Limit result for performance
-            }
-        } catch (error) {
-            console.error('Error fetching similar movies:', error);
-        }
-    };
-
     const toggleDescription = () => {
         setIsDescriptionExpanded(!isDescriptionExpanded);
     };
@@ -160,11 +245,18 @@ const MovieDetailScreen = ({ route, navigation }) => {
     const renderSimilarMovie = (item, index) => {
         const spacingTotal = spacing.md * 2 + spacing.xs * 2; // Parent padding + grid padding
         const cardWidth = (width - spacingTotal) / 3 - 2;
+        const currentBaseUrl = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football' 
+                             ? SPORTS_POSTER_BASE_URL 
+                             : POSTER_BASE_URL;
+
         return (
             <MovieCard
                 key={item.id?.toString() || index.toString()}
-                imageUrl={`${POSTER_BASE_URL}${item.poster}`}
-                onPress={() => navigation.push('MovieDetail', { movie: item })}
+                imageUrl={`${currentBaseUrl}${item.poster}`}
+                onPress={() => navigation.push('MovieDetail', { 
+                    id: item.id,
+                    contentType: contentType 
+                })}
                 width={cardWidth}
                 height={cardWidth * 1.5}
                 style={styles.similarMovieCard}
@@ -172,8 +264,16 @@ const MovieDetailScreen = ({ route, navigation }) => {
         );
     };
 
-    const descriptionText = movie.description || '';
-    const shouldShowMore = descriptionText.length > 150;
+
+    if (loading) {
+        return (
+            <View style={[styles.container, styles.centered]}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
+
+    if (!movie) return null;
 
     return (
         <View style={styles.container}>
@@ -201,30 +301,10 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         <TouchableOpacity
                             activeOpacity={0.9}
                             style={styles.posterWrapper}
-                            onPress={() => {
-                                const videoUrl =
-                                    movie.links && movie.links.length > 0
-                                        ? movie.links[0].movie_link
-                                        : null;
-                                const dualaudioUrl =
-                                    movie.links && movie.links.length > 0
-                                        ? movie.links[0].dualaudio_link
-                                        : null;
-                                if (videoUrl) {
-                                    navigation.navigate('VideoPlayer', {
-                                        videoUrl,
-                                        dualaudioUrl,
-                                        movieTitle: movie.title,
-                                        isSeries: false,
-                                        posterUrl: `${POSTER_BASE_URL}${movie.poster}`,
-                                    });
-                                } else {
-                                    alert('Video link not available');
-                                }
-                            }}
+                            onPress={handlePlayPress}
                         >
                             <Image
-                                source={{ uri: `${POSTER_BASE_URL}${movie.poster}` }}
+                                source={{ uri: `${contentType === 'cricket' || contentType === 'wwe' || contentType === 'football' ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL}${movie.poster}` }}
                                 style={styles.poster}
                                 resizeMode="cover"
                             />
@@ -445,6 +525,12 @@ const styles = StyleSheet.create({
     },
     movieTitle: {
         color: colors.white,
+    },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.background,
     },
     infoRow: {
         flexDirection: 'row',

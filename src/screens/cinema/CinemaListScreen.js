@@ -77,7 +77,7 @@ const CinemaListScreen = ({ navigation }) => {
     };
 
     const handleMoviePress = movie => {
-        navigation.navigate('MovieDetail', { movie });
+        navigation.navigate('MovieDetail', { id: movie.id });
     };
 
 

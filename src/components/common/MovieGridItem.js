@@ -15,7 +15,7 @@ const MovieGridItem = ({ item }) => {
     return (
         <TouchableOpacity
             style={styles.container}
-            onPress={() => navigation.navigate('MovieDetail', { movie: item })}
+            onPress={() => navigation.navigate('MovieDetail', { id: item.id })}
         >
             <Image
                 source={{ uri: `${POSTER_BASE_URL}${item.poster}` }}

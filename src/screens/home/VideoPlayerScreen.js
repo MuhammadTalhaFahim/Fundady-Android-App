@@ -33,6 +33,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         initialIndex = 0
     } = route.params;
 
+    
     const videoRef = useRef(null);
     const controlTimerRef = useRef(null);
     const resumeTimeRef = useRef(0);
@@ -89,7 +90,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             if (Platform.OS === 'android') {
                 StatusBar.setTranslucent(true);
             }
-
+           
             return () => {
                 Orientation.lockToPortrait();
                 StatusBar.setHidden(false, 'fade');
@@ -434,7 +435,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Playback Speed</AppText>
+                        {/* <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Playback Speed</AppText> */}
                         <View style={styles.modalOptions}>
                             {[0.5, 0.75, 1, 1.25, 1.5].map((rate) => (
                                 <TouchableOpacity
@@ -467,7 +468,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Audio Track</AppText>
+                        {/* <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Audio Track</AppText> */}
                         <View style={styles.modalOptions}>
                             {[
                                 { label: 'English (Default)', url: episodes[currentIndex]?.tvShow_link || initialVideoUrl },

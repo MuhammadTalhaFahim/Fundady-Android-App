@@ -36,6 +36,7 @@ const HomeScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -108,7 +109,7 @@ const HomeScreen = ({ navigation }) => {
     };
 
     const handleMoviePress = movie => {
-        navigation.navigate('MovieDetail', { movie });
+        navigation.navigate('MovieDetail', { id: movie.id });
     };
 
     const featuredGalleryItem = gallery.length > 0 ? gallery[0] : null;
@@ -161,7 +162,7 @@ const HomeScreen = ({ navigation }) => {
     const renderWebSeriesItem = ({ item }) => (
         <MovieCard
             imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
-            onPress={() => navigation.navigate('SeriesDetail', { movie: item })}
+            onPress={() => navigation.navigate('SeriesDetail', { id: item.id, contentType: 'web_series' })}
             style={styles.movieCard}
         />
     );
@@ -255,7 +256,21 @@ const HomeScreen = ({ navigation }) => {
                                 style={styles.bannerNetflixLogo}
                             /> */}
 
-                            <View style={styles.featuredContent}>
+                            <TouchableOpacity
+                                style={styles.featuredContent}
+                                activeOpacity={0.9}
+                                onPress={() => {
+                                    const category = featuredGalleryItem.category || '';
+                                    const isSeries = category.toLowerCase().includes('series') ||
+                                        category.toLowerCase().includes('show') ||
+                                        category.toLowerCase().includes('serial');
+
+                                    navigation.navigate(isSeries ? 'SeriesDetail' : 'MovieDetail', {
+                                        id: featuredGalleryItem.movie_id,
+                                        contentType: isSeries ? (category.toLowerCase().includes('serial') ? 'tv_serial' : (category.toLowerCase().includes('show') ? 'tv_show' : 'web_series')) : undefined
+                                    });
+                                }}
+                            >
                                 <AppText
                                     variant="bold"
                                     size="headingXl"
@@ -271,7 +286,7 @@ const HomeScreen = ({ navigation }) => {
                                                 {cat.trim()}
                                             </AppText>
                                             {index < array.length - 1 && (
-                                                <View style={styles.bullet} />
+                                                <View style={styles.tagDot} />
                                             )}
                                         </React.Fragment>
                                     ))}
@@ -280,34 +295,63 @@ const HomeScreen = ({ navigation }) => {
                                 <View style={styles.buttonRow}>
                                     <TouchableOpacity
                                         style={styles.netflixPlayButton}
-                                        onPress={() => {
-                                            // Ignore the gallery HTML URL, we need the direct stream link
-                                            let videoUrl = null;
-                                            let dualaudioUrl = null;
-                                            let movieTitle = featuredGalleryItem.title;
+                                        onPress={async () => {
+                                            setIsActionLoading(true);
+                                            try {
+                                                const category = featuredGalleryItem.category || '';
+                                                const isSeries = category.toLowerCase().includes('series') ||
+                                                    category.toLowerCase().includes('show') ||
+                                                    category.toLowerCase().includes('serial');
 
-                                            // Find the real media object (movie or web series) 
-                                            const media = movies.find(m => m.id === featuredGalleryItem.movie_id) || webSeries.find(w => w.id === featuredGalleryItem.movie_id);
-                                            const isSeries = media?.show_type === 'Web_Series';
-                                            
-                                            // Extract the direct media stream link
-                                            if (media && media.links && media.links.length > 0) {
-                                                const ep = media.links[0];
-                                                videoUrl = isSeries ? ep.tvShow_link : ep.movie_link;
-                                                dualaudioUrl = isSeries ? ep.dual_link : ep.dualaudio_link;
-                                            }
+                                                let response;
+                                                const id = featuredGalleryItem.movie_id;
 
-                                            if (videoUrl) {
-                                                navigation.navigate('VideoPlayer', {
-                                                    videoUrl,
-                                                    dualaudioUrl,
-                                                    movieTitle,
-                                                    isSeries: isSeries,
-                                                    episodes: isSeries ? media.links : [],
-                                                    initialIndex: 0,
-                                                });
-                                            } else {
-                                                alert('Video link not available');
+                                                if (isSeries) {
+                                                    if (category.toLowerCase().includes('serial')) {
+                                                        response = await movieService.getTVSerialById(id);
+                                                    } else if (category.toLowerCase().includes('show')) {
+                                                        response = await movieService.getTVShowById(id);
+                                                    } else {
+                                                        response = await movieService.getWebSeriesById(id);
+                                                    }
+                                                } else {
+                                                    response = await movieService.getMovieById(id);
+                                                }
+
+                                                if (response.status && response.data) {
+                                                    const media = isSeries ?
+                                                        (response.data?.tvshows?.data?.[0] || (Array.isArray(response.data) ? response.data[0] : response.data)) :
+                                                        (Array.isArray(response.data) ? response.data[0] : response.data);
+
+                                                    if (media && media.links && media.links.length > 0) {
+                                                        const ep = media.links[0];
+                                                        const videoUrl = isSeries ? ep.tvShow_link : ep.movie_link;
+                                                        const dualaudioUrl = isSeries ? ep.dual_link : ep.dualaudio_link;
+
+                                                        if (videoUrl) {
+                                                            navigation.navigate('VideoPlayer', {
+                                                                videoUrl,
+                                                                dualaudioUrl,
+                                                                movieTitle: media.title,
+                                                                isSeries,
+                                                                episodes: isSeries ? media.links : [],
+                                                                initialIndex: 0,
+                                                                posterUrl: isSeries ? `${TV_SHOWS_POSTER_BASE_URL}${media.poster}` : `${MOVIES_POSTER_BASE_URL}${media.poster}`,
+                                                            });
+                                                        } else {
+                                                            alert('Video link not available');
+                                                        }
+                                                    } else {
+                                                        alert('Media content not found.');
+                                                    }
+                                                } else {
+                                                    alert('Could not retrieve media details.');
+                                                }
+                                            } catch (error) {
+                                                console.error('Error fetching banner media:', error);
+                                                alert('Failed to load video.');
+                                            } finally {
+                                                setIsActionLoading(false);
                                             }
                                         }}
                                     >
@@ -320,7 +364,7 @@ const HomeScreen = ({ navigation }) => {
                                         <AppText variant="bold" style={styles.listButtonText}>My List</AppText>
                                     </TouchableOpacity>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         </View>
                     </ImageBackground>
                 )}
@@ -391,6 +435,12 @@ const HomeScreen = ({ navigation }) => {
                 selectedCategory={selectedCategory}
                 onSelectCategory={setSelectedCategory}
             />
+
+            {isActionLoading && (
+                <View style={styles.actionOverlay}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            )}
         </View>
     );
 };
@@ -405,28 +455,30 @@ const styles = StyleSheet.create({
     },
     featuredBanner: {
         width: width - spacing.md * 2,
-        height: 500,
+        aspectRatio: 16 / 9,
         marginHorizontal: spacing.md,
         marginTop: spacing.sm,
         justifyContent: 'flex-end',
         borderRadius: 12,
         overflow: 'hidden',
-        backgroundColor: colors.black,
     },
     bannerImage: {
         borderRadius: 12,
     },
     featuredOverlay: {
-        height: '100%',
-        width: '100%',
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        justifyContent: 'flex-end',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)', // Atmospheric bottom shadow
         alignItems: 'center',
         paddingBottom: spacing.xl,
+        paddingTop: spacing.lg,
     },
     featuredTitle: {
         textAlign: 'center',
         marginBottom: spacing.xs,
+        fontSize: 32,
     },
     featuredTags: {
         marginBottom: spacing.md,
@@ -499,6 +551,7 @@ const styles = StyleSheet.create({
     featuredContent: {
         width: '100%',
         alignItems: 'center',
+        paddingTop: spacing.xxl,
         paddingBottom: spacing.xl,
         paddingHorizontal: spacing.lg,
     },
@@ -517,7 +570,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         marginBottom: spacing.lg,
     },
-    bullet: {
+    tagDot: {
         width: 4,
         height: 4,
         borderRadius: 2,
@@ -525,12 +578,19 @@ const styles = StyleSheet.create({
         marginHorizontal: spacing.sm,
         opacity: 0.6,
     },
+    actionOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 100,
+    },
     netflixPlayButton: {
         backgroundColor: colors.primary,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: spacing.sm,
+        paddingVertical: spacing.md,
         paddingHorizontal: spacing.xl,
         borderRadius: 4,
         marginHorizontal: spacing.sm,
@@ -540,14 +600,14 @@ const styles = StyleSheet.create({
     playButtonText: {
         color: colors.white,
         marginLeft: spacing.xs,
-        fontSize: 16,
+        fontSize: 17,
     },
     netflixListButton: {
         backgroundColor: 'rgba(51, 51, 51, 0.8)',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: spacing.sm,
+        paddingVertical: spacing.md,
         paddingHorizontal: spacing.xl,
         borderRadius: 4,
         marginHorizontal: spacing.sm,
@@ -557,7 +617,7 @@ const styles = StyleSheet.create({
     listButtonText: {
         color: colors.white,
         marginLeft: spacing.xs,
-        fontSize: 16,
+        fontSize: 17,
     },
     activeFilterTab: {
         backgroundColor: colors.primary,

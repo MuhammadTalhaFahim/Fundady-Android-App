@@ -18,7 +18,7 @@ import MovieCard from '../../components/cards/MovieCard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CategoryModal from '../../components/common/CategoryModal';
 import { movieService } from '../../services/movieService';
-import { MOVIES_POSTER_BASE_URL } from '../../utils/constants';
+import { SPORTS_POSTER_BASE_URL } from '../../utils/constants';
 
 const { width } = Dimensions.get('window');
 const TABS = ['WWE', 'Cricket', 'Football'];
@@ -134,8 +134,11 @@ const SportsScreen = ({ navigation }) => {
                         const cardWidth = (width - spacing.md * 2) / 3 - 8;
                         return (
                             <MovieCard
-                                imageUrl={`${MOVIES_POSTER_BASE_URL}${item.poster}`}
-                                onPress={() => navigation.navigate('MovieDetail', { movie: item })}
+                                imageUrl={`${SPORTS_POSTER_BASE_URL}${item.poster}`}
+                                onPress={() => navigation.navigate('MovieDetail', { 
+                                    id: item.id, 
+                                    contentType: activeTab.toLowerCase() 
+                                })}
                                 width={cardWidth}
                                 height={cardWidth * 1.5}
                                 style={{ margin: 4 }}

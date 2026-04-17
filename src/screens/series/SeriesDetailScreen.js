@@ -12,6 +12,8 @@ import {
     Modal,
     Linking,
     PermissionsAndroid,
+    Share,
+    ActivityIndicator,
 } from 'react-native';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -26,14 +28,53 @@ import { TV_SHOWS_POSTER_BASE_URL } from '../../utils/constants';
 const { width } = Dimensions.get('window');
 
 const SeriesDetailScreen = ({ route, navigation }) => {
-    const { movie } = route.params;
+    const { id, contentType = 'web_series' } = route.params;
+    const [movie, setMovie] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [showVideo, setShowVideo] = useState(true);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
     const [isInMyList, setIsInMyList] = useState(false);
     const [isDownloadModalVisible, setIsDownloadModalVisible] = useState(false);
     const [currentDownloadLinks, setCurrentDownloadLinks] = useState({ eng: null, hin: null });
 
+    useEffect(() => {
+        const fetchSeriesData = async () => {
+            setLoading(true);
+            try {
+                let response;
+                if (contentType === 'tv_show') {
+                    response = await movieService.getTVShowById(id);
+                } else if (contentType === 'tv_serial') {
+                    response = await movieService.getTVSerialById(id);
+                } else {
+                    response = await movieService.getWebSeriesById(id);
+                }
+
+                if (response.status && response.data) {
+                    // Handle different possible data structures for series
+                    const seriesData = response.data?.tvshows?.data?.[0] || 
+                                      (Array.isArray(response.data) ? response.data[0] : response.data);
+                    setMovie(seriesData);
+                } else {
+                    alert('Series details not found');
+                    navigation.goBack();
+                }
+            } catch (error) {
+                console.error('Error fetching series details:', error);
+                alert('Failed to load series details');
+                navigation.goBack();
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchSeriesData();
+        }
+    }, [id]);
+
     const handlePlayPress = (index = 0) => {
+        if (!movie) return;
         const ep = movie.links?.[index];
         if (ep) {
             navigation.navigate('VideoPlayer', {
@@ -62,6 +103,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
     };
 
     const executeDownload = async (url) => {
+        if (!movie) return;
         try {
             if (Platform.OS === 'android') {
                 const granted = await PermissionsAndroid.request(
@@ -107,7 +149,19 @@ const SeriesDetailScreen = ({ route, navigation }) => {
     const toggleDescription = () => setIsDescriptionExpanded(!isDescriptionExpanded);
     const toggleMyList = () => setIsInMyList(!isInMyList);
 
-    const descriptionText = movie.description || '';
+    const handleShare = async () => {
+        if (!movie) return;
+        try {
+            await Share.share({
+                message: `Check out "${movie.title}" on Fundady! \n\n${movie.description ? movie.description.substring(0, 150) + '...' : ''}`,
+                url: 'https://fundady.com',
+            });
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    };
+
+    const descriptionText = movie?.description || '';
     const shouldShowMore = descriptionText.length > 150;
 
     return (
@@ -118,7 +172,12 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 <MainHeader variant="inner" />
             </View>
 
-            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            {loading ? (
+                <View style={styles.centered}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            ) : !movie ? null : (
+                <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
                 {/* Media Section */}
                 <View style={styles.mediaContainer}>
                     {showVideo ? (
@@ -155,7 +214,21 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                         <View style={styles.ratingBadge}>
                             <AppText color={colors.black} size="xs" variant="bold">IMDb {movie.imdb_rating || 'N/A'}</AppText>
                         </View>
-                        <AppText color={colors.textSecondary} style={styles.infoItem}>{movie.tvqualities || 'HD'}</AppText>
+                        <View style={styles.hdBadge}>
+                            <AppText color={colors.white} size="xs" variant="bold">
+                                {movie.tvqualities || 'HD'}
+                            </AppText>
+                        </View>
+                    </View>
+
+                    <View style={styles.youtubeActionsRow}>
+                        <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
+                            <Icon name="share" size={20} color={colors.white} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.youtubeIconButton} onPress={toggleMyList}>
+                            <Icon name={isInMyList ? "check" : "add"} size={22} color={colors.white} />
+                        </TouchableOpacity>
                     </View>
 
                     {/* Description */}
@@ -172,20 +245,21 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                         )}
                     </View>
 
-                    <View style={styles.actionRow}>
-                        <TouchableOpacity style={styles.actionItem} onPress={toggleMyList}>
-                            <Icon name={isInMyList ? "check" : "add"} size={28} color={colors.white} />
-                            <AppText size="xs" color={colors.textSecondary} style={styles.actionLabel}>My List</AppText>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionItem}>
-                            <Icon name="thumb-up-off-alt" size={26} color={colors.white} />
-                            <AppText size="xs" color={colors.textSecondary} style={styles.actionLabel}>Rate</AppText>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionItem}>
-                            <Icon name="share" size={26} color={colors.white} />
-                            <AppText size="xs" color={colors.textSecondary} style={styles.actionLabel}>Share</AppText>
-                        </TouchableOpacity>
+                    <View style={styles.creditSection}>
+                        <AppText color={colors.textMuted} size="sm">
+                            Genre:{' '}
+                            <AppText color={colors.textSecondary} size="sm">
+                                {movie.genre || 'N/A'}
+                            </AppText>
+                        </AppText>
+                        <AppText color={colors.textMuted} size="sm" style={{ marginTop: 4 }}>
+                            Created by:{' '}
+                            <AppText color={colors.textSecondary} size="sm">
+                                {movie.created_by || 'N/A'}
+                            </AppText>
+                        </AppText>
                     </View>
+
 
                     {/* Episodes List Section */}
                     <View style={styles.episodesSection}>
@@ -222,6 +296,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                     </View>
                 </View>
             </ScrollView>
+            )}
 
             {/* Download Modal */}
             <Modal
@@ -251,6 +326,11 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     headerContainer: {
         backgroundColor: colors.black,
         paddingTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight,
@@ -267,13 +347,32 @@ const styles = StyleSheet.create({
     movieTitle: { marginBottom: spacing.sm },
     infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
     infoItem: { marginRight: spacing.md },
-    ratingBadge: { backgroundColor: '#f5c518', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: spacing.md },
-    descriptionSection: { marginBottom: spacing.lg },
+    ratingBadge: { backgroundColor: '#f5c518', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, marginRight: spacing.sm },
+    hdBadge: {
+        borderWidth: 1,
+        borderColor: colors.textSecondary,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
+        borderRadius: 2,
+    },
+    descriptionSection: { marginBottom: spacing.sm },
     description: { color: colors.white, lineHeight: 20 },
-    moreButton: { marginTop: 4 },
-    actionRow: { flexDirection: 'row', marginBottom: spacing.xl },
-    actionItem: { alignItems: 'center', marginRight: 40 },
-    actionLabel: { marginTop: 4 },
+    moreButton: { fontSize: 14, marginTop: 2 },
+    creditSection: { marginBottom: spacing.lg },
+    youtubeActionsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+        gap: spacing.sm,
+    },
+    youtubeIconButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#272727',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     episodesSection: { marginTop: spacing.md },
     sectionHeader: { marginBottom: spacing.lg },
     activeIndicator: { height: 4, backgroundColor: colors.primary, width: 80, position: 'absolute', top: -10 },

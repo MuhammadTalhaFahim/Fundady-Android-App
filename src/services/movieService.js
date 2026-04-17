@@ -54,5 +54,26 @@ export const movieService = {
         if (name) url += `&name=${name}`;
         if (categoryId) url += `&category_id=${categoryId}`;
         return await apiClient.get(url);
+    },
+    getMovieById: async (id) => {
+        return await apiClient.get('/v1/movies', { id });
+    },
+    getWebSeriesById: async (id) => {
+        return await apiClient.get('/tvshows/web_series', { id });
+    },
+    getTVShowById: async (id) => {
+        return await apiClient.get('/tvshows/tv_shows', { id });
+    },
+    getTVSerialById: async (id) => {
+        return await apiClient.get('/tvshows/tv_serials', { id });
+    },
+    getWWEById: async (id) => {
+        return await apiClient.get('/sports/wwe', { id });
+    },
+    getCricketById: async (id) => {
+        return await apiClient.get('/sports/cricket', { id });
+    },
+    getFootballById: async (id) => {
+        return await apiClient.get('/sports/football', { id });
     }
 };
