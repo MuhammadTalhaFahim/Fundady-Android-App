@@ -33,7 +33,6 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         initialIndex = 0
     } = route.params;
 
-    
     const videoRef = useRef(null);
     const controlTimerRef = useRef(null);
     const resumeTimeRef = useRef(0);
@@ -90,7 +89,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             if (Platform.OS === 'android') {
                 StatusBar.setTranslucent(true);
             }
-           
+
             return () => {
                 Orientation.lockToPortrait();
                 StatusBar.setHidden(false, 'fade');
@@ -355,7 +354,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                 {/* Top Bar */}
                                 <View style={styles.topBar}>
                                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-                                        <Icon name="arrow-back" size={30} color={colors.white} />
+                                        <Icon name="close" size={30} color={colors.white} />
                                     </TouchableOpacity>
                                     <AppText color={colors.white} variant="bold" style={styles.movieTitle} numberOfLines={1}>
                                         {getDisplayTitle()}
@@ -431,6 +430,8 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 visible={isSpeedModalVisible}
                 transparent={true}
                 animationType="fade"
+                statusBarTranslucent={true}
+                onShow={() => StatusBar.setHidden(true)}
                 onRequestClose={closeSpeedModal}
             >
                 <View style={styles.modalOverlay}>
@@ -464,12 +465,14 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 visible={isAudioModalVisible}
                 transparent={true}
                 animationType="fade"
+                statusBarTranslucent={true}
+                onShow={() => StatusBar.setHidden(true)}
                 onRequestClose={closeAudioModal}
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         {/* <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Audio Track</AppText> */}
-                        <View style={styles.modalOptions}>
+                        {/* <View style={styles.modalOptions}>
                             {[
                                 { label: 'English (Default)', url: episodes[currentIndex]?.tvShow_link || initialVideoUrl },
                                 { label: 'Hindi (Dual Audio)', url: episodes[currentIndex]?.dual_link || initialDualAudioUrl }
@@ -487,7 +490,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                     </AppText>
                                 </TouchableOpacity>
                             ))}
-                        </View>
+                        </View> */}
                         <TouchableOpacity style={styles.modalCancelButton} onPress={closeAudioModal}>
                             <AppText variant="bold" color={colors.white}>CANCEL</AppText>
                         </TouchableOpacity>
@@ -500,6 +503,8 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 visible={isEpisodesModalVisible}
                 transparent={true}
                 animationType="slide"
+                statusBarTranslucent={true}
+                onShow={() => StatusBar.setHidden(true)}
                 onRequestClose={closeEpisodesModal}
             >
                 <View style={styles.modalOverlay}>
@@ -653,8 +658,8 @@ const styles = StyleSheet.create({
         fontSize: 11,
     },
     modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.85)',
         justifyContent: 'center',
         alignItems: 'center',
     },

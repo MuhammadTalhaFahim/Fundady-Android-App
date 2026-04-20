@@ -20,12 +20,15 @@ const CategoryModal = ({
     categories,
     selectedCategory,
     onSelectCategory,
+    onShow,
 }) => {
     return (
         <Modal
             visible={isVisible}
             transparent={true}
             animationType="fade"
+            statusBarTranslucent={true}
+            onShow={onShow}
             onRequestClose={onClose}
         >
             <View style={styles.modalOverlay}>
@@ -86,8 +89,8 @@ const CategoryModal = ({
 
 const styles = StyleSheet.create({
     modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.88)',
         justifyContent: 'center',
         alignItems: 'center',
     },

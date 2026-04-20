@@ -21,6 +21,7 @@ import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import ChannelGridItem from '../../components/tv/ChannelGridItem';
 import { movieService } from '../../services/movieService';
+import { SectionBase } from 'react-native/types_generated/index';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const SIDEBAR_EXPANDED_WIDTH = 220;
@@ -250,7 +251,7 @@ const LiveTvScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Sidebar - Left */}
-      {/* <Animated.View style={[styles.sidebar, { width: sidebarWidth }]}>
+      <Animated.View style={[styles.sidebar, { width: sidebarWidth }]}>
         <View style={styles.sidebarHeader}>
           {!isSidebarCollapsed && (
             <TouchableOpacity onPress={handleBack} style={styles.backButton}>
@@ -324,10 +325,10 @@ const LiveTvScreen = ({ navigation }) => {
             </View>
           }
         />
-      </Animated.View> */}
+      </Animated.View>
 
       {/* Content - Right */}
-      {/* <View style={styles.mainContent}>
+      <View style={styles.mainContent}>
         <View style={styles.contentHeader}>
           {isChannelSearchVisible ? (
             <View style={styles.channelSearchContainer}>
@@ -387,10 +388,11 @@ const LiveTvScreen = ({ navigation }) => {
             }
           />
         )}
-      </View> */}
+      </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

@@ -29,7 +29,7 @@ import { MOVIES_POSTER_BASE_URL as POSTER_BASE_URL, SPORTS_POSTER_BASE_URL } fro
 const { width } = Dimensions.get('window');
 
 const MovieDetailScreen = ({ route, navigation }) => {
-    const { id, contentType } = route.params;
+    const { id, contentType, movieDataFallback } = route.params;
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showVideo, setShowVideo] = useState(true);
@@ -61,22 +61,38 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 }
 
                 const [movieRes, allMoviesRes] = await Promise.all([
-                    detailPromise,
-                    similarPromise
+                    detailPromise.catch(err => {
+                        console.warn('detailPromise failed:', err);
+                        return null; // triggers fallback mechanism downstream
+                    }),
+                    similarPromise.catch(err => {
+                        console.warn('similarPromise failed:', err);
+                        return null;
+                    })
                 ]);
 
-                if (movieRes) {
-                    // Extract data from standard wrapper (status/data) or direct array
-                    const responseData = movieRes.data || movieRes;
-                    
+                // If APIs resolved, setup responseData
+                const responseData = (movieRes && movieRes.data) ? movieRes.data : movieRes;
+
                     // Robust extraction for different response structures
                     let movieData = null;
                     if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
                         // Sports might be nested or direct
-                        movieData = (responseData?.[contentType]?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+                        let directData = (responseData?.[contentType]?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+                        
+                        // Backend fallback: if the specific ID fetch returned empty, find it in the full list
+                        if (!directData || Object.keys(directData).length === 0) {
+                            const allData = allMoviesRes?.data || allMoviesRes;
+                            const availableList = allData?.[contentType]?.data || allData?.data || (Array.isArray(allData) ? allData : []);
+                            directData = availableList.find(m => String(m.id) === String(id)) || null;
+                        }
+                        
+                        movieData = directData || movieDataFallback || null;
                     } else {
                         // Movies standard
-                        movieData = (responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+                        let directData = (responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+                        if (Array.isArray(directData) && directData.length === 0) directData = null;
+                        movieData = directData || movieDataFallback || null;
                     }
                     
                     if (movieData) {
@@ -86,7 +102,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     }
 
                     // Process similar items
-                    const allData = allMoviesRes?.data || allMoviesRes;
+                    const allData = (allMoviesRes && allMoviesRes.data) ? allMoviesRes.data : allMoviesRes;
                     if (allData) {
                         let availableData = [];
                         if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
@@ -95,10 +111,14 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             availableData = allData?.data || (Array.isArray(allData) ? allData : []);
                         }
 
-                        const currentCats = movieData.categories?.split(',').map(c => c.trim()) || [];
+                        if (!Array.isArray(availableData)) {
+                            availableData = [];
+                        }
+
+                        const currentCats = typeof movieData.categories === 'string' ? movieData.categories.split(',').map(c => c.trim()) : [];
                         let filtered = availableData.filter(m => {
                             if (m.id === movieData.id) return false;
-                            const mCats = m.categories?.split(',').map(c => c.trim()) || [];
+                            const mCats = typeof m.categories === 'string' ? m.categories.split(',').map(c => c.trim()) : [];
                             return mCats.length > 0 ? mCats.some(cat => currentCats.includes(cat)) : true;
                         });
 
@@ -107,10 +127,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         }
                         setSimilarMovies(filtered.slice(0, 15));
                     }
-                } else {
-                    alert('Content details not found');
-                    navigation.goBack();
-                }
             } catch (error) {
                 console.error('Error fetching content details:', error);
                 alert('Failed to load content details');
@@ -135,7 +151,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
     const dualStreamLink = movie?.links && movie.links.length > 0 ? movie.links[0].dualaudio_link : null;
     const downloadLink = movie?.download_link || (movie?.links && movie.links.length > 0 ? movie.links[0].download_link : null);
     const dualDownloadLink = movie?.links && movie.links.length > 0 ? movie.links[0].dual_download_link : null;
-    
+
     const descriptionText = movie?.description || '';
     const shouldShowMore = descriptionText.length > 150;
 
@@ -159,12 +175,15 @@ const MovieDetailScreen = ({ route, navigation }) => {
             alert('Live stream not available');
             return;
         }
+
+        const isSports = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football';
+
         navigation.navigate('VideoPlayer', {
             videoUrl: streamLink,
             dualaudioUrl: dualStreamLink,
-            movieTitle: movie.title,
+            movieTitle: isSports ? (movie.video_title || movie.title) : movie.title,
             isSeries: false,
-            posterUrl: `${contentType === 'cricket' || contentType === 'wwe' || contentType === 'football' ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL}${movie.poster}`
+            posterUrl: `${isSports ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL}${movie.poster}`
         });
     };
 
@@ -186,7 +205,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         buttonPositive: 'OK',
                     }
                 );
-                
+
                 if (granted !== PermissionsAndroid.RESULTS.GRANTED && Platform.Version < 33) {
                     alert('Storage Permission Denied');
                     return;
@@ -194,7 +213,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
             }
 
             const fileName = url.substring(url.lastIndexOf('/') + 1) || `${movie.title.replace(/\s+/g, '_')}.mp4`;
-            
+
             ReactNativeBlobUtil.config({
                 addAndroidDownloads: {
                     useDownloadManager: true, // native download manager
@@ -205,18 +224,18 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     mediaScannable: true,
                 }
             })
-            .fetch('GET', url)
-            .then((res) => {
-                if (Platform.OS === 'ios') {
-                    ReactNativeBlobUtil.ios.previewDocument(res.path());
-                } else {
-                    console.log('Download initiated via System DownloadManager.');
-                }
-            })
-            .catch((err) => {
-                console.error("Download Error", err);
-                alert('Download failed to start.');
-            });
+                .fetch('GET', url)
+                .then((res) => {
+                    if (Platform.OS === 'ios') {
+                        ReactNativeBlobUtil.ios.previewDocument(res.path());
+                    } else {
+                        console.log('Download initiated via System DownloadManager.');
+                    }
+                })
+                .catch((err) => {
+                    console.error("Download Error", err);
+                    alert('Download failed to start.');
+                });
 
         } catch (err) {
             console.warn(err);
@@ -245,17 +264,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
     const renderSimilarMovie = (item, index) => {
         const spacingTotal = spacing.md * 2 + spacing.xs * 2; // Parent padding + grid padding
         const cardWidth = (width - spacingTotal) / 3 - 2;
-        const currentBaseUrl = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football' 
-                             ? SPORTS_POSTER_BASE_URL 
-                             : POSTER_BASE_URL;
+        const currentBaseUrl = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football'
+            ? SPORTS_POSTER_BASE_URL
+            : POSTER_BASE_URL;
 
         return (
             <MovieCard
                 key={item.id?.toString() || index.toString()}
                 imageUrl={`${currentBaseUrl}${item.poster}`}
-                onPress={() => navigation.push('MovieDetail', { 
+                onPress={() => navigation.push('MovieDetail', {
                     id: item.id,
-                    contentType: contentType 
+                    contentType: contentType
                 })}
                 width={cardWidth}
                 height={cardWidth * 1.5}
@@ -274,6 +293,8 @@ const MovieDetailScreen = ({ route, navigation }) => {
     }
 
     if (!movie) return null;
+
+    const isSports = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football';
 
     return (
         <View style={styles.container}>
@@ -321,31 +342,58 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 <View style={styles.content}>
                     <View style={styles.logoAndTitle}>
                         <AppText variant="bold" size="headingLg" style={styles.movieTitle}>
-                            {movie.title}
+                            {isSports ? (movie.video_title || movie.title) : movie.title}
                         </AppText>
                     </View>
 
                     <View style={styles.infoRow}>
-                        <AppText color={colors.textSecondary} style={styles.infoItem}>
-                            {movie.release_date?.split('-')[0] || 'N/A'}
-                        </AppText>
-                        <View style={styles.ratingBadge}>
-                            <AppText color={colors.black} size="xs" variant="bold" style={styles.imdbText}>
-                                IMDb
-                            </AppText>
-                            <AppText color={colors.black} size="xs" variant="bold">
-                                {" "}
-                                {movie.imdb_rating || 'N/A'}
-                            </AppText>
-                        </View>
-                        <AppText color={colors.textSecondary} style={styles.infoItem}>
-                            {movie.runtime ? `${movie.runtime} min` : 'N/A'}
-                        </AppText>
-                        <View style={styles.hdBadge}>
-                            <AppText color={colors.white} size="xs" variant="bold">
-                                HD
-                            </AppText>
-                        </View>
+                        {isSports ? (
+                            <>
+                                <AppText color={colors.textSecondary} style={styles.infoItem}>
+                                    {movie.date?.split('-')[0] || 'N/A'}
+                                </AppText>
+                                <View style={styles.ratingBadge}>
+                                    <Icon name="visibility" size={14} color={colors.black} style={{ marginRight: 4 }} />
+                                    <AppText color={colors.black} size="xs" variant="bold">
+                                        {movie.views !== null && movie.views !== undefined ? movie.views : 'N/A'}
+                                    </AppText>
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: spacing.sm }}>
+                                    <Icon name="file-download" size={16} color={colors.textSecondary} style={{ marginRight: 2 }} />
+                                    <AppText color={colors.textSecondary} style={{ fontSize: 14 }}>
+                                        {movie.downloads !== null && movie.downloads !== undefined ? movie.downloads : 'N/A'}
+                                    </AppText>
+                                </View>
+                                <View style={styles.hdBadge}>
+                                    <AppText color={colors.white} size="xs" variant="bold">
+                                        HD
+                                    </AppText>
+                                </View>
+                            </>
+                        ) : (
+                            <>
+                                <AppText color={colors.textSecondary} style={styles.infoItem}>
+                                    {movie.release_date?.split('-')[0] || 'N/A'}
+                                </AppText>
+                                <View style={styles.ratingBadge}>
+                                    <AppText color={colors.black} size="xs" variant="bold" style={styles.imdbText}>
+                                        IMDb
+                                    </AppText>
+                                    <AppText color={colors.black} size="xs" variant="bold">
+                                        {" "}
+                                        {movie.imdb_rating || 'N/A'}
+                                    </AppText>
+                                </View>
+                                <AppText color={colors.textSecondary} style={styles.infoItem}>
+                                    {movie.runtime ? `${movie.runtime} min` : 'N/A'}
+                                </AppText>
+                                <View style={styles.hdBadge}>
+                                    <AppText color={colors.white} size="xs" variant="bold">
+                                        HD
+                                    </AppText>
+                                </View>
+                            </>
+                        )}
                     </View>
 
                     <View style={styles.youtubeActionsRow}>
@@ -354,7 +402,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             <AppText variant="bold" style={styles.downloadText}>Download</AppText>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
+                        {/* <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}> */}
+                                                <TouchableOpacity style={styles.youtubeIconButton}>
+
                             <Icon name="share" size={20} color={colors.white} />
                         </TouchableOpacity>
 
@@ -415,24 +465,26 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         )}
                     </View>
 
-                    <View style={styles.creditSection}>
-                        <AppText color={colors.textMuted} size="sm">
-                            Starring:{' '}
-                            <AppText color={colors.textSecondary} size="sm">
-                                {movie.actors}
+                    {!isSports && (
+                        <View style={styles.creditSection}>
+                            <AppText color={colors.textMuted} size="sm">
+                                Starring:{' '}
+                                <AppText color={colors.textSecondary} size="sm">
+                                    {movie.actors}
+                                </AppText>
                             </AppText>
-                        </AppText>
-                        <AppText
-                            color={colors.textMuted}
-                            size="sm"
-                            style={{ marginTop: 4 }}
-                        >
-                            Director:{' '}
-                            <AppText color={colors.textSecondary} size="sm">
-                                {movie.director}
+                            <AppText
+                                color={colors.textMuted}
+                                size="sm"
+                                style={{ marginTop: 4 }}
+                            >
+                                Director:{' '}
+                                <AppText color={colors.textSecondary} size="sm">
+                                    {movie.director}
+                                </AppText>
                             </AppText>
-                        </AppText>
-                    </View>
+                        </View>
+                    )}
 
 
                     {similarMovies.length > 0 && (
@@ -460,6 +512,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 visible={isDownloadModalVisible}
                 transparent={true}
                 animationType="fade"
+                statusBarTranslucent={true}
                 onRequestClose={() => setIsDownloadModalVisible(false)}
             >
                 <View style={styles.modalOverlay}>
@@ -691,8 +744,8 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.85)',
         justifyContent: 'center',
         alignItems: 'center',
     },

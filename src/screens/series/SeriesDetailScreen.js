@@ -222,7 +222,9 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                     </View>
 
                     <View style={styles.youtubeActionsRow}>
-                        <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
+                        {/* <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}> */}
+                                                    <TouchableOpacity style={styles.youtubeIconButton}>
+
                             <Icon name="share" size={20} color={colors.white} />
                         </TouchableOpacity>
 
@@ -303,6 +305,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 visible={isDownloadModalVisible}
                 transparent={true}
                 animationType="fade"
+                statusBarTranslucent={true}
                 onRequestClose={() => setIsDownloadModalVisible(false)}
             >
                 <View style={styles.modalOverlay}>
@@ -384,7 +387,7 @@ const styles = StyleSheet.create({
     miniPlayIcon: { position: 'absolute', top: '50%', left: '50%', marginLeft: -12, marginTop: -12 },
     episodeInfo: { flex: 1 },
     episodeDownloadBtn: { padding: 10 },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center' },
+    modalOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' },
     modalContent: { width: '70%', backgroundColor: '#1a1a1a', borderRadius: 8, padding: 24 },
     modalTitle: { fontSize: 18, marginBottom: 20 },
     modalOption: { paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#333' },

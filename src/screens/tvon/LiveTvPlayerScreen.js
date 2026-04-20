@@ -194,7 +194,7 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
         {isSearchVisible ? (
           <View style={styles.searchHeaderContainer}>
             <TouchableOpacity style={styles.backButton} onPress={() => { setIsSearchVisible(false); setSearchQuery(''); }}>
-              <Icon name="arrow-back" size={28} color={colors.white} />
+              <Icon name="close" size={28} color={colors.white} />
             </TouchableOpacity>
             <View style={styles.searchInputWrapper}>
               <Icon name="search" size={22} color={colors.textMuted} />
@@ -217,7 +217,7 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
           <>
             <View style={styles.headerLeft}>
               <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Icon name="arrow-back" size={28} color={colors.white} />
+                <Icon name="close" size={28} color={colors.white} />
               </TouchableOpacity>
               <Image source={require('../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
               <View style={styles.divider} />

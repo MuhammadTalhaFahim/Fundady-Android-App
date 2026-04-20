@@ -8,6 +8,7 @@ import {
     FlatList,
     ActivityIndicator,
     Platform,
+    Image,
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -241,39 +242,33 @@ const HomeScreen = ({ navigation }) => {
 
                 {/* Featured Banner */}
                 {featuredGalleryItem && (
-                    <ImageBackground
-                        source={{
-                            uri: `${GALLERY_POSTER_BASE_URL}${featuredGalleryItem.poster}`,
-                        }}
-                        style={styles.featuredBanner}
-                        imageStyle={styles.bannerImage}
-                        resizeMode="contain"
-                    >
-                        <View style={styles.featuredOverlay}>
-                            {/* Netflix N Logo for mobile apps often appears in top left of banner */}
-                            {/* <Image
-                                source={{ uri: 'https://assets.nflxext.com/ffe/siteui/common/icons/nficon2016.png' }}
-                                style={styles.bannerNetflixLogo}
-                            /> */}
+                    <View style={styles.featuredBannerContainer}>
+                        <TouchableOpacity
+                            activeOpacity={0.9}
+                            onPress={() => {
+                                const category = featuredGalleryItem.category || '';
+                                const isSeries = category.toLowerCase().includes('series') ||
+                                    category.toLowerCase().includes('show') ||
+                                    category.toLowerCase().includes('serial');
 
-                            <TouchableOpacity
-                                style={styles.featuredContent}
-                                activeOpacity={0.9}
-                                onPress={() => {
-                                    const category = featuredGalleryItem.category || '';
-                                    const isSeries = category.toLowerCase().includes('series') ||
-                                        category.toLowerCase().includes('show') ||
-                                        category.toLowerCase().includes('serial');
-
-                                    navigation.navigate(isSeries ? 'SeriesDetail' : 'MovieDetail', {
-                                        id: featuredGalleryItem.movie_id,
-                                        contentType: isSeries ? (category.toLowerCase().includes('serial') ? 'tv_serial' : (category.toLowerCase().includes('show') ? 'tv_show' : 'web_series')) : undefined
-                                    });
+                                navigation.navigate(isSeries ? 'SeriesDetail' : 'MovieDetail', {
+                                    id: featuredGalleryItem.movie_id,
+                                    contentType: isSeries ? (category.toLowerCase().includes('serial') ? 'tv_serial' : (category.toLowerCase().includes('show') ? 'tv_show' : 'web_series')) : undefined
+                                });
+                            }}
+                        >
+                            <Image
+                                source={{
+                                    uri: `${GALLERY_POSTER_BASE_URL}${featuredGalleryItem.poster}`,
                                 }}
-                            >
+                                style={styles.bannerImage}
+                                resizeMode="cover"
+                            />
+
+                            <View style={styles.featuredInfoSection}>
                                 <AppText
                                     variant="bold"
-                                    size="headingXl"
+                                    size="xl"
                                     style={styles.featuredTitle}
                                 >
                                     {featuredGalleryItem.title}
@@ -355,18 +350,18 @@ const HomeScreen = ({ navigation }) => {
                                             }
                                         }}
                                     >
-                                        <Icon name="play-arrow" size={24} color={colors.white} />
+                                        <Icon name="play-arrow" size={22} color={colors.white} />
                                         <AppText variant="bold" style={styles.playButtonText}>Play</AppText>
                                     </TouchableOpacity>
 
                                     <TouchableOpacity style={styles.netflixListButton}>
-                                        <Icon name="add" size={24} color={colors.white} />
+                                        <Icon name="add" size={22} color={colors.white} />
                                         <AppText variant="bold" style={styles.listButtonText}>My List</AppText>
                                     </TouchableOpacity>
                                 </View>
-                            </TouchableOpacity>
-                        </View>
-                    </ImageBackground>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
                 )}
 
                 <View style={styles.content}>
@@ -453,35 +448,35 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
     },
-    featuredBanner: {
+    featuredBannerContainer: {
         width: width - spacing.md * 2,
-        aspectRatio: 16 / 9,
         marginHorizontal: spacing.md,
         marginTop: spacing.sm,
-        justifyContent: 'flex-end',
-        borderRadius: 12,
+        backgroundColor: colors.backgroundLight,
+        borderRadius: 16,
         overflow: 'hidden',
+        elevation: 6,
+        shadowColor: colors.black,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
     },
     bannerImage: {
-        borderRadius: 12,
+        width: '100%',
+        aspectRatio: 16 / 9,
     },
-    featuredOverlay: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)', // Atmospheric bottom shadow
+    featuredInfoSection: {
+        padding: spacing.md,
         alignItems: 'center',
-        paddingBottom: spacing.xl,
-        paddingTop: spacing.lg,
     },
     featuredTitle: {
         textAlign: 'center',
         marginBottom: spacing.xs,
-        fontSize: 32,
+        color: colors.textPrimary,
+        letterSpacing: 0.5,
     },
     featuredTags: {
-        marginBottom: spacing.md,
+        color: colors.textSecondary,
     },
     buttonRow: {
         flexDirection: 'row',
@@ -590,34 +585,34 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: spacing.md,
+        paddingVertical: 10,
         paddingHorizontal: spacing.xl,
-        borderRadius: 4,
-        marginHorizontal: spacing.sm,
+        borderRadius: 8,
+        marginHorizontal: spacing.xs,
         flex: 1,
-        maxWidth: 150,
+        maxWidth: 140,
     },
     playButtonText: {
         color: colors.white,
         marginLeft: spacing.xs,
-        fontSize: 17,
+        fontSize: 16,
     },
     netflixListButton: {
         backgroundColor: 'rgba(51, 51, 51, 0.8)',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: spacing.md,
+        paddingVertical: 10,
         paddingHorizontal: spacing.xl,
-        borderRadius: 4,
-        marginHorizontal: spacing.sm,
+        borderRadius: 8,
+        marginHorizontal: spacing.xs,
         flex: 1,
-        maxWidth: 150,
+        maxWidth: 140,
     },
     listButtonText: {
         color: colors.white,
         marginLeft: spacing.xs,
-        fontSize: 17,
+        fontSize: 16,
     },
     activeFilterTab: {
         backgroundColor: colors.primary,

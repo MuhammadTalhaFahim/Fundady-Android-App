@@ -137,7 +137,8 @@ const SportsScreen = ({ navigation }) => {
                                 imageUrl={`${SPORTS_POSTER_BASE_URL}${item.poster}`}
                                 onPress={() => navigation.navigate('MovieDetail', { 
                                     id: item.id, 
-                                    contentType: activeTab.toLowerCase() 
+                                    contentType: activeTab.toLowerCase(),
+                                    movieDataFallback: item
                                 })}
                                 width={cardWidth}
                                 height={cardWidth * 1.5}

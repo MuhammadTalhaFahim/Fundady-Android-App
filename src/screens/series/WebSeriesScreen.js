@@ -41,6 +41,7 @@ const WebSeriesScreen = ({ navigation }) => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [isOpeningModal, setIsOpeningModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -173,39 +174,60 @@ const WebSeriesScreen = ({ navigation }) => {
             style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
             onPress={() => {
               setModalType('category');
-              setShowModal(true);
+              setIsOpeningModal(true);
+              requestAnimationFrame(() => setShowModal(true));
             }}
           >
-            <AppText variant="medium" size="md" color={colors.textPrimary}>
-              {selectedCategory || 'Categories'}
-            </AppText>
-            <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+            {isOpeningModal && modalType === 'category' ? (
+              <ActivityIndicator size="small" color={colors.textPrimary} />
+            ) : (
+              <>
+                <AppText variant="medium" size="md" color={colors.textPrimary}>
+                  {selectedCategory || 'Categories'}
+                </AppText>
+                <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+              </>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.filterTab, selectedYear && styles.activeFilterTab]}
             onPress={() => {
               setModalType('year');
-              setShowModal(true);
+              setIsOpeningModal(true);
+              requestAnimationFrame(() => setShowModal(true));
             }}
           >
-            <AppText variant="medium" size="md" color={colors.textPrimary}>
-              {selectedYear || 'Year'}
-            </AppText>
-            <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+            {isOpeningModal && modalType === 'year' ? (
+              <ActivityIndicator size="small" color={colors.textPrimary} />
+            ) : (
+              <>
+                <AppText variant="medium" size="md" color={colors.textPrimary}>
+                  {selectedYear || 'Year'}
+                </AppText>
+                <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+              </>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.filterTab, selectedGenre && styles.activeFilterTab]}
             onPress={() => {
               setModalType('genre');
-              setShowModal(true);
+              setIsOpeningModal(true);
+              requestAnimationFrame(() => setShowModal(true));
             }}
           >
-            <AppText variant="medium" size="md" color={colors.textPrimary}>
-              {selectedGenre || 'Genre'}
-            </AppText>
-            <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+            {isOpeningModal && modalType === 'genre' ? (
+              <ActivityIndicator size="small" color={colors.textPrimary} />
+            ) : (
+              <>
+                <AppText variant="medium" size="md" color={colors.textPrimary}>
+                  {selectedGenre || 'Genre'}
+                </AppText>
+                <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+              </>
+            )}
           </TouchableOpacity>
         </RNScrollView>
       </View>
@@ -260,6 +282,7 @@ const WebSeriesScreen = ({ navigation }) => {
       <CategoryModal
         isVisible={showModal}
         onClose={() => setShowModal(false)}
+        onShow={() => setIsOpeningModal(false)}
         categories={
           modalType === 'category' ? categories :
             modalType === 'year' ? years :
