@@ -3,7 +3,7 @@ import { TouchableOpacity, View, Image, StyleSheet, Dimensions } from 'react-nat
 import AppText from '../common/AppText';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { TV_ON_POSTER_BASE_URL } from '../../utils/constants';
+import { CHANNELS_POSTER_BASE_URL } from '../../utils/constants';
 
 const { width } = Dimensions.get('window');
 
@@ -19,9 +19,11 @@ const ChannelGridItem = ({ item, onPress }) => {
         >
             <View style={styles.cardFrame}>
                 <View style={styles.logoWrapper}>
-                    <View style={styles.placeholderLogo}>
-                        <AppText size="sm" color={colors.textMuted} variant="bold">{item.name?.substring(0, 2).toUpperCase()}</AppText>
-                    </View>
+                    <Image
+                        source={{ uri: `${CHANNELS_POSTER_BASE_URL}${item.poster}` }}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
                 </View>
             </View>
             <AppText
@@ -39,12 +41,12 @@ const ChannelGridItem = ({ item, onPress }) => {
 const styles = StyleSheet.create({
     container: {
         width: 120,
-        margin: spacing.sm,
+        margin: spacing.xs,
         alignItems: 'center',
     },
     cardFrame: {
         width: 100,
-        height: 100,
+        height: 90,
         borderRadius: 12,
         padding: 2,
         backgroundColor: '#D4AF37', // Gold border
@@ -61,8 +63,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logo: {
-        width: '80%',
-        height: '80%',
+        width: '100%',
+        height: '100%',
     },
     placeholderLogo: {
         width: '100%',

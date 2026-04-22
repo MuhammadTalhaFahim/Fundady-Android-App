@@ -46,8 +46,10 @@ export const movieService = {
     getTVChannels: async () => {
         return await apiClient.get('/tvon/channel-list');
     },
-    getTVCategories: async () => {
-        return await apiClient.get('/tvon/channel-category');
+    getTVCategories: async (name) => {
+        let url = '/tvon/channel-category';
+        if (name) url += `?name=${name}`;
+        return await apiClient.get(url);
     },
     searchTVChannels: async (name, categoryId) => {
         let url = `/tvon/channel-list?status=1`;
@@ -56,7 +58,7 @@ export const movieService = {
         return await apiClient.get(url);
     },
     getMovieById: async (id) => {
-        return await apiClient.get('/v1/movies', { id });
+        return await apiClient.get(`/v1/single-movie/${id}`);
     },
     getWebSeriesById: async (id) => {
         return await apiClient.get('/tvshows/web_series', { id });

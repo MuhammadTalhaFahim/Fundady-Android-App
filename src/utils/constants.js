@@ -8,6 +8,7 @@ export const MOVIES_POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
 export const GALLERY_POSTER_BASE_URL = 'https://fundady.com/FrontGallery/';
 export const TV_SHOWS_POSTER_BASE_URL = 'https://fundady.com/TvShowPoster/';
 export const SPORTS_POSTER_BASE_URL = 'https://fundady.com/SportsPoster/';
+export const CHANNELS_POSTER_BASE_URL = 'https://fundady.com/ChannelsPoster/';
 
 export const IMAGE_BASE_URL = MOVIES_POSTER_BASE_URL; // Default fallback
 

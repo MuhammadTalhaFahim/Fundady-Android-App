@@ -164,6 +164,8 @@ const HomeScreen = ({ navigation }) => {
         <MovieCard
             imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
             onPress={() => navigation.navigate('SeriesDetail', { id: item.id, contentType: 'web_series' })}
+            width={180}
+            height={101}
             style={styles.movieCard}
         />
     );

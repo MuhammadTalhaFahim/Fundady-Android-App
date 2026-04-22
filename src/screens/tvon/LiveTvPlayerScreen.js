@@ -19,26 +19,27 @@ import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import { movieService } from '../../services/movieService';
+import { CHANNELS_POSTER_BASE_URL } from '../../utils/constants';
 
 const LiveTvPlayerScreen = ({ route, navigation }) => {
   // We assume route.params contains the initially selected channel
   const initialChannel = route.params?.channel || null;
   const categoryId = route.params?.categoryId || null;
   const categoryName = route.params?.categoryName || 'ALL';
-  
+
   const [channels, setChannels] = useState([]);
   const [activeChannel, setActiveChannel] = useState(initialChannel);
   const [loading, setLoading] = useState(true);
   const [videoLoading, setVideoLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  
+
   const [categories, setCategories] = useState([]);
   const [currentCategoryId, setCurrentCategoryId] = useState(categoryId);
   const [currentCategoryName, setCurrentCategoryName] = useState(categoryName);
-  
+
   const videoRef = useRef(null);
 
   useFocusEffect(
@@ -169,7 +170,7 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
         </AppText>
         <View style={styles.channelLogoContainer}>
           <Image
-            source={{ uri: `https://fundady.com/TvShowPoster/${item.poster}` }}
+            source={{ uri: `${CHANNELS_POSTER_BASE_URL}${item.poster}` }}
             style={styles.channelLogoList}
             resizeMode="contain"
           />
@@ -219,11 +220,11 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
               <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                 <Icon name="close" size={28} color={colors.white} />
               </TouchableOpacity>
-              <Image source={require('../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
+              <Image source={require('../../assets/images/fundady_logo.png')} style={styles.logo} resizeMode="contain" />
               <View style={styles.divider} />
               <AppText variant="bold" style={styles.headerTitle}>Live</AppText>
             </View>
-            
+
             <View style={styles.headerRight}>
               <AppText style={styles.timeText} variant="bold">{formatTime(currentTime)}</AppText>
               <AppText style={styles.dateText}>{formatDate(currentTime)}</AppText>
@@ -338,8 +339,8 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   logo: {
-    height: 30,
-    width: 70,
+    height: 60,
+    width: 120,
     marginRight: spacing.md,
   },
   divider: {

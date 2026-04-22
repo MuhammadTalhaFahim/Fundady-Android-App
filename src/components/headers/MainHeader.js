@@ -81,7 +81,7 @@ const MainHeader = ({
         {variant === 'home' ? (
           <View style={styles.homeLeft}>
             <Image
-              source={require('../../assets/images/logo.png')}
+              source={require('../../assets/images/fundady_logo.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 30,
-    height: 30,
+    width: 120,
+    height: 60,
   },
   homeText: {
     color: colors.textPrimary,

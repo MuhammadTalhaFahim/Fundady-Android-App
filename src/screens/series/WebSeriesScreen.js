@@ -245,7 +245,7 @@ const WebSeriesScreen = ({ navigation }) => {
         <Animated.FlatList
           data={filteredData}
           renderItem={({ item }) => {
-            const cardWidth = (width - spacing.md * 2) / 3 - 8;
+            const cardWidth = (width - spacing.md * 2) / 2 - 8;
             return (
               <MovieCard
                 imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
@@ -256,13 +256,13 @@ const WebSeriesScreen = ({ navigation }) => {
                   navigation.navigate('SeriesDetail', { id: item.id, contentType: type });
                 }}
                 width={cardWidth}
-                height={cardWidth * 1.5}
+                height={cardWidth * 0.5625}
                 style={{ margin: 4 }}
               />
             );
           }}
           keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-          numColumns={3}
+          numColumns={2}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           onScroll={Animated.event(

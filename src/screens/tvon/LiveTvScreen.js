@@ -12,6 +12,7 @@ import {
   Image,
   Animated,
   Keyboard,
+  useWindowDimensions,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import NavigationBar from 'react-native-system-navigation-bar';
@@ -20,15 +21,16 @@ import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import ChannelGridItem from '../../components/tv/ChannelGridItem';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { movieService } from '../../services/movieService';
-import { SectionBase } from 'react-native/types_generated/index';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 const SIDEBAR_EXPANDED_WIDTH = 220;
 const SIDEBAR_COLLAPSED_WIDTH = 60;
 
 const LiveTvScreen = ({ navigation }) => {
   const [channels, setChannels] = useState([]);
+  const [allChannelsForCounts, setAllChannelsForCounts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [channelSearchQuery, setChannelSearchQuery] = useState('');
@@ -41,6 +43,18 @@ const LiveTvScreen = ({ navigation }) => {
   const sidebarWidth = useRef(new Animated.Value(SIDEBAR_EXPANDED_WIDTH)).current;
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const navigatingToPlayer = useRef(false);
+
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
+  // Responsive grid calculation
+  const numColumns = useMemo(() => {
+    const currentSidebarWidth = isSidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
+    const horizontalPadding = Math.max(insets.left, 10) + Math.max(insets.right, 10);
+    const availableWidth = SCREEN_WIDTH - currentSidebarWidth - horizontalPadding - 20; 
+    const itemWidth = 128; // 120 card width + 8 total horizontal margin (4 each side)
+    return Math.max(2, Math.floor(availableWidth / itemWidth));
+  }, [isSidebarCollapsed, SCREEN_WIDTH, insets]);
 
   useFocusEffect(
     useCallback(() => {
@@ -90,35 +104,54 @@ const LiveTvScreen = ({ navigation }) => {
     fetchData();
   }, []);
 
-  const fetchData = async (searchName = '') => {
+  const fetchCategories = async (name = '') => {
     try {
-      if (!searchName && channels.length === 0) {
-        setLoading(true);
-      } else {
-        setSearching(true);
-      }
-
-      const [chanRes, catRes] = await Promise.all([
-        movieService.searchTVChannels(searchName),
-        categories.length === 0 ? movieService.getTVCategories() : Promise.resolve({ status: false }),
-      ]);
-
-      if (chanRes.status) {
-        setChannels(chanRes.data.channels);
-      }
-
-      if (catRes.status) {
-        const cats = catRes.data.channelCat;
-        setCategories(cats);
-        if (cats.length > 0 && !selectedCategoryId) {
-          setSelectedCategoryId(cats[0].id);
+      const res = await movieService.getTVCategories(name);
+      if (res.status) {
+        setCategories(res.data.channelCat || []);
+        if (res.data.channelCat?.length > 0 && !selectedCategoryId) {
+          // Default to first category if none selected
+          // setSelectedCategoryId(res.data.channelCat[0].id);
         }
       }
     } catch (error) {
-      console.error('Error fetching TV data:', error);
+      console.error('Error fetching TV categories:', error);
+    }
+  };
+
+  const fetchChannels = async (name = '', catId = null) => {
+    try {
+      if (!name && !catId && channels.length === 0) setLoading(true);
+      else setSearching(true);
+
+      const res = await movieService.searchTVChannels(name, catId);
+      if (res.status) {
+        setChannels(res.data.channels || []);
+      }
+    } catch (error) {
+      console.error('Error fetching TV channels:', error);
     } finally {
       setLoading(false);
       setSearching(false);
+    }
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [allRes, catRes, chanRes] = await Promise.all([
+        movieService.getTVChannels(),
+        movieService.getTVCategories(),
+        movieService.searchTVChannels(channelSearchQuery, selectedCategoryId)
+      ]);
+
+      if (allRes.status) setAllChannelsForCounts(allRes.data.channels || []);
+      if (catRes.status) setCategories(catRes.data.channelCat || []);
+      if (chanRes.status) setChannels(chanRes.data.channels || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,29 +176,27 @@ const LiveTvScreen = ({ navigation }) => {
 
   const executeSearch = () => {
     Keyboard.dismiss();
-    fetchData(channelSearchQuery);
+    fetchChannels(channelSearchQuery, selectedCategoryId);
   };
 
   const handleCategorySelect = (id) => {
     setSelectedCategoryId(id);
+    fetchChannels(channelSearchQuery, id);
   };
 
-  const filteredChannels = useMemo(() => {
-    return channels.filter(ch => {
-      const matchesCategory = selectedCategoryId ? ch.category_id === selectedCategoryId : true;
-      const matchesSearch = ch.name.toLowerCase().includes(channelSearchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [channels, selectedCategoryId, channelSearchQuery]);
+  const filteredChannels = channels;
 
-  const filteredCategories = useMemo(() => {
-    return categories.filter(cat =>
-      cat.name.toLowerCase().includes(categorySearchQuery.toLowerCase())
-    );
-  }, [categories, categorySearchQuery]);
+  const filteredCategories = categories;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchCategories(categorySearchQuery);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [categorySearchQuery]);
 
   const getChannelCount = (catId) => {
-    return channels.filter(ch => ch.category_id === catId).length;
+    return allChannelsForCounts.filter(ch => ch.category_id === catId).length;
   };
 
   const renderCategoryItem = ({ item }) => {
@@ -197,6 +228,7 @@ const LiveTvScreen = ({ navigation }) => {
             </AppText>
           </>
         )}
+
         {isSidebarCollapsed && (
           <View style={[styles.activeIconContainerCollapsed, !isActive && styles.inactiveIconContainerCollapsed]}>
             <Icon name="live-tv" size={!isActive ? 18 : 22} color={isActive ? colors.primary : colors.white} />
@@ -210,7 +242,7 @@ const LiveTvScreen = ({ navigation }) => {
 
   const handleChannelPress = (channel) => {
     navigatingToPlayer.current = true;
-    
+
     let catName = 'ALL';
     if (selectedCategoryId) {
       const cat = categories.find(c => c.id === selectedCategoryId);
@@ -249,7 +281,10 @@ const LiveTvScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { 
+      paddingLeft: Math.max(insets.left, 10), 
+      paddingRight: Math.max(insets.right, 10) 
+    }]}>
       {/* Sidebar - Left */}
       <Animated.View style={[styles.sidebar, { width: sidebarWidth }]}>
         <View style={styles.sidebarHeader}>
@@ -264,7 +299,7 @@ const LiveTvScreen = ({ navigation }) => {
             style={styles.logoContainer}
           >
             <Image
-              source={require('../../assets/images/logo.png')}
+              source={require('../../assets/images/fundady_logo.png')}
               style={isSidebarCollapsed ? styles.logoSmall : styles.logo}
               resizeMode="contain"
             />
@@ -281,7 +316,7 @@ const LiveTvScreen = ({ navigation }) => {
             <Icon name="search" size={20} color={colors.textMuted} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search categories"
+              placeholder="Search category"
               placeholderTextColor={colors.textMuted}
               value={categorySearchQuery}
               onChangeText={setCategorySearchQuery}
@@ -307,7 +342,8 @@ const LiveTvScreen = ({ navigation }) => {
                 {!isSidebarCollapsed && (
                   <>
                     <AppText style={styles.categoryName} color={!selectedCategoryId ? colors.white : colors.textSecondary}>ALL</AppText>
-                    <AppText style={styles.categoryCount} color={!selectedCategoryId ? colors.white : colors.textMuted}>{channels.length}</AppText>
+                    <AppText style={styles.categoryCount} color={!selectedCategoryId ? colors.white : colors.textMuted}>{allChannelsForCounts.length}</AppText>
+                    {!selectedCategoryId && <View style={styles.activeIndicator} />}
                   </>
                 )}
                 {isSidebarCollapsed && (
@@ -358,9 +394,9 @@ const LiveTvScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.headerIcon} onPress={() => setIsChannelSearchVisible(true)}>
                   <Icon name="search" size={24} color={colors.white} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.headerIcon}>
+                {/* <TouchableOpacity style={styles.headerIcon}>
                   <Icon name="more-vert" size={24} color={colors.white} />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
             </>
           )}
@@ -372,13 +408,14 @@ const LiveTvScreen = ({ navigation }) => {
           </View>
         ) : (
           <FlatList
-            key={isSidebarCollapsed ? 6 : 5}
+            key={`grid-${numColumns}`}
             data={filteredChannels}
             renderItem={({ item }) => (
-              <ChannelGridItem item={item} onPress={handleChannelPress} />
+              // <ChannelGridItem item={item} onPress={handleChannelPress} />
+              <ChannelGridItem item={item} />
             )}
             keyExtractor={item => item.id.toString()}
-            numColumns={isSidebarCollapsed ? 6 : 5}
+            numColumns={numColumns}
             contentContainerStyle={styles.gridContainer}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
@@ -393,12 +430,12 @@ const LiveTvScreen = ({ navigation }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#000',
+    paddingVertical: 10,
   },
   loaderContainer: {
     flex: 1,
@@ -412,6 +449,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: '#222',
     overflow: 'hidden',
+    borderRadius: 15,
   },
   sidebarHeader: {
     flexDirection: 'row',
@@ -426,12 +464,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    height: 40,
-    width: 80,
+    height: 60,
+    width: 120,
   },
   logoSmall: {
-    height: 30,
-    width: 30,
+    height: 50,
+    width: 40,
   },
   backButton: {
     padding: 5,
@@ -487,11 +525,11 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
+    backgroundColor: '#1a1a1a',
   },
   inactiveIconContainerCollapsed: {
     borderWidth: 1,
     borderColor: '#333333',
-    backgroundColor: '#1a1a1a',
   },
   activeIconUnderline: {
     width: 12,
@@ -528,7 +566,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   gridContainer: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 10,
     paddingBottom: spacing.xl,
     alignItems: 'center',
   },

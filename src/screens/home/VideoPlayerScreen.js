@@ -11,6 +11,7 @@ import {
     Modal,
     Platform,
     FlatList,
+    PanResponder,
 } from 'react-native';
 import Video from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
@@ -23,10 +24,10 @@ import AppText from '../../components/common/AppText';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const VideoPlayerScreen = ({ route, navigation }) => {
-    const { 
-        videoUrl: initialVideoUrl, 
-        dualaudioUrl: initialDualAudioUrl, 
-        movieTitle, 
+    const {
+        videoUrl: initialVideoUrl,
+        dualaudioUrl: initialDualAudioUrl,
+        movieTitle,
         posterUrl,
         isSeries = false,
         episodes = [],
@@ -48,7 +49,8 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     const [isAudioModalVisible, setIsAudioModalVisible] = useState(false);
     const [isEpisodesModalVisible, setIsEpisodesModalVisible] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
-    
+    const [isSeeking, setIsSeeking] = useState(false);
+
     // Series State
     const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [currentVideoUrl, setCurrentVideoUrl] = useState(initialVideoUrl);
@@ -145,7 +147,9 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     };
 
     const onProgress = (data) => {
-        setCurrentTime(data.currentTime);
+        if (!isSeeking) {
+            setCurrentTime(data.currentTime);
+        }
     };
 
     const onLoad = (data) => {
@@ -167,9 +171,9 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         setPaused(true);
         setShowCountdown(true);
         setCountdownValue(5);
-        
+
         if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
-        
+
         countdownTimerRef.current = setInterval(() => {
             setCountdownValue((prev) => {
                 if (prev <= 1) {
@@ -192,11 +196,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
         setShowCountdown(false);
         setCurrentIndex(index);
-        
+
         const ep = episodes[index];
         const newVideoUrl = ep.tvShow_link || ep.movie_link || ep.videoUrl;
         const newDualUrl = ep.dual_link || ep.dualaudio_link || ep.dualaudioUrl;
-        
+
         setCurrentVideoUrl(newVideoUrl);
         setCurrentDualAudioUrl(newDualUrl);
         setLoading(true);
@@ -213,11 +217,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     const getDisplayTitle = () => {
         if (!isSeries || !episodes[currentIndex]) return movieTitle;
         const ep = episodes[currentIndex];
-        
+
         // Format season and episode for title like "S1-E1-8 Stranger Things"
         const s = ep.season?.match(/\d+/)?.[0] || '1';
         const e = ep.episode?.replace(/Episode\s+/i, 'E')?.replace(/\s+to\s+/i, '-') || '';
-        
+
         return `S${s}-${e} ${movieTitle}`;
     };
 
@@ -279,6 +283,45 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     };
 
     const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: () => true,
+            onPanResponderGrant: (evt, gestureState) => {
+                setIsSeeking(true);
+                handleSeek(evt);
+                if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
+            },
+            onPanResponderMove: (evt, gestureState) => {
+                handleSeek(evt);
+            },
+            onPanResponderRelease: (evt, gestureState) => {
+                setIsSeeking(false);
+                if (videoRef.current) {
+                    videoRef.current.seek(currentTime);
+                }
+                startControlTimer();
+            },
+            onPanResponderTerminate: () => {
+                setIsSeeking(false);
+                startControlTimer();
+            },
+        })
+    ).current;
+
+    const handleSeek = (evt) => {
+        const { locationX } = evt.nativeEvent;
+        // The width of the seek bar is roughly current width of screen - 80 (padding)
+        // However, using measure or a safer approach is better.
+        // For now, let's use the screen width minus the horizontal padding (40 * 2)
+        const barWidth = SCREEN_WIDTH - 80;
+        let newProgress = locationX / barWidth;
+        if (newProgress < 0) newProgress = 0;
+        if (newProgress > 1) newProgress = 1;
+
+        setCurrentTime(newProgress * duration);
+    };
 
     return (
         <View style={styles.container}>
@@ -382,8 +425,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
                                 {/* Bottom Bar */}
                                 <View style={styles.bottomBar}>
-                                    <View style={styles.seekContainer}>
-                                        <View style={styles.progressBar}>
+                                    <View 
+                                        style={styles.seekContainer}
+                                        {...panResponder.panHandlers}
+                                    >
+                                        <View style={styles.progressBar} pointerEvents="none">
                                             <View style={[styles.progressFill, { width: `${progressPercentage}%` }]} />
                                             <View style={[styles.progressKnob, { left: `${progressPercentage}%` }]} />
                                         </View>
@@ -472,7 +518,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         {/* <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Audio Track</AppText> */}
-                        {/* <View style={styles.modalOptions}>
+                        <View style={styles.modalOptions}>
                             {[
                                 { label: 'English (Default)', url: episodes[currentIndex]?.tvShow_link || initialVideoUrl },
                                 { label: 'Hindi (Dual Audio)', url: episodes[currentIndex]?.dual_link || initialDualAudioUrl }
@@ -490,7 +536,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                     </AppText>
                                 </TouchableOpacity>
                             ))}
-                        </View> */}
+                        </View>
                         <TouchableOpacity style={styles.modalCancelButton} onPress={closeAudioModal}>
                             <AppText variant="bold" color={colors.white}>CANCEL</AppText>
                         </TouchableOpacity>
@@ -510,7 +556,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { width: '80%', maxHeight: '70%' }]}>
                         <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Episodes</AppText>
-                        <FlatList
+                        <FlatList 
                             data={episodes}
                             keyExtractor={(item, index) => index.toString()}
                             renderItem={({ item, index }) => (

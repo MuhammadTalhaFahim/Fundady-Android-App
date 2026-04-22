@@ -131,7 +131,7 @@ const SportsScreen = ({ navigation }) => {
                 <Animated.FlatList
                     data={filteredData}
                     renderItem={({ item }) => {
-                        const cardWidth = (width - spacing.md * 2) / 3 - 8;
+                        const cardWidth = (width - spacing.md * 2) / 2 - 8;
                         return (
                             <MovieCard
                                 imageUrl={`${SPORTS_POSTER_BASE_URL}${item.poster}`}
@@ -141,13 +141,13 @@ const SportsScreen = ({ navigation }) => {
                                     movieDataFallback: item
                                 })}
                                 width={cardWidth}
-                                height={cardWidth * 1.5}
+                                height={cardWidth * 0.5625}
                                 style={{ margin: 4 }}
                             />
                         );
                     }}
                     keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-                    numColumns={3}
+                    numColumns={2}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     onScroll={Animated.event(

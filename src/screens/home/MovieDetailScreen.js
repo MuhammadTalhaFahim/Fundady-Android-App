@@ -74,59 +74,59 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 // If APIs resolved, setup responseData
                 const responseData = (movieRes && movieRes.data) ? movieRes.data : movieRes;
 
-                    // Robust extraction for different response structures
-                    let movieData = null;
+                // Robust extraction for different response structures
+                let movieData = null;
+                if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
+                    // Sports might be nested or direct
+                    let directData = (responseData?.[contentType]?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+
+                    // Backend fallback: if the specific ID fetch returned empty, find it in the full list
+                    if (!directData || Object.keys(directData).length === 0) {
+                        const allData = allMoviesRes?.data || allMoviesRes;
+                        const availableList = allData?.[contentType]?.data || allData?.data || (Array.isArray(allData) ? allData : []);
+                        directData = availableList.find(m => String(m.id) === String(id)) || null;
+                    }
+
+                    movieData = directData || movieDataFallback || null;
+                } else {
+                    // Movies standard
+                    let directData = (responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
+                    if (Array.isArray(directData) && directData.length === 0) directData = null;
+                    movieData = directData || movieDataFallback || null;
+                }
+
+                if (movieData) {
+                    setMovie(movieData);
+                } else {
+                    throw new Error('No data found');
+                }
+
+                // Process similar items
+                const allData = (allMoviesRes && allMoviesRes.data) ? allMoviesRes.data : allMoviesRes;
+                if (allData) {
+                    let availableData = [];
                     if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
-                        // Sports might be nested or direct
-                        let directData = (responseData?.[contentType]?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
-                        
-                        // Backend fallback: if the specific ID fetch returned empty, find it in the full list
-                        if (!directData || Object.keys(directData).length === 0) {
-                            const allData = allMoviesRes?.data || allMoviesRes;
-                            const availableList = allData?.[contentType]?.data || allData?.data || (Array.isArray(allData) ? allData : []);
-                            directData = availableList.find(m => String(m.id) === String(id)) || null;
-                        }
-                        
-                        movieData = directData || movieDataFallback || null;
+                        availableData = allData?.[contentType]?.data || allData?.data || (Array.isArray(allData) ? allData : []);
                     } else {
-                        // Movies standard
-                        let directData = (responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
-                        if (Array.isArray(directData) && directData.length === 0) directData = null;
-                        movieData = directData || movieDataFallback || null;
-                    }
-                    
-                    if (movieData) {
-                        setMovie(movieData);
-                    } else {
-                        throw new Error('No data found');
+                        availableData = allData?.data || (Array.isArray(allData) ? allData : []);
                     }
 
-                    // Process similar items
-                    const allData = (allMoviesRes && allMoviesRes.data) ? allMoviesRes.data : allMoviesRes;
-                    if (allData) {
-                        let availableData = [];
-                        if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
-                            availableData = allData?.[contentType]?.data || allData?.data || (Array.isArray(allData) ? allData : []);
-                        } else {
-                            availableData = allData?.data || (Array.isArray(allData) ? allData : []);
-                        }
-
-                        if (!Array.isArray(availableData)) {
-                            availableData = [];
-                        }
-
-                        const currentCats = typeof movieData.categories === 'string' ? movieData.categories.split(',').map(c => c.trim()) : [];
-                        let filtered = availableData.filter(m => {
-                            if (m.id === movieData.id) return false;
-                            const mCats = typeof m.categories === 'string' ? m.categories.split(',').map(c => c.trim()) : [];
-                            return mCats.length > 0 ? mCats.some(cat => currentCats.includes(cat)) : true;
-                        });
-
-                        if (filtered.length === 0) {
-                            filtered = availableData.filter(m => m.id !== movieData.id);
-                        }
-                        setSimilarMovies(filtered.slice(0, 15));
+                    if (!Array.isArray(availableData)) {
+                        availableData = [];
                     }
+
+                    const currentCats = typeof movieData.categories === 'string' ? movieData.categories.split(',').map(c => c.trim()) : [];
+                    let filtered = availableData.filter(m => {
+                        if (m.id === movieData.id) return false;
+                        const mCats = typeof m.categories === 'string' ? m.categories.split(',').map(c => c.trim()) : [];
+                        return mCats.length > 0 ? mCats.some(cat => currentCats.includes(cat)) : true;
+                    });
+
+                    if (filtered.length === 0) {
+                        filtered = availableData.filter(m => m.id !== movieData.id);
+                    }
+                    setSimilarMovies(filtered.slice(0, 15));
+                }
             } catch (error) {
                 console.error('Error fetching content details:', error);
                 alert('Failed to load content details');
@@ -262,11 +262,11 @@ const MovieDetailScreen = ({ route, navigation }) => {
     };
 
     const renderSimilarMovie = (item, index) => {
-        const spacingTotal = spacing.md * 2 + spacing.xs * 2; // Parent padding + grid padding
-        const cardWidth = (width - spacingTotal) / 3 - 2;
-        const currentBaseUrl = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football'
-            ? SPORTS_POSTER_BASE_URL
-            : POSTER_BASE_URL;
+        const isSport = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football';
+        const numCols = isSport ? 2 : 3;
+        const spacingTotal = spacing.md * 2 + (numCols - 1) * spacing.xs;
+        const cardWidth = (width - spacingTotal) / numCols - 2;
+        const currentBaseUrl = isSport ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL;
 
         return (
             <MovieCard
@@ -277,7 +277,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     contentType: contentType
                 })}
                 width={cardWidth}
-                height={cardWidth * 1.5}
+                height={isSport ? cardWidth * 0.5625 : cardWidth * 1.5}
                 style={styles.similarMovieCard}
             />
         );
@@ -352,9 +352,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 <AppText color={colors.textSecondary} style={styles.infoItem}>
                                     {movie.date?.split('-')[0] || 'N/A'}
                                 </AppText>
-                                <View style={styles.ratingBadge}>
-                                    <Icon name="visibility" size={14} color={colors.black} style={{ marginRight: 4 }} />
-                                    <AppText color={colors.black} size="xs" variant="bold">
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: spacing.sm }}>
+                                    <Icon name="visibility" size={16} color={colors.textSecondary} style={{ marginRight: 4 }} />
+                                    <AppText color={colors.textSecondary} style={{ fontSize: 14 }}>
                                         {movie.views !== null && movie.views !== undefined ? movie.views : 'N/A'}
                                     </AppText>
                                 </View>
@@ -366,7 +366,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 </View>
                                 <View style={styles.hdBadge}>
                                     <AppText color={colors.white} size="xs" variant="bold">
-                                        HD
+                                        {movie.qualities || 'HD'}
                                     </AppText>
                                 </View>
                             </>
@@ -389,7 +389,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 </AppText>
                                 <View style={styles.hdBadge}>
                                     <AppText color={colors.white} size="xs" variant="bold">
-                                        HD
+                                        {movie.qualities || 'HD'}
                                     </AppText>
                                 </View>
                             </>
@@ -402,9 +402,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             <AppText variant="bold" style={styles.downloadText}>Download</AppText>
                         </TouchableOpacity>
 
-                        {/* <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}> */}
-                                                <TouchableOpacity style={styles.youtubeIconButton}>
-
+                        <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
                             <Icon name="share" size={20} color={colors.white} />
                         </TouchableOpacity>
 
