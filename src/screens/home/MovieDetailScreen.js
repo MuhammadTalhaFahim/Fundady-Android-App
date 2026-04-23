@@ -515,7 +515,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Select Audio</AppText>
+                        {/* <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Select Audio</AppText> */}
                         <View style={styles.modalOptions}>
                             <TouchableOpacity style={styles.modalOption} onPress={() => downloadTrack(downloadLink)}>
                                 <AppText color={colors.white} style={styles.modalOptionText}>English (Default)</AppText>

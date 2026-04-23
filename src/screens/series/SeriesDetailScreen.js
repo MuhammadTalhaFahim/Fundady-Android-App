@@ -52,7 +52,8 @@ const SeriesDetailScreen = ({ route, navigation }) => {
 
                 if (response.status && response.data) {
                     // Handle different possible data structures for series
-                    const seriesData = response.data?.tvshows?.data?.[0] || 
+                    const seriesData = response.data?.tvshows?.[0] || 
+                                      response.data?.tvshows?.data?.[0] || 
                                       (Array.isArray(response.data) ? response.data[0] : response.data);
                     setMovie(seriesData);
                 } else {
@@ -114,7 +115,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                         buttonPositive: 'OK',
                     }
                 );
-                
+
                 if (granted !== PermissionsAndroid.RESULTS.GRANTED && Platform.Version < 33) {
                     alert('Storage Permission Denied');
                     return;
@@ -131,16 +132,16 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                     mediaScannable: true,
                 }
             })
-            .fetch('GET', url)
-            .then((res) => {
-                if (Platform.OS === 'ios') {
-                    ReactNativeBlobUtil.ios.previewDocument(res.path());
-                }
-            })
-            .catch((err) => {
-                console.error("Download Error", err);
-                alert('Download failed to start.');
-            });
+                .fetch('GET', url)
+                .then((res) => {
+                    if (Platform.OS === 'ios') {
+                        ReactNativeBlobUtil.ios.previewDocument(res.path());
+                    }
+                })
+                .catch((err) => {
+                    console.error("Download Error", err);
+                    alert('Download failed to start.');
+                });
         } catch (err) {
             console.warn(err);
         }
@@ -167,7 +168,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-            
+
             <View style={styles.headerContainer}>
                 <MainHeader variant="inner" />
             </View>
@@ -178,126 +179,124 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 </View>
             ) : !movie ? null : (
                 <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-                {/* Media Section */}
-                <View style={styles.mediaContainer}>
-                    {showVideo ? (
-                        <Video
-                            source={require('../../assets/videos/intro.mp4')}
-                            style={styles.introVideo}
-                            resizeMode="cover"
-                            muted={false}
-                            onEnd={() => setShowVideo(false)}
-                            onError={() => setShowVideo(false)}
-                        />
-                    ) : (
-                        <View style={styles.posterWrapper}>
-                            <Image
-                                source={{ uri: `${TV_SHOWS_POSTER_BASE_URL}${movie.poster}` }}
-                                style={styles.poster}
+                    {/* Media Section */}
+                    <View style={styles.mediaContainer}>
+                        {showVideo ? (
+                            <Video
+                                source={require('../../assets/videos/intro.mp4')}
+                                style={styles.introVideo}
                                 resizeMode="cover"
+                                muted={false}
+                                onEnd={() => setShowVideo(false)}
+                                onError={() => setShowVideo(false)}
                             />
-                            <TouchableOpacity style={styles.playOverlay} onPress={() => handlePlayPress(0)}>
-                                <Icon name="play-circle-outline" size={70} color={colors.white} />
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                </View>
-
-                {/* Content Details */}
-                <View style={styles.contentContainer}>
-                    <AppText variant="bold" size="headingLg" style={styles.movieTitle}>{movie.title}</AppText>
-                    
-                    <View style={styles.infoRow}>
-                        <AppText color={colors.textSecondary} style={styles.infoItem}>
-                            {movie.release_date?.split('-')[0] || 'N/A'}
-                        </AppText>
-                        <View style={styles.ratingBadge}>
-                            <AppText color={colors.black} size="xs" variant="bold">IMDb {movie.imdb_rating || 'N/A'}</AppText>
-                        </View>
-                        <View style={styles.hdBadge}>
-                            <AppText color={colors.white} size="xs" variant="bold">
-                                {movie.tvqualities || 'HD'}
-                            </AppText>
-                        </View>
-                    </View>
-
-                    <View style={styles.youtubeActionsRow}>
-                        {/* <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}> */}
-                                                    <TouchableOpacity style={styles.youtubeIconButton}>
-
-                            <Icon name="share" size={20} color={colors.white} />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.youtubeIconButton} onPress={toggleMyList}>
-                            <Icon name={isInMyList ? "check" : "add"} size={22} color={colors.white} />
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Description */}
-                    <View style={styles.descriptionSection}>
-                        <AppText style={styles.description} numberOfLines={isDescriptionExpanded ? undefined : 3}>
-                            {descriptionText}
-                        </AppText>
-                        {shouldShowMore && (
-                            <TouchableOpacity onPress={toggleDescription}>
-                                <AppText color={colors.white} variant="bold" style={styles.moreButton}>
-                                    {isDescriptionExpanded ? 'less' : 'more'}
-                                </AppText>
-                            </TouchableOpacity>
+                        ) : (
+                            <View style={styles.posterWrapper}>
+                                <Image
+                                    source={{ uri: `${TV_SHOWS_POSTER_BASE_URL}${movie.poster}` }}
+                                    style={styles.poster}
+                                    resizeMode="cover"
+                                />
+                                <TouchableOpacity style={styles.playOverlay} onPress={() => handlePlayPress(0)}>
+                                    <Icon name="play-circle-outline" size={70} color={colors.white} />
+                                </TouchableOpacity>
+                            </View>
                         )}
                     </View>
 
-                    <View style={styles.creditSection}>
-                        <AppText color={colors.textMuted} size="sm">
-                            Genre:{' '}
-                            <AppText color={colors.textSecondary} size="sm">
-                                {movie.genre || 'N/A'}
-                            </AppText>
-                        </AppText>
-                        <AppText color={colors.textMuted} size="sm" style={{ marginTop: 4 }}>
-                            Created by:{' '}
-                            <AppText color={colors.textSecondary} size="sm">
-                                {movie.created_by || 'N/A'}
-                            </AppText>
-                        </AppText>
-                    </View>
+                    {/* Content Details */}
+                    <View style={styles.contentContainer}>
+                        <AppText variant="bold" size="headingLg" style={styles.movieTitle}>{movie.title}</AppText>
 
-
-                    {/* Episodes List Section */}
-                    <View style={styles.episodesSection}>
-                        <View style={styles.sectionHeader}>
-                            <View style={styles.activeIndicator} />
-                            <AppText variant="bold" color={colors.white} style={styles.sectionTitle}>Episodes</AppText>
+                        <View style={styles.infoRow}>
+                            <AppText color={colors.textSecondary} style={styles.infoItem}>
+                                {movie.release_date?.split('-')[0] || 'N/A'}
+                            </AppText>
+                            <View style={styles.ratingBadge}>
+                                <AppText color={colors.black} size="xs" variant="bold">IMDb {movie.imdb_rating || 'N/A'}</AppText>
+                            </View>
+                            <View style={styles.hdBadge}>
+                                <AppText color={colors.white} size="xs" variant="bold">
+                                    {movie.tvqualities || 'HD'}
+                                </AppText>
+                            </View>
                         </View>
 
-                        {movie.links?.map((item, index) => (
-                            <View key={index} style={styles.episodeCard}>
-                                <View style={styles.episodeMain}>
-                                    <TouchableOpacity style={styles.episodeImageWrapper} onPress={() => handlePlayPress(index)}>
-                                        <Image
-                                            source={{ uri: `${TV_SHOWS_POSTER_BASE_URL}${movie.poster}` }}
-                                            style={styles.episodeThumb}
-                                        />
-                                        <View style={styles.miniPlayIcon}>
-                                            <Icon name="play-arrow" size={24} color={colors.white} />
-                                        </View>
-                                    </TouchableOpacity>
-                                    <View style={styles.episodeInfo}>
-                                        <AppText variant="bold" color={colors.white}>{item.season}</AppText>
-                                        <AppText color={colors.textSecondary} size="sm">{item.episode}</AppText>
-                                    </View>
-                                    <TouchableOpacity 
-                                        style={styles.episodeDownloadBtn} 
-                                        onPress={() => handleDownloadRequest(item.download_link, item.dual_download_link)}
-                                    >
-                                        <Icon name="file-download" size={26} color={colors.white} />
-                                    </TouchableOpacity>
-                                </View>
+                        <View style={styles.youtubeActionsRow}>
+                            <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
+                                <Icon name="share" size={20} color={colors.white} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.youtubeIconButton} onPress={toggleMyList}>
+                                <Icon name={isInMyList ? "check" : "add"} size={22} color={colors.white} />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Description */}
+                        <View style={styles.descriptionSection}>
+                            <AppText style={styles.description} numberOfLines={isDescriptionExpanded ? undefined : 3}>
+                                {descriptionText}
+                            </AppText>
+                            {shouldShowMore && (
+                                <TouchableOpacity onPress={toggleDescription}>
+                                    <AppText color={colors.white} variant="bold" style={styles.moreButton}>
+                                        {isDescriptionExpanded ? 'less' : 'more'}
+                                    </AppText>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+
+                        <View style={styles.creditSection}>
+                            <AppText color={colors.textMuted} size="sm">
+                                Genre:{' '}
+                                <AppText color={colors.textSecondary} size="sm">
+                                    {movie.genre || 'N/A'}
+                                </AppText>
+                            </AppText>
+                            <AppText color={colors.textMuted} size="sm" style={{ marginTop: 4 }}>
+                                Created by:{' '}
+                                <AppText color={colors.textSecondary} size="sm">
+                                    {movie.created_by || 'N/A'}
+                                </AppText>
+                            </AppText>
+                        </View>
+
+
+                        {/* Episodes List Section */}
+                        <View style={styles.episodesSection}>
+                            <View style={styles.sectionHeader}>
+                                <View style={styles.activeIndicator} />
+                                <AppText variant="bold" color={colors.white} style={styles.sectionTitle}>Episodes</AppText>
                             </View>
-                        ))}
+
+                            {movie.links?.map((item, index) => (
+                                <View key={index} style={styles.episodeCard}>
+                                    <View style={styles.episodeMain}>
+                                        <TouchableOpacity style={styles.episodeImageWrapper} onPress={() => handlePlayPress(index)}>
+                                            <Image
+                                                source={{ uri: `${TV_SHOWS_POSTER_BASE_URL}${movie.poster}` }}
+                                                style={styles.episodeThumb}
+                                            />
+                                            <View style={styles.miniPlayIcon}>
+                                                <Icon name="play-arrow" size={24} color={colors.white} />
+                                            </View>
+                                        </TouchableOpacity>
+                                        <View style={styles.episodeInfo}>
+                                            <AppText variant="bold" color={colors.white}>{item.season}</AppText>
+                                            <AppText color={colors.textSecondary} size="sm">{item.episode}</AppText>
+                                        </View>
+                                        <TouchableOpacity
+                                            style={styles.episodeDownloadBtn}
+                                            onPress={() => handleDownloadRequest(item.download_link, item.dual_download_link)}
+                                        >
+                                            <Icon name="file-download" size={26} color={colors.white} />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
                     </View>
-                </View>
-            </ScrollView>
+                </ScrollView>
             )}
 
             {/* Download Modal */}

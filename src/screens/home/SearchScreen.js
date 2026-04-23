@@ -16,11 +16,11 @@ import { spacing, iconSizes } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 
-import { 
-  MOVIES_POSTER_BASE_URL, 
-  SPORTS_POSTER_BASE_URL, 
+import {
+  MOVIES_POSTER_BASE_URL,
+  SPORTS_POSTER_BASE_URL,
   GALLERY_POSTER_BASE_URL,
-  TV_SHOWS_POSTER_BASE_URL 
+  TV_SHOWS_POSTER_BASE_URL
 } from '../../utils/constants';
 import { movieService } from '../../services/movieService';
 
@@ -107,9 +107,9 @@ const SearchScreen = ({ navigation }) => {
       if (contentType === 'web_series') {
         detailRes = await movieService.getWebSeriesById(id);
       } else if (contentType === 'tv_show') {
-         detailRes = await movieService.getTVShowById(id);
+        detailRes = await movieService.getTVShowById(id);
       } else if (contentType === 'tv_serial') {
-         detailRes = await movieService.getTVSerialById(id);
+        detailRes = await movieService.getTVSerialById(id);
       } else if (contentType === 'wwe') {
         detailRes = await movieService.getWWEById(id);
       } else if (contentType === 'cricket') {
@@ -128,7 +128,7 @@ const SearchScreen = ({ navigation }) => {
         if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
           mediaData = responseData?.[contentType]?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData);
         } else if (contentType === 'web_series' || contentType === 'tv_show' || contentType === 'tv_serial') {
-          mediaData = responseData?.tvshows?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData);
+          mediaData = responseData?.tvshows?.[0] || responseData?.tvshows?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData);
         } else {
           mediaData = responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData);
         }
@@ -138,45 +138,45 @@ const SearchScreen = ({ navigation }) => {
           const isSports = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football';
 
           if (isSeries) {
-              const eps = mediaData.links || mediaData.episodes || [];
-              if (eps.length > 0) {
-                  const ep = eps[0];
-                  // For series, usually the ep has tvShow_link, videoUrl, or movie_link
-                  const videoUrl = ep.tvShow_link || ep.videoUrl || ep.movie_link;
-                  const dualaudioUrl = ep.dual_link || ep.dualaudioUrl || ep.dualaudio_link;
-                  
-                  if (videoUrl || dualaudioUrl) {
-                      navigation.navigate('VideoPlayer', {
-                          videoUrl,
-                          dualaudioUrl,
-                          movieTitle: mediaData.title,
-                          isSeries: true,
-                          episodes: eps,
-                          initialIndex: 0,
-                          posterUrl: `${TV_SHOWS_POSTER_BASE_URL}${mediaData.poster}`
-                      });
-                  } else {
-                      alert('Series video link not found.');
-                  }
-              } else {
-                  alert('Episodes not found.');
-              }
-          } else {
-              // Movie or Sports
-              const streamLink = mediaData.video_link || mediaData.movie_url || (mediaData.links && mediaData.links.length > 0 ? mediaData.links[0].movie_link : null);
-              const dualStreamLink = mediaData.links && mediaData.links.length > 0 ? mediaData.links[0].dualaudio_link : null;
+            const eps = mediaData.links || mediaData.episodes || [];
+            if (eps.length > 0) {
+              const ep = eps[0];
+              // For series, usually the ep has tvShow_link, videoUrl, or movie_link
+              const videoUrl = ep.tvShow_link || ep.videoUrl || ep.movie_link;
+              const dualaudioUrl = ep.dual_link || ep.dualaudioUrl || ep.dualaudio_link;
 
-              if (streamLink || dualStreamLink) {
-                 navigation.navigate('VideoPlayer', {
-                     videoUrl: streamLink,
-                     dualaudioUrl: dualStreamLink,
-                     movieTitle: isSports ? (mediaData.video_title || mediaData.title) : mediaData.title,
-                     isSeries: false,
-                     posterUrl: `${isSports ? SPORTS_POSTER_BASE_URL : MOVIES_POSTER_BASE_URL}${mediaData.poster}`
-                 });
+              if (videoUrl || dualaudioUrl) {
+                navigation.navigate('VideoPlayer', {
+                  videoUrl,
+                  dualaudioUrl,
+                  movieTitle: mediaData.title,
+                  isSeries: true,
+                  episodes: eps,
+                  initialIndex: 0,
+                  posterUrl: `${TV_SHOWS_POSTER_BASE_URL}${mediaData.poster}`
+                });
               } else {
-                 alert('Media link not found.');
+                alert('Series video link not found.');
               }
+            } else {
+              alert('Episodes not found.');
+            }
+          } else {
+            // Movie or Sports
+            const streamLink = mediaData.video_link || mediaData.movie_url || (mediaData.links && mediaData.links.length > 0 ? mediaData.links[0].movie_link : null);
+            const dualStreamLink = mediaData.links && mediaData.links.length > 0 ? mediaData.links[0].dualaudio_link : null;
+
+            if (streamLink || dualStreamLink) {
+              navigation.navigate('VideoPlayer', {
+                videoUrl: streamLink,
+                dualaudioUrl: dualStreamLink,
+                movieTitle: isSports ? (mediaData.video_title || mediaData.title) : mediaData.title,
+                isSeries: false,
+                posterUrl: `${isSports ? SPORTS_POSTER_BASE_URL : MOVIES_POSTER_BASE_URL}${mediaData.poster}`
+              });
+            } else {
+              alert('Media link not found.');
+            }
           }
         }
       }
@@ -200,7 +200,7 @@ const SearchScreen = ({ navigation }) => {
     const isSeries = showType.includes('series') || category.includes('series') || name.includes('series') || videoLink.includes('/series/');
     const isTvShow = category.includes('tv shows') || category.includes('reality') || name.includes('tv shows') || videoLink.includes('/tv_shows/');
     const isTvSerial = category.includes('tv serials') || name.includes('tv serials') || videoLink.includes('/tv_serials/');
-    
+
     const isWwe = category.includes('wwe') || name.includes('wwe') || title.includes('wwe') || videoLink.includes('wwe') || videoLink.includes('wrestling');
     const isCricket = category.includes('cricket') || name.includes('cricket') || title.includes('cricket') || videoLink.includes('cricket');
     const isFootball = category.includes('football') || name.includes('football') || title.includes('football') || videoLink.includes('football');
@@ -213,70 +213,70 @@ const SearchScreen = ({ navigation }) => {
     let posterBaseUrl = MOVIES_POSTER_BASE_URL;
 
     if (isSeries) {
-        contentType = 'web_series';
-        navigateTo = 'SeriesDetail';
-        posterBaseUrl = TV_SHOWS_POSTER_BASE_URL;
+      contentType = 'web_series';
+      navigateTo = 'SeriesDetail';
+      posterBaseUrl = TV_SHOWS_POSTER_BASE_URL;
     } else if (isTvShow) {
-        contentType = 'tv_show';
-        navigateTo = 'SeriesDetail';
-        posterBaseUrl = TV_SHOWS_POSTER_BASE_URL;
+      contentType = 'tv_show';
+      navigateTo = 'SeriesDetail';
+      posterBaseUrl = TV_SHOWS_POSTER_BASE_URL;
     } else if (isTvSerial) {
-        contentType = 'tv_serial';
-        navigateTo = 'SeriesDetail';
-        posterBaseUrl = TV_SHOWS_POSTER_BASE_URL;
+      contentType = 'tv_serial';
+      navigateTo = 'SeriesDetail';
+      posterBaseUrl = TV_SHOWS_POSTER_BASE_URL;
     } else if (isWwe) {
-        contentType = 'wwe';
-        posterBaseUrl = SPORTS_POSTER_BASE_URL;
+      contentType = 'wwe';
+      posterBaseUrl = SPORTS_POSTER_BASE_URL;
     } else if (isCricket) {
-        contentType = 'cricket';
-        posterBaseUrl = SPORTS_POSTER_BASE_URL;
+      contentType = 'cricket';
+      posterBaseUrl = SPORTS_POSTER_BASE_URL;
     } else if (isFootball) {
-        contentType = 'football';
-        posterBaseUrl = SPORTS_POSTER_BASE_URL;
+      contentType = 'football';
+      posterBaseUrl = SPORTS_POSTER_BASE_URL;
     } else if (isOtherSports) {
-        contentType = 'sports';
-        posterBaseUrl = SPORTS_POSTER_BASE_URL;
+      contentType = 'sports';
+      posterBaseUrl = SPORTS_POSTER_BASE_URL;
     } else if (item.movie_id && !item.id) {
-        // Feature Gallery items
-        posterBaseUrl = GALLERY_POSTER_BASE_URL;
+      // Feature Gallery items
+      posterBaseUrl = GALLERY_POSTER_BASE_URL;
     }
 
     return (
-        <View style={styles.searchItemWrapper}>
-            <TouchableOpacity
-                style={styles.searchItemMain}
-                onPress={() => navigation.navigate(navigateTo, { 
-                    id: item.id || item.movie_id, 
-                    contentType: contentType,
-                    movieDataFallback: item
-                })}
-            >
-                <Image
-                    source={{ uri: `${posterBaseUrl}${item.poster}` }}
-                    style={styles.itemPosterThumbnail}
-                />
-                <View style={styles.textContainer}>
-                    <AppText style={styles.itemTitleText} numberOfLines={1}>
-                        {item.title}
-                    </AppText>
-                    {item.category && (
-                        <AppText color={colors.textSecondary} size="xs" style={styles.itemCategoryText}>
-                            {item.category}
-                        </AppText>
-                    )}
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity 
-                style={styles.playIconButton}
-                onPress={() => handleDirectPlay(item, contentType)}
-            >
-                <Icon
-                    name="play-circle-outline"
-                    size={30}
-                    color={colors.white}
-                />
-            </TouchableOpacity>
-        </View>
+      <View style={styles.searchItemWrapper}>
+        <TouchableOpacity
+          style={styles.searchItemMain}
+          onPress={() => navigation.navigate(navigateTo, {
+            id: item.id || item.movie_id,
+            contentType: contentType,
+            movieDataFallback: item
+          })}
+        >
+          <Image
+            source={{ uri: `${posterBaseUrl}${item.poster}` }}
+            style={styles.itemPosterThumbnail}
+          />
+          <View style={styles.textContainer}>
+            <AppText style={styles.itemTitleText} numberOfLines={1}>
+              {item.title}
+            </AppText>
+            {item.category && (
+              <AppText color={colors.textSecondary} size="xs" style={styles.itemCategoryText}>
+                {item.category}
+              </AppText>
+            )}
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.playIconButton}
+          onPress={() => handleDirectPlay(item, contentType)}
+        >
+          <Icon
+            name="play-circle-outline"
+            size={30}
+            color={colors.white}
+          />
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -284,7 +284,7 @@ const SearchScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Netflix Style Header */}
       <View style={styles.headerContainer}>
-      <MainHeader variant="inner" showSearch={false} />
+        <MainHeader variant="inner" showSearch={false} />
 
         {/* Search Bar Row */}
         <View style={styles.searchBarRow}>

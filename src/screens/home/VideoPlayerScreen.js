@@ -12,6 +12,7 @@ import {
     Platform,
     FlatList,
     PanResponder,
+    useWindowDimensions,
 } from 'react-native';
 import Video from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
@@ -21,9 +22,8 @@ import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 const VideoPlayerScreen = ({ route, navigation }) => {
+    const { width: SCREEN_WIDTH } = useWindowDimensions();
     const {
         videoUrl: initialVideoUrl,
         dualaudioUrl: initialDualAudioUrl,
@@ -38,6 +38,9 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     const controlTimerRef = useRef(null);
     const resumeTimeRef = useRef(0);
     const countdownTimerRef = useRef(null);
+    const handleSeekRef = useRef(null);
+    const durationRef = useRef(0);
+    const screenWidthRef = useRef(SCREEN_WIDTH);
 
     const [loading, setLoading] = useState(true);
     const [paused, setPaused] = useState(false);
@@ -141,8 +144,18 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     const handleSkip = (seconds) => {
         if (videoRef.current) {
-            videoRef.current.seek(currentTime + seconds);
-            if (showControls) startControlTimer();
+            setIsSeeking(true);
+            const newTime = Math.max(0, Math.min(duration, currentTime + seconds));
+            videoRef.current.seek(newTime);
+            setCurrentTime(newTime);
+            
+            if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
+            startControlTimer();
+
+            // Ignore progress updates for 1 second to let the player stabilize
+            setTimeout(() => {
+                setIsSeeking(false);
+            }, 1000);
         }
     };
 
@@ -154,12 +167,22 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     const onLoad = (data) => {
         setDuration(data.duration);
+        durationRef.current = data.duration;
         setLoading(false);
         if (resumeTimeRef.current > 0 && videoRef.current) {
             videoRef.current.seek(resumeTimeRef.current);
             resumeTimeRef.current = 0; // reset after seeking
         }
     };
+
+    // Keep refs in sync with state
+    useEffect(() => {
+        durationRef.current = duration;
+    }, [duration]);
+
+    useEffect(() => {
+        screenWidthRef.current = SCREEN_WIDTH;
+    }, [SCREEN_WIDTH]);
 
     const onVideoEnd = () => {
         if (isSeries && episodes && currentIndex < episodes.length - 1) {
@@ -290,16 +313,31 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             onMoveShouldSetPanResponder: () => true,
             onPanResponderGrant: (evt, gestureState) => {
                 setIsSeeking(true);
-                handleSeek(evt);
+                if (handleSeekRef.current) handleSeekRef.current(evt);
                 if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
             },
             onPanResponderMove: (evt, gestureState) => {
-                handleSeek(evt);
+                if (handleSeekRef.current) handleSeekRef.current(evt);
             },
             onPanResponderRelease: (evt, gestureState) => {
-                setIsSeeking(false);
                 if (videoRef.current) {
-                    videoRef.current.seek(currentTime);
+                    const { pageX } = evt.nativeEvent;
+                    const currentBarWidth = screenWidthRef.current - 80;
+                    const barStart = 40;
+                    let finalProgress = (pageX - barStart) / currentBarWidth;
+                    if (finalProgress < 0) finalProgress = 0;
+                    if (finalProgress > 1) finalProgress = 1;
+                    
+                    const finalTime = finalProgress * durationRef.current;
+                    videoRef.current.seek(finalTime);
+                    setCurrentTime(finalTime);
+
+                    // Keep isSeeking true for a moment to ignore stale progress reports
+                    setTimeout(() => {
+                        setIsSeeking(false);
+                    }, 1000);
+                } else {
+                    setIsSeeking(false);
                 }
                 startControlTimer();
             },
@@ -311,17 +349,22 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     ).current;
 
     const handleSeek = (evt) => {
-        const { locationX } = evt.nativeEvent;
-        // The width of the seek bar is roughly current width of screen - 80 (padding)
-        // However, using measure or a safer approach is better.
-        // For now, let's use the screen width minus the horizontal padding (40 * 2)
-        const barWidth = SCREEN_WIDTH - 80;
-        let newProgress = locationX / barWidth;
+        const { pageX } = evt.nativeEvent;
+        const currentBarWidth = screenWidthRef.current - 80;
+        const barStart = 40;
+        
+        let newProgress = (pageX - barStart) / currentBarWidth;
         if (newProgress < 0) newProgress = 0;
         if (newProgress > 1) newProgress = 1;
-
-        setCurrentTime(newProgress * duration);
+        
+        if (durationRef.current > 0) {
+            setCurrentTime(newProgress * durationRef.current);
+        }
     };
+
+    useEffect(() => {
+        handleSeekRef.current = handleSeek;
+    });
 
     return (
         <View style={styles.container}>
@@ -556,7 +599,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { width: '80%', maxHeight: '70%' }]}>
                         <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Episodes</AppText>
-                        <FlatList 
+                        <FlatList
                             data={episodes}
                             keyExtractor={(item, index) => index.toString()}
                             renderItem={({ item, index }) => (
@@ -662,6 +705,8 @@ const styles = StyleSheet.create({
     },
     seekContainer: {
         width: '100%',
+        height: 40,
+        justifyContent: 'center',
         marginBottom: 15,
     },
     progressBar: {

@@ -47,17 +47,22 @@ const styles = StyleSheet.create({
     cardFrame: {
         width: 100,
         height: 90,
-        borderRadius: 12,
+        borderRadius: 15,
         padding: 2,
         backgroundColor: '#D4AF37', // Gold border
         justifyContent: 'center',
         alignItems: 'center',
+        elevation: 8,
+        shadowColor: '#D4AF37',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
     },
     logoWrapper: {
         width: '96%',
         height: '96%',
         backgroundColor: '#000',
-        borderRadius: 10,
+        borderRadius: 13,
         overflow: 'hidden',
         justifyContent: 'center',
         alignItems: 'center',
@@ -74,9 +79,12 @@ const styles = StyleSheet.create({
         backgroundColor: colors.backgroundCard,
     },
     channelName: {
-        marginTop: spacing.xs,
+        marginTop: spacing.sm,
         textAlign: 'center',
         width: '100%',
+        fontSize: 12,
+        letterSpacing: 0.5,
+        opacity: 0.9,
     },
 });
 

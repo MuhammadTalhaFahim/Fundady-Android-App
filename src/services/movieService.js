@@ -61,13 +61,16 @@ export const movieService = {
         return await apiClient.get(`/v1/single-movie/${id}`);
     },
     getWebSeriesById: async (id) => {
-        return await apiClient.get('/tvshows/web_series', { id });
+        return await apiClient.get(`/single-show/${id}`);
     },
     getTVShowById: async (id) => {
-        return await apiClient.get('/tvshows/tv_shows', { id });
+        return await apiClient.get(`/single-show/${id}`);
     },
     getTVSerialById: async (id) => {
-        return await apiClient.get('/tvshows/tv_serials', { id });
+        return await apiClient.get(`/single-show/${id}`);
+    },
+    getSeriesById: async (id) => {
+        return await apiClient.get(`/single-show/${id}`);
     },
     getWWEById: async (id) => {
         return await apiClient.get('/sports/wwe', { id });

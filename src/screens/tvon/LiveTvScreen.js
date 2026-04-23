@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Dimensions,
   StatusBar,
   Image,
   Animated,
@@ -24,9 +23,8 @@ import ChannelGridItem from '../../components/tv/ChannelGridItem';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { movieService } from '../../services/movieService';
 
-
-const SIDEBAR_EXPANDED_WIDTH = 220;
-const SIDEBAR_COLLAPSED_WIDTH = 60;
+const SIDEBAR_EXPANDED_WIDTH = 240;
+const SIDEBAR_COLLAPSED_WIDTH = 80;
 
 const LiveTvScreen = ({ navigation }) => {
   const [channels, setChannels] = useState([]);
@@ -51,8 +49,8 @@ const LiveTvScreen = ({ navigation }) => {
   const numColumns = useMemo(() => {
     const currentSidebarWidth = isSidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
     const horizontalPadding = Math.max(insets.left, 10) + Math.max(insets.right, 10);
-    const availableWidth = SCREEN_WIDTH - currentSidebarWidth - horizontalPadding - 20; 
-    const itemWidth = 128; // 120 card width + 8 total horizontal margin (4 each side)
+    const availableWidth = SCREEN_WIDTH - currentSidebarWidth - horizontalPadding - 20;
+    const itemWidth = 128; // 120 card width + 8 total horizontal margin
     return Math.max(2, Math.floor(availableWidth / itemWidth));
   }, [isSidebarCollapsed, SCREEN_WIDTH, insets]);
 
@@ -109,10 +107,6 @@ const LiveTvScreen = ({ navigation }) => {
       const res = await movieService.getTVCategories(name);
       if (res.status) {
         setCategories(res.data.channelCat || []);
-        if (res.data.channelCat?.length > 0 && !selectedCategoryId) {
-          // Default to first category if none selected
-          // setSelectedCategoryId(res.data.channelCat[0].id);
-        }
       }
     } catch (error) {
       console.error('Error fetching TV categories:', error);
@@ -156,19 +150,19 @@ const LiveTvScreen = ({ navigation }) => {
   };
 
   const expandSidebar = () => {
-    Animated.timing(sidebarWidth, {
+    Animated.spring(sidebarWidth, {
       toValue: SIDEBAR_EXPANDED_WIDTH,
-      duration: 300,
       useNativeDriver: false,
+      friction: 8,
     }).start();
     setIsSidebarCollapsed(false);
   };
 
   const collapseSidebar = () => {
-    Animated.timing(sidebarWidth, {
+    Animated.spring(sidebarWidth, {
       toValue: SIDEBAR_COLLAPSED_WIDTH,
-      duration: 300,
       useNativeDriver: false,
+      friction: 8,
     }).start();
     setIsSidebarCollapsed(true);
     Keyboard.dismiss();
@@ -184,10 +178,6 @@ const LiveTvScreen = ({ navigation }) => {
     fetchChannels(channelSearchQuery, id);
   };
 
-  const filteredChannels = channels;
-
-  const filteredCategories = categories;
-
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchCategories(categorySearchQuery);
@@ -199,22 +189,41 @@ const LiveTvScreen = ({ navigation }) => {
     return allChannelsForCounts.filter(ch => ch.category_id === catId).length;
   };
 
+  const getCategoryIcon = (name) => {
+    const n = name.toLowerCase();
+    if (n.includes('movie')) return 'movie';
+    if (n.includes('news')) return 'language';
+    if (n.includes('sport')) return 'sports-soccer';
+    if (n.includes('music')) return 'music-note';
+    if (n.includes('kids')) return 'child-care';
+    if (n.includes('religion')) return 'church';
+    if (n.includes('education')) return 'school';
+    return 'live-tv';
+  };
+
   const renderCategoryItem = ({ item }) => {
     const isActive = selectedCategoryId === item.id;
     return (
       <TouchableOpacity
         style={[
           styles.categoryItem,
-          isSidebarCollapsed && styles.categoryItemCollapsed,
-          isActive && !isSidebarCollapsed && styles.activeCategoryItem
+          isActive && styles.activeCategoryItem
         ]}
         onPress={() => handleCategorySelect(item.id)}
+        activeOpacity={0.7}
       >
+        <View style={styles.categoryIconContainer}>
+          <Icon
+            name={getCategoryIcon(item.name)}
+            size={24}
+            color={isActive ? colors.white : colors.textMuted}
+          />
+        </View>
         {!isSidebarCollapsed && (
-          <>
+          <View style={styles.categoryInfo}>
             <AppText
               style={styles.categoryName}
-              variant={isActive ? "bold" : "regular"}
+              variant={isActive ? "bold" : "medium"}
               color={isActive ? colors.white : colors.textSecondary}
               numberOfLines={1}
             >
@@ -222,20 +231,14 @@ const LiveTvScreen = ({ navigation }) => {
             </AppText>
             <AppText
               style={styles.categoryCount}
-              color={isActive ? colors.white : colors.textMuted}
+              color={isActive ? 'rgba(255,255,255,0.7)' : colors.textMuted}
+              size="xs"
             >
-              {getChannelCount(item.id)}
+              {getChannelCount(item.id)} Channels
             </AppText>
-          </>
-        )}
-
-        {isSidebarCollapsed && (
-          <View style={[styles.activeIconContainerCollapsed, !isActive && styles.inactiveIconContainerCollapsed]}>
-            <Icon name="live-tv" size={!isActive ? 18 : 22} color={isActive ? colors.primary : colors.white} />
-            {isActive && <View style={styles.activeIconUnderline} />}
           </View>
         )}
-        {!isSidebarCollapsed && isActive && <View style={styles.activeIndicator} />}
+        {isActive && <View style={styles.activeIndicator} />}
       </TouchableOpacity>
     );
   };
@@ -276,37 +279,36 @@ const LiveTvScreen = ({ navigation }) => {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
+        <AppText style={{ marginTop: 20 }} color={colors.textSecondary}>Loading Channels...</AppText>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { 
-      paddingLeft: Math.max(insets.left, 10), 
-      paddingRight: Math.max(insets.right, 10) 
+    <View style={[styles.container, {
+      paddingLeft: Math.max(insets.left, 10),
+      paddingRight: Math.max(insets.right, 10)
     }]}>
       {/* Sidebar - Left */}
       <Animated.View style={[styles.sidebar, { width: sidebarWidth }]}>
         <View style={styles.sidebarHeader}>
-          {!isSidebarCollapsed && (
-            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-              <Icon name="arrow-back" size={24} color={colors.white} />
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            onPress={isSidebarCollapsed ? expandSidebar : null}
-            activeOpacity={isSidebarCollapsed ? 0.7 : 1}
-            style={styles.logoContainer}
-          >
-            <Image
-              source={require('../../assets/images/fundady_logo.png')}
-              style={isSidebarCollapsed ? styles.logoSmall : styles.logo}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-          {!isSidebarCollapsed && (
-            <TouchableOpacity onPress={collapseSidebar}>
-              <Icon name="close" size={24} color={colors.white} />
+          {!isSidebarCollapsed ? (
+            <View style={styles.logoRow}>
+              <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+                <Icon name="arrow-back" size={24} color={colors.white} />
+              </TouchableOpacity>
+              <Image
+                source={require('../../assets/images/fundady_logo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <TouchableOpacity onPress={collapseSidebar} style={styles.toggleButton}>
+                <Icon name="chevron-left" size={24} color={colors.white} />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity onPress={expandSidebar} style={styles.toggleButtonCollapsed}>
+              <Icon name="menu" size={28} color={colors.white} />
             </TouchableOpacity>
           )}
         </View>
@@ -325,35 +327,47 @@ const LiveTvScreen = ({ navigation }) => {
         )}
 
         <FlatList
-          data={filteredCategories}
+          data={categories}
           renderItem={renderCategoryItem}
           keyExtractor={item => item.id.toString()}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.categoryList}
           ListHeaderComponent={
-            (!categorySearchQuery || 'all'.includes(categorySearchQuery.toLowerCase())) ? (
-              <TouchableOpacity
-                style={[
-                  styles.categoryItem,
-                  isSidebarCollapsed && styles.categoryItemCollapsed,
-                  !selectedCategoryId && !isSidebarCollapsed && styles.activeCategoryItem
-                ]}
-                onPress={() => handleCategorySelect(null)}
-              >
-                {!isSidebarCollapsed && (
-                  <>
-                    <AppText style={styles.categoryName} color={!selectedCategoryId ? colors.white : colors.textSecondary}>ALL</AppText>
-                    <AppText style={styles.categoryCount} color={!selectedCategoryId ? colors.white : colors.textMuted}>{allChannelsForCounts.length}</AppText>
-                    {!selectedCategoryId && <View style={styles.activeIndicator} />}
-                  </>
-                )}
-                {isSidebarCollapsed && (
-                  <View style={[styles.activeIconContainerCollapsed, selectedCategoryId !== null && styles.inactiveIconContainerCollapsed]}>
-                    <Icon name="live-tv" size={selectedCategoryId !== null ? 18 : 22} color={selectedCategoryId === null ? colors.primary : colors.white} />
-                    {selectedCategoryId === null && <View style={styles.activeIconUnderline} />}
-                  </View>
-                )}
-              </TouchableOpacity>
-            ) : null
+            <TouchableOpacity
+              style={[
+                styles.categoryItem,
+                !selectedCategoryId && styles.activeCategoryItem
+              ]}
+              onPress={() => handleCategorySelect(null)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.categoryIconContainer}>
+                <Icon
+                  name="dashboard"
+                  size={24}
+                  color={!selectedCategoryId ? colors.white : colors.textMuted}
+                />
+              </View>
+              {!isSidebarCollapsed && (
+                <View style={styles.categoryInfo}>
+                  <AppText
+                    style={styles.categoryName}
+                    variant={!selectedCategoryId ? "bold" : "medium"}
+                    color={!selectedCategoryId ? colors.white : colors.textSecondary}
+                  >
+                    ALL CHANNELS
+                  </AppText>
+                  <AppText
+                    style={styles.categoryCount}
+                    color={!selectedCategoryId ? 'rgba(255,255,255,0.7)' : colors.textMuted}
+                    size="xs"
+                  >
+                    {allChannelsForCounts.length} Channels
+                  </AppText>
+                </View>
+              )}
+              {!selectedCategoryId && <View style={styles.activeIndicator} />}
+            </TouchableOpacity>
           }
           ListEmptyComponent={
             <View style={styles.emptyCategoryContainer}>
@@ -366,53 +380,52 @@ const LiveTvScreen = ({ navigation }) => {
       {/* Content - Right */}
       <View style={styles.mainContent}>
         <View style={styles.contentHeader}>
-          {isChannelSearchVisible ? (
-            <View style={styles.channelSearchContainer}>
-              <Icon name="search" size={24} color={colors.textMuted} />
-              <TextInput
-                style={styles.channelSearchInput}
-                placeholder="Search channels..."
-                placeholderTextColor={colors.textMuted}
-                value={channelSearchQuery}
-                onChangeText={setChannelSearchQuery}
-                onSubmitEditing={executeSearch}
-                returnKeyType="search"
-                autoFocus
-              />
-              <TouchableOpacity onPress={() => { setIsChannelSearchVisible(false); setChannelSearchQuery(''); }}>
-                <Icon name="close" size={24} color={colors.textMuted} />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <>
-              <AppText variant="bold" style={styles.currentCategoryTitle}>
-                {selectedCategoryId
-                  ? categories.find(c => c.id === selectedCategoryId)?.name.toUpperCase()
-                  : 'ALL CHANNELS'}
-              </AppText>
-              <View style={styles.headerIcons}>
-                <TouchableOpacity style={styles.headerIcon} onPress={() => setIsChannelSearchVisible(true)}>
-                  <Icon name="search" size={24} color={colors.white} />
+          <View style={styles.titleContainer}>
+            <AppText variant="bold" style={styles.currentCategoryTitle}>
+              {selectedCategoryId
+                ? categories.find(c => c.id === selectedCategoryId)?.name.toUpperCase()
+                : 'ALL CHANNELS'}
+            </AppText>
+            <View style={styles.categoryUnderline} />
+          </View>
+
+          <View style={styles.headerRightActions}>
+            {isChannelSearchVisible ? (
+              <View style={styles.channelSearchContainer}>
+                <Icon name="search" size={20} color={colors.textMuted} />
+                <TextInput
+                  style={styles.channelSearchInput}
+                  placeholder="Search channels..."
+                  placeholderTextColor={colors.textMuted}
+                  value={channelSearchQuery}
+                  onChangeText={setChannelSearchQuery}
+                  onSubmitEditing={executeSearch}
+                  returnKeyType="search"
+                  autoFocus
+                />
+                <TouchableOpacity onPress={() => { setIsChannelSearchVisible(false); setChannelSearchQuery(''); }}>
+                  <Icon name="close" size={20} color={colors.textMuted} />
                 </TouchableOpacity>
-                {/* <TouchableOpacity style={styles.headerIcon}>
-                  <Icon name="more-vert" size={24} color={colors.white} />
-                </TouchableOpacity> */}
               </View>
-            </>
-          )}
+            ) : (
+              <TouchableOpacity style={styles.headerIconButton} onPress={() => setIsChannelSearchVisible(true)}>
+                <Icon name="search" size={24} color={colors.white} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         {searching ? (
           <View style={styles.searchingOverlay}>
             <ActivityIndicator size="large" color={colors.primary} />
+            <AppText style={{ marginTop: 15 }} color={colors.white}>Searching...</AppText>
           </View>
         ) : (
           <FlatList
             key={`grid-${numColumns}`}
-            data={filteredChannels}
+            data={channels}
             renderItem={({ item }) => (
-              // <ChannelGridItem item={item} onPress={handleChannelPress} />
-              <ChannelGridItem item={item} />
+              <ChannelGridItem item={item} onPress={handleChannelPress} />
             )}
             keyExtractor={item => item.id.toString()}
             numColumns={numColumns}
@@ -420,7 +433,8 @@ const LiveTvScreen = ({ navigation }) => {
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <AppText color={colors.textMuted}>No channels found</AppText>
+                <Icon name="tv-off" size={64} color={colors.textMuted} />
+                <AppText style={{ marginTop: 15 }} color={colors.textMuted}>No channels found in this category</AppText>
               </View>
             }
           />
@@ -445,103 +459,107 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     height: '100%',
-    backgroundColor: '#0a0a0a',
-    borderRightWidth: 1,
-    borderRightColor: '#222',
+    backgroundColor: '#0f0f0f',
+    borderRadius: 20,
+    marginRight: 10,
     overflow: 'hidden',
-    borderRadius: 15,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
   },
   sidebarHeader: {
+    padding: spacing.md,
+    height: 80,
+    justifyContent: 'center',
+  },
+  logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: spacing.md,
-    marginTop: 10,
-  },
-  logoContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   logo: {
     height: 60,
     width: 120,
   },
-  logoSmall: {
-    height: 50,
+  toggleButton: {
+    padding: 4,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 8,
+  },
+  toggleButtonCollapsed: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
     width: 40,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 10,
   },
   backButton: {
-    padding: 5,
+    padding: 4,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#1a1a1a',
     marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
+    marginBottom: spacing.lg,
     paddingHorizontal: spacing.sm,
-    borderRadius: 4,
-    height: 45,
+    borderRadius: 10,
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#2a2a2a',
   },
   searchInput: {
     flex: 1,
     color: colors.white,
     marginLeft: spacing.sm,
-    fontSize: 14,
+    fontSize: 13,
+  },
+  categoryList: {
+    paddingBottom: spacing.xl,
   },
   categoryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1a1a1a',
-    minHeight: 50,
+    marginHorizontal: spacing.sm,
+    marginBottom: 4,
+    borderRadius: 12,
+    minHeight: 56,
   },
   activeCategoryItem: {
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(229, 9, 20, 0.1)',
+  },
+  categoryIconContainer: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryInfo: {
+    flex: 1,
+    marginLeft: spacing.sm,
   },
   categoryName: {
     fontSize: 13,
-    flex: 1,
+    letterSpacing: 0.5,
   },
   categoryCount: {
-    fontSize: 12,
-    marginLeft: 10,
+    fontSize: 10,
+    marginTop: 2,
   },
   activeIndicator: {
     position: 'absolute',
-    left: 0,
+    left: 4,
     top: '25%',
     bottom: '25%',
     width: 4,
-    backgroundColor: colors.white,
-  },
-  activeIconContainerCollapsed: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: '#1a1a1a',
-  },
-  inactiveIconContainerCollapsed: {
-    borderWidth: 1,
-    borderColor: '#333333',
-  },
-  activeIconUnderline: {
-    width: 12,
-    height: 3,
     backgroundColor: colors.primary,
     borderRadius: 2,
-    marginTop: 4,
-  },
-  categoryItemCollapsed: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 0,
   },
   mainContent: {
     flex: 1,
@@ -552,22 +570,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.lg,
+    height: 80,
+  },
+  titleContainer: {
+    position: 'relative',
   },
   currentCategoryTitle: {
     color: colors.white,
-    fontSize: 14,
-    letterSpacing: 1.2,
+    fontSize: 18,
+    letterSpacing: 2,
   },
-  headerIcons: {
+  categoryUnderline: {
+    position: 'absolute',
+    bottom: -8,
+    left: 0,
+    width: 40,
+    height: 3,
+    backgroundColor: colors.primary,
+    borderRadius: 2,
+  },
+  headerRightActions: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
-  headerIcon: {
-    marginLeft: 20,
+  headerIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  channelSearchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    borderRadius: 20,
+    paddingHorizontal: spacing.md,
+    height: 44,
+    width: 250,
+    borderWidth: 1,
+    borderColor: '#2a2a2a',
+  },
+  channelSearchInput: {
+    flex: 1,
+    color: colors.white,
+    marginLeft: spacing.sm,
+    fontSize: 14,
   },
   gridContainer: {
     paddingHorizontal: 10,
-    paddingBottom: spacing.xl,
+    paddingBottom: 100,
     alignItems: 'center',
   },
   emptyContainer: {
@@ -578,25 +631,10 @@ const styles = StyleSheet.create({
   },
   searchingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-  },
-  channelSearchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1a1a1a',
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    height: 40,
-  },
-  channelSearchInput: {
-    flex: 1,
-    color: colors.white,
-    marginLeft: spacing.sm,
-    fontSize: 14,
   },
   emptyCategoryContainer: {
     padding: spacing.md,

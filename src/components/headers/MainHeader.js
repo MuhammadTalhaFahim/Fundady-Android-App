@@ -85,9 +85,9 @@ const MainHeader = ({
               style={styles.logo}
               resizeMode="contain"
             />
-            <AppText variant="medium" size="lg" style={[styles.homeText]}>
+            {/* <AppText variant="medium" size="lg" style={[styles.homeText]}>
               {title || 'Home'}
-            </AppText>
+            </AppText> */}
           </View>
         ) : (
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>

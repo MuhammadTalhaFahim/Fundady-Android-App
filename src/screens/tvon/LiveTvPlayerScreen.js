@@ -10,6 +10,7 @@ import {
   Image,
   TextInput,
   Keyboard,
+  Pressable,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import NavigationBar from 'react-native-system-navigation-bar';
@@ -40,7 +41,12 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
   const [currentCategoryId, setCurrentCategoryId] = useState(categoryId);
   const [currentCategoryName, setCurrentCategoryName] = useState(categoryName);
 
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const [paused, setPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef(null);
+  const controlsTimerRef = useRef(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -143,6 +149,31 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
     }
   };
 
+  const startControlsTimer = () => {
+    if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
+    controlsTimerRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 4000);
+  };
+
+  const toggleControls = () => {
+    setShowControls(!showControls);
+    if (!showControls) startControlsTimer();
+  };
+
+  useEffect(() => {
+    if (showControls) startControlsTimer();
+    return () => {
+      if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
+    };
+  }, [showControls]);
+
+  const toggleMaximize = () => {
+    setIsMaximized(!isMaximized);
+    // When maximizing, hide controls after a delay
+    setShowControls(true);
+  };
+
   const formatTime = (date) => {
     let hours = date.getHours();
     let minutes = date.getMinutes();
@@ -191,102 +222,170 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       {/* Top Header Layer - Absolutely Positioned to float over content */}
-      <View style={styles.header}>
-        {isSearchVisible ? (
-          <View style={styles.searchHeaderContainer}>
-            <TouchableOpacity style={styles.backButton} onPress={() => { setIsSearchVisible(false); setSearchQuery(''); }}>
-              <Icon name="close" size={28} color={colors.white} />
-            </TouchableOpacity>
-            <View style={styles.searchInputWrapper}>
-              <Icon name="search" size={22} color={colors.textMuted} />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search channels..."
-                placeholderTextColor={colors.textMuted}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                autoFocus
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <Icon name="close" size={22} color={colors.textMuted} />
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
+      {(showControls || !isMaximized) ? (
+        isMaximized ? (
+          <TouchableOpacity 
+            style={styles.floatingBackButton} 
+            onPress={() => navigation.goBack()}
+          >
+            <Icon name="close" size={32} color={colors.white} />
+          </TouchableOpacity>
         ) : (
-          <>
-            <View style={styles.headerLeft}>
-              <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Icon name="close" size={28} color={colors.white} />
-              </TouchableOpacity>
-              <Image source={require('../../assets/images/fundady_logo.png')} style={styles.logo} resizeMode="contain" />
-              <View style={styles.divider} />
-              <AppText variant="bold" style={styles.headerTitle}>Live</AppText>
-            </View>
-
-            <View style={styles.headerRight}>
-              <AppText style={styles.timeText} variant="bold">{formatTime(currentTime)}</AppText>
-              <AppText style={styles.dateText}>{formatDate(currentTime)}</AppText>
-              <TouchableOpacity style={styles.iconButton} onPress={() => setIsSearchVisible(true)}>
-                <Icon name="search" size={28} color={colors.white} />
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-      </View>
-
-      <View style={styles.contentContainer}>
-        {/* Left Sidebar - Channel List */}
-        <View style={styles.sidebar}>
-          <View style={styles.sidebarHeader}>
-            <TouchableOpacity onPress={handlePrevCategory}>
-              <Icon name="chevron-left" size={28} color={colors.white} />
-            </TouchableOpacity>
-            <AppText variant="bold" style={styles.sidebarTitle} numberOfLines={1}>
-              {currentCategoryName.toUpperCase()}
-            </AppText>
-            <TouchableOpacity onPress={handleNextCategory}>
-              <Icon name="chevron-right" size={28} color={colors.white} />
-            </TouchableOpacity>
-          </View>
-
-          {loading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={colors.primary} />
-            </View>
-          ) : (
-            <FlatList
-              data={filteredChannels}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={renderChannelItem}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContent}
-              ListEmptyComponent={
-                <View style={styles.emptyListContainer}>
-                  <AppText color={colors.textMuted}>Not found</AppText>
+          <View style={styles.header}>
+            {isSearchVisible ? (
+              <View style={styles.searchHeaderContainer}>
+                <TouchableOpacity style={styles.backButton} onPress={() => { setIsSearchVisible(false); setSearchQuery(''); }}>
+                  <Icon name="close" size={28} color={colors.white} />
+                </TouchableOpacity>
+                <View style={styles.searchInputWrapper}>
+                  <Icon name="search" size={22} color={colors.textMuted} />
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Search channels..."
+                    placeholderTextColor={colors.textMuted}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    autoFocus
+                  />
+                  {searchQuery.length > 0 && (
+                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                      <Icon name="close" size={22} color={colors.textMuted} />
+                    </TouchableOpacity>
+                  )}
                 </View>
-              }
-            />
-          )}
-        </View>
+              </View>
+            ) : (
+              <>
+                <View style={styles.headerLeft}>
+                  <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    <Icon name="close" size={28} color={colors.white} />
+                  </TouchableOpacity>
+                  <Image source={require('../../assets/images/fundady_logo.png')} style={styles.logo} resizeMode="contain" />
+                  <View style={styles.divider} />
+                  <AppText variant="bold" style={styles.headerTitle}>Live</AppText>
+                </View>
+
+                <View style={styles.headerRight}>
+                  <AppText style={styles.timeText} variant="bold">{formatTime(currentTime)}</AppText>
+                  <AppText style={styles.dateText}>{formatDate(currentTime)}</AppText>
+                  <TouchableOpacity style={styles.iconButton} onPress={() => setIsSearchVisible(true)}>
+                    <Icon name="search" size={28} color={colors.white} />
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        )
+      ) : null}
+
+      <View style={[styles.contentContainer, !isMaximized && { paddingTop: 60 }]}>
+        {/* Left Sidebar - Channel List */}
+        {!isMaximized && (
+          <View style={styles.sidebar}>
+            <View style={styles.sidebarHeader}>
+              <TouchableOpacity onPress={handlePrevCategory}>
+                <Icon name="chevron-left" size={28} color={colors.white} />
+              </TouchableOpacity>
+              <AppText variant="bold" style={styles.sidebarTitle} numberOfLines={1}>
+                {currentCategoryName.toUpperCase()}
+              </AppText>
+              <TouchableOpacity onPress={handleNextCategory}>
+                <Icon name="chevron-right" size={28} color={colors.white} />
+              </TouchableOpacity>
+            </View>
+
+            {loading ? (
+              <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+              </View>
+            ) : (
+              <FlatList
+                data={filteredChannels}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderChannelItem}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContent}
+                ListEmptyComponent={
+                  <View style={styles.emptyListContainer}>
+                    <AppText color={colors.textMuted}>Not found</AppText>
+                  </View>
+                }
+              />
+            )}
+          </View>
+        )}
 
         {/* Right Side - Video Player */}
-        <View style={styles.playerContainer}>
+        <View style={[styles.playerContainer, isMaximized && { width: '100%' }]}>
           {activeChannel ? (
             <View style={styles.videoWrapper}>
               <Video
                 ref={videoRef}
-                source={{ uri: activeChannel.channel_id }} // using channel_id as the stream URL per previous component
+                source={{ uri: activeChannel.channel_id ? String(activeChannel.channel_id) : '' }}
                 style={styles.video}
                 resizeMode="contain"
                 onLoadStart={() => setVideoLoading(true)}
                 onReadyForDisplay={() => setVideoLoading(false)}
                 onBuffer={({ isBuffering }) => setVideoLoading(isBuffering)}
-                controls={true} // enable default native controls for now
+                controls={false}
+                paused={paused}
+                muted={isMuted}
                 playInBackground={false}
                 playWhenInactive={false}
+                repeat={true}
               />
+
+              {/* Invisible pressable overlay to toggle controls */}
+              <Pressable 
+                style={StyleSheet.absoluteFill} 
+                onPress={toggleControls} 
+              />
+
+              {showControls && (
+                <View style={styles.controlsOverlay} pointerEvents="box-none">
+                  {/* Center Play/Pause */}
+                  <View style={styles.centerControls} pointerEvents="box-none">
+                    <TouchableOpacity 
+                      style={styles.playPauseButton} 
+                      onPress={() => { setPaused(!paused); startControlsTimer(); }}
+                      activeOpacity={0.7}
+                    >
+                      <Icon 
+                        name={paused ? "play-arrow" : "pause"} 
+                        size={50} 
+                        color={colors.white} 
+                      />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Bottom Controls Bar */}
+                  <View style={styles.bottomControlsBar} pointerEvents="box-none">
+                    <TouchableOpacity 
+                      style={styles.controlIconCircle} 
+                      onPress={() => { setIsMuted(!isMuted); startControlsTimer(); }}
+                      activeOpacity={0.7}
+                    >
+                      <Icon 
+                        name={isMuted ? "volume-off" : "volume-up"} 
+                        size={24} 
+                        color={colors.white} 
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                      style={styles.maximizeButton} 
+                      onPress={toggleMaximize}
+                      activeOpacity={0.7}
+                    >
+                      <Icon 
+                        name={isMaximized ? "fullscreen-exit" : "fullscreen"} 
+                        size={32} 
+                        color={colors.white} 
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
               {videoLoading && (
                 <View style={styles.videoLoaderOverlay}>
                   <ActivityIndicator size="large" color={colors.primary} />
@@ -395,7 +494,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     flexDirection: 'row',
-    paddingTop: 60, // account for absolute header
   },
   sidebar: {
     width: '35%',
@@ -484,6 +582,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
   videoWrapper: {
     width: '100%',
@@ -512,13 +611,13 @@ const styles = StyleSheet.create({
   },
   watermark: {
     position: 'absolute',
-    top: spacing.lg,
-    right: spacing.lg,
+    top: spacing.xl,
+    right: spacing.xl,
     alignItems: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
     zIndex: 2,
   },
   liveBadge: {
@@ -538,6 +637,62 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
+  },
+  controlsOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'space-between',
+    padding: spacing.lg,
+    zIndex: 10,
+  },
+  centerControls: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playPauseButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  bottomControlsBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  controlIconCircle: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  maximizeButton: {
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 25,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  floatingBackButton: {
+    position: 'absolute',
+    top: spacing.xl,
+    left: spacing.xl,
+    padding: spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
   }
 });
 

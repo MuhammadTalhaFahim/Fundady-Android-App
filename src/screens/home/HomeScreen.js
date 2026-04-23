@@ -317,7 +317,7 @@ const HomeScreen = ({ navigation }) => {
 
                                                 if (response.status && response.data) {
                                                     const media = isSeries ?
-                                                        (response.data?.tvshows?.data?.[0] || (Array.isArray(response.data) ? response.data[0] : response.data)) :
+                                                        (response.data?.tvshows?.[0] || response.data?.tvshows?.data?.[0] || (Array.isArray(response.data) ? response.data[0] : response.data)) :
                                                         (Array.isArray(response.data) ? response.data[0] : response.data);
 
                                                     if (media && media.links && media.links.length > 0) {
