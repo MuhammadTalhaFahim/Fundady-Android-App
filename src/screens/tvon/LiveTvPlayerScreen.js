@@ -588,9 +588,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'relative',
+    // Added padding to prevent the video edges from cutting off
+    paddingHorizontal: 35,
+    paddingVertical: 15,
   },
   video: {
-    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
   videoLoaderOverlay: {
     ...StyleSheet.absoluteFillObject,
