@@ -78,21 +78,25 @@ const LiveTvScreen = ({ navigation }) => {
 
       return () => {
         if (!navigatingToPlayer.current) {
-          Orientation.lockToPortrait();
-          StatusBar.setHidden(false, 'fade');
-          const restoreUI = async () => {
-            if (NavigationBar) {
-              try {
-                if (typeof NavigationBar.fullScreen === 'function') {
-                  await NavigationBar.fullScreen(false);
+          // Add a tiny delay so the navigation transition can start before orientation changes
+          // This makes the transition back to portrait home screen much smoother
+          setTimeout(() => {
+            Orientation.lockToPortrait();
+            StatusBar.setHidden(false, 'fade');
+            const restoreUI = async () => {
+              if (NavigationBar) {
+                try {
+                  if (typeof NavigationBar.fullScreen === 'function') {
+                    await NavigationBar.fullScreen(false);
+                  }
+                  await NavigationBar.show();
+                } catch (e) {
+                  console.log('Blur UI restore failed:', e);
                 }
-                await NavigationBar.show();
-              } catch (e) {
-                console.log('Blur UI restore failed:', e);
               }
-            }
-          };
-          restoreUI();
+            };
+            restoreUI();
+          }, 100);
         }
       };
     }, [])
@@ -259,19 +263,9 @@ const LiveTvScreen = ({ navigation }) => {
     });
   };
 
-  const handleBack = async () => {
-    try {
-      Orientation.lockToPortrait();
-      StatusBar.setHidden(false, 'fade');
-      if (NavigationBar) {
-        if (typeof NavigationBar.fullScreen === 'function') {
-          await NavigationBar.fullScreen(false);
-        }
-        await NavigationBar.show();
-      }
-    } catch (e) {
-      console.log('Error in handleBack reset:', e);
-    }
+  const handleBack = () => {
+    // Simply go back and let the useFocusEffect cleanup handle the orientation reset
+    // This prevents the screen from 'flipping' twice during the transition
     navigation.goBack();
   };
 
