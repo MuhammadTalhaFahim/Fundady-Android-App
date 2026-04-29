@@ -376,10 +376,10 @@ const HomeScreen = ({ navigation }) => {
                                         <AppText variant="bold" style={styles.playButtonText}>Play</AppText>
                                     </TouchableOpacity>
 
-                                    {/* <TouchableOpacity style={styles.netflixListButton}>
+                                    <TouchableOpacity style={styles.netflixListButton}>
                                         <Icon name="add" size={22} color={colors.white} />
                                         <AppText variant="bold" style={styles.listButtonText}>My List</AppText>
-                                    </TouchableOpacity> */}
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </TouchableOpacity>
