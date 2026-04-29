@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
     View,
     StyleSheet,
@@ -10,6 +11,7 @@ import {
     Dimensions,
     ScrollView as RNScrollView,
     Platform,
+    useWindowDimensions,
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -19,13 +21,23 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../components/common/AppText';
 import CategoryModal from '../../components/common/CategoryModal';
 import { MOVIES_POSTER_BASE_URL } from '../../utils/constants';
+import Orientation from 'react-native-orientation-locker';
 
 import { movieService } from '../../services/movieService';
 
-const { width } = Dimensions.get('window');
+
 
 const CinemaListScreen = ({ navigation }) => {
+    const { width, height } = useWindowDimensions();
     const scrollY = React.useRef(new Animated.Value(0)).current;
+
+    useFocusEffect(
+        useCallback(() => {
+            if (width < 600) {
+                Orientation.lockToPortrait();
+            }
+        }, [width])
+    );
     const [movies, setMovies] = useState([]);
     const [categories, setCategories] = useState([]);
     const [years, setYears] = useState([]);
@@ -186,7 +198,8 @@ const CinemaListScreen = ({ navigation }) => {
                         <Animated.FlatList
                             data={filteredMovies}
                             renderItem={({ item }) => {
-                                const cardWidth = (width - spacing.md * 2) / 3 - 8;
+                                const stableWidth = width > 600 ? width : Math.min(width, height);
+                                const cardWidth = (stableWidth - spacing.md * 2) / 3 - 8;
                                 return (
                                     <MovieCard
                                         imageUrl={`${MOVIES_POSTER_BASE_URL}${item.poster}`}

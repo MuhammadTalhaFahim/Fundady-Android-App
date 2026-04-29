@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     StyleSheet,
     Animated,
     Modal,
     TouchableOpacity,
-    Dimensions,
     FlatList,
     ActivityIndicator,
     Platform,
+    useWindowDimensions,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Orientation from 'react-native-orientation-locker';
+
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
@@ -20,12 +23,13 @@ import CategoryModal from '../../components/common/CategoryModal';
 import { movieService } from '../../services/movieService';
 import { SPORTS_POSTER_BASE_URL } from '../../utils/constants';
 
-const { width } = Dimensions.get('window');
 const TABS = ['WWE', 'Cricket', 'Football'];
 
-
-const SportsScreen = ({ navigation }) => {
+const SportsScreen = () => {
+    const navigation = useNavigation();
+    const { width, height } = useWindowDimensions();
     const scrollY = React.useRef(new Animated.Value(0)).current;
+    
     const [activeTab, setActiveTab] = useState(TABS[0]);
     const [allData, setAllData] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -33,13 +37,24 @@ const SportsScreen = ({ navigation }) => {
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    // Lock orientation to portrait when screen is focused
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            if (width < 600) {
+                Orientation.lockToPortrait();
+            }
+        });
+
+        return unsubscribe;
+    }, [navigation, width]);
+
     useEffect(() => {
         fetchData();
     }, [activeTab]);
 
     const fetchData = async () => {
         setLoading(true);
-        setAllData([]); // Reset data on tab change
+        setAllData([]);
         try {
             let dataPromise;
             if (activeTab === 'WWE') dataPromise = movieService.getWWE();
@@ -51,7 +66,6 @@ const SportsScreen = ({ navigation }) => {
                 movieService.getSeriesCategories()
             ]);
 
-            // Robust data extraction
             if (dataRes) {
                 const tabKey = activeTab.toLowerCase();
                 const extractedData =
@@ -109,20 +123,6 @@ const SportsScreen = ({ navigation }) => {
                 ))}
             </View>
 
-            {/* <View style={styles.filterBarContainer}>
-                <View style={styles.filterBar}>
-                    <TouchableOpacity
-                        style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
-                        onPress={() => setShowCategoryModal(true)}
-                    >
-                        <AppText variant="medium" size="md" color={colors.textPrimary}>
-                            {selectedCategory || 'Categories'}
-                        </AppText>
-                        <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
-                    </TouchableOpacity>
-                </View>
-            </View> */}
-
             {loading ? (
                 <View style={styles.centered}>
                     <ActivityIndicator size="large" color={colors.primary} />
@@ -131,7 +131,8 @@ const SportsScreen = ({ navigation }) => {
                 <Animated.FlatList
                     data={filteredData}
                     renderItem={({ item }) => {
-                        const cardWidth = (width - spacing.md * 2) / 2 - 8;
+                        const stableWidth = width > 600 ? width : Math.min(width, height);
+                        const cardWidth = (stableWidth - spacing.md * 2) / 2 - 8;
                         return (
                             <MovieCard
                                 imageUrl={`${SPORTS_POSTER_BASE_URL}${item.poster}`}
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
     tabsContainer: {
         flexDirection: 'row',
         paddingHorizontal: spacing.md,
-        paddingTop: spacing.xxl + 50, // Offset for absolute header
+        paddingTop: spacing.xxl + 50,
         backgroundColor: colors.background,
         borderBottomWidth: 1,
         borderBottomColor: colors.backgroundCard,

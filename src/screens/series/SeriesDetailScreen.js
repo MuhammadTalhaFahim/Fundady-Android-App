@@ -24,10 +24,12 @@ import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 import { movieService } from '../../services/movieService';
 import { TV_SHOWS_POSTER_BASE_URL } from '../../utils/constants';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 const SeriesDetailScreen = ({ route, navigation }) => {
+    const insets = useSafeAreaInsets();
     const { id, contentType = 'web_series' } = route.params;
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -178,7 +180,11 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                     <ActivityIndicator size="large" color={colors.primary} />
                 </View>
             ) : !movie ? null : (
-                <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+                <ScrollView 
+                    style={styles.scrollView} 
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xl }}
+                >
                     {/* Media Section */}
                     <View style={styles.mediaContainer}>
                         {showVideo ? (
@@ -222,7 +228,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                             </View>
                         </View>
 
-                        <View style={styles.youtubeActionsRow}>
+                        {/* <View style={styles.youtubeActionsRow}>
                             <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
                                 <Icon name="share" size={20} color={colors.white} />
                             </TouchableOpacity>
@@ -230,7 +236,7 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                             <TouchableOpacity style={styles.youtubeIconButton} onPress={toggleMyList}>
                                 <Icon name={isInMyList ? "check" : "add"} size={22} color={colors.white} />
                             </TouchableOpacity>
-                        </View>
+                        </View> */}
 
                         {/* Description */}
                         <View style={styles.descriptionSection}>

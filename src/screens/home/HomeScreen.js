@@ -1,4 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
     View,
     StyleSheet,
@@ -9,6 +10,8 @@ import {
     ActivityIndicator,
     Platform,
     Image,
+    useWindowDimensions,
+    ViewBase,
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -18,8 +21,9 @@ import CategoryModal from '../../components/common/CategoryModal';
 import MovieCard from '../../components/cards/MovieCard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Modal, TouchableOpacity, ScrollView as RNScrollView } from 'react-native';
+import Orientation from 'react-native-orientation-locker';
 
-const { width } = Dimensions.get('window');
+
 
 import { movieService } from '../../services/movieService';
 
@@ -29,7 +33,18 @@ const TV_SHOWS_POSTER_BASE_URL = 'https://fundady.com/TvShowPoster/';
 
 
 const HomeScreen = ({ navigation }) => {
+    const { width, height } = useWindowDimensions();
+    const isTablet = Math.min(width, height) >= 600;
     const scrollY = useRef(new Animated.Value(0)).current;
+
+    useFocusEffect(
+        useCallback(() => {
+            // Lock to portrait on phones when focused
+            if (!isTablet) {
+                Orientation.lockToPortrait();
+            }
+        }, [isTablet])
+    );
     const [movies, setMovies] = useState([]);
     const [gallery, setGallery] = useState([]);
     const [webSeries, setWebSeries] = useState([]);
@@ -244,7 +259,10 @@ const HomeScreen = ({ navigation }) => {
 
                 {/* Featured Banner */}
                 {featuredGalleryItem && (
-                    <View style={styles.featuredBannerContainer}>
+                    <View style={[
+                        styles.featuredBannerContainer,
+                        { width: (isTablet ? width : Math.min(width, height)) - spacing.md * 2 }
+                    ]}>
                         <TouchableOpacity
                             activeOpacity={0.9}
                             onPress={() => {
@@ -259,13 +277,15 @@ const HomeScreen = ({ navigation }) => {
                                 });
                             }}
                         >
-                            <Image
-                                source={{
-                                    uri: `${GALLERY_POSTER_BASE_URL}${featuredGalleryItem.poster}`,
-                                }}
-                                style={styles.bannerImage}
-                                resizeMode="cover"
-                            />
+                            <View style={{ width: '100%', aspectRatio: 16 / 9 }}>
+                                <Image
+                                    source={{
+                                        uri: `${GALLERY_POSTER_BASE_URL}${featuredGalleryItem.poster}`,
+                                    }}
+                                    style={styles.bannerImage}
+                                    resizeMode="cover"
+                                />
+                            </View>
 
                             <View style={styles.featuredInfoSection}>
                                 <AppText
@@ -356,10 +376,10 @@ const HomeScreen = ({ navigation }) => {
                                         <AppText variant="bold" style={styles.playButtonText}>Play</AppText>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity style={styles.netflixListButton}>
+                                    {/* <TouchableOpacity style={styles.netflixListButton}>
                                         <Icon name="add" size={22} color={colors.white} />
                                         <AppText variant="bold" style={styles.listButtonText}>My List</AppText>
-                                    </TouchableOpacity>
+                                    </TouchableOpacity> */}
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -451,7 +471,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     featuredBannerContainer: {
-        width: width - spacing.md * 2,
+        width: '100%', // Will be overridden by inline style for precise control
         marginHorizontal: spacing.md,
         marginTop: spacing.sm,
         backgroundColor: colors.backgroundLight,
@@ -465,7 +485,7 @@ const styles = StyleSheet.create({
     },
     bannerImage: {
         width: '100%',
-        aspectRatio: 16 / 9,
+        height: '100%',
     },
     featuredInfoSection: {
         padding: spacing.md,

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
   ScrollView as RNScrollView,
   Animated,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -19,15 +21,25 @@ import MovieCard from '../../components/cards/MovieCard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CategoryModal from '../../components/common/CategoryModal';
 import { TV_SHOWS_POSTER_BASE_URL } from '../../utils/constants';
+import Orientation from 'react-native-orientation-locker';
 
 import { movieService } from '../../services/movieService';
 
-const { width } = Dimensions.get('window');
+
 
 const TABS = ['Web Series', 'TV Shows', 'TV Serials'];
 
 const WebSeriesScreen = ({ navigation }) => {
+  const { width, height } = useWindowDimensions();
   const scrollY = React.useRef(new Animated.Value(0)).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (width < 600) {
+        Orientation.lockToPortrait();
+      }
+    }, [width])
+  );
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [allData, setAllData] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -245,7 +257,8 @@ const WebSeriesScreen = ({ navigation }) => {
         <Animated.FlatList
           data={filteredData}
           renderItem={({ item }) => {
-            const cardWidth = (width - spacing.md * 2) / 2 - 8;
+            const stableWidth = width > 600 ? width : Math.min(width, height);
+            const cardWidth = (stableWidth - spacing.md * 2) / 2 - 8;
             return (
               <MovieCard
                 imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}

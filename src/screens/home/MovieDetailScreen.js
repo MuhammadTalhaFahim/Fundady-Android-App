@@ -25,10 +25,12 @@ import MainHeader from '../../components/headers/MainHeader';
 import MovieCard from '../../components/cards/MovieCard';
 import { movieService } from '../../services/movieService';
 import { MOVIES_POSTER_BASE_URL as POSTER_BASE_URL, SPORTS_POSTER_BASE_URL } from '../../utils/constants';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 const MovieDetailScreen = ({ route, navigation }) => {
+    const insets = useSafeAreaInsets();
     const { id, contentType, movieDataFallback } = route.params;
     const [movie, setMovie] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -304,6 +306,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
             <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xl }}
             >
                 <View style={styles.mediaContainer}>
                     {showVideo ? (
@@ -402,13 +405,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
                             <AppText variant="bold" style={styles.downloadText}>Download</AppText>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
+                        {/* <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
                             <Icon name="share" size={20} color={colors.white} />
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.youtubeIconButton} onPress={toggleMyList}>
                             <Icon name={isInMyList ? "check" : "add"} size={22} color={colors.white} />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View>
 
                     {/* Action Buttons */}

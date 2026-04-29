@@ -1,6 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 
 // Screens & Stacks
 import HomeStack from './HomeStack';
@@ -9,7 +11,6 @@ import SeriesStack from './SeriesStack';
 import TvOnStack from './TvOnStack';
 import SportsStack from './SportsStack';
 
-
 // Theme
 import { colors } from '../theme/colors';
 import { iconSizes } from '../theme/spacing';
@@ -17,15 +18,20 @@ import { iconSizes } from '../theme/spacing';
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
+    const insets = useSafeAreaInsets();
+
     return (
         <Tab.Navigator
             screenOptions={{
                 tabBarActiveTintColor: colors.primary,
                 tabBarInactiveTintColor: colors.textMuted,
+                tabBarHideOnKeyboard: true,
                 tabBarStyle: {
                     backgroundColor: colors.background,
                     borderTopWidth: 0,
-                    height: 60,
+                    height: Platform.OS === 'ios' ? 85 : 65 + insets.bottom,
+                    paddingBottom: insets.bottom > 0 ? insets.bottom : 5,
+                    paddingTop: 10,
                     elevation: 0,
                     shadowOpacity: 0,
                 },

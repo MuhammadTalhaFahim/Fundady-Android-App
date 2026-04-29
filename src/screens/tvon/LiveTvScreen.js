@@ -382,7 +382,7 @@ const LiveTvScreen = ({ navigation }) => {
             </AppText>
             <View style={styles.categoryUnderline} />
           </View>
-
+{/* 
           <View style={styles.headerRightActions}>
             {isChannelSearchVisible ? (
               <View style={styles.channelSearchContainer}>
@@ -406,7 +406,7 @@ const LiveTvScreen = ({ navigation }) => {
                 <Icon name="search" size={24} color={colors.white} />
               </TouchableOpacity>
             )}
-          </View>
+          </View> */}
         </View>
 
         {searching ? (

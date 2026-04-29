@@ -267,10 +267,10 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
 
                 <View style={styles.headerRight}>
                   <AppText style={styles.timeText} variant="bold">{formatTime(currentTime)}</AppText>
-                  <AppText style={styles.dateText}>{formatDate(currentTime)}</AppText>
-                  <TouchableOpacity style={styles.iconButton} onPress={() => setIsSearchVisible(true)}>
+                  {/* <AppText style={styles.dateText}>{formatDate(currentTime)}</AppText> */}
+                  {/* <TouchableOpacity style={styles.iconButton} onPress={() => setIsSearchVisible(true)}>
                     <Icon name="search" size={28} color={colors.white} />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </>
             )}
@@ -283,13 +283,19 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
         {!isMaximized && (
           <View style={styles.sidebar}>
             <View style={styles.sidebarHeader}>
-              <TouchableOpacity onPress={handlePrevCategory}>
+              {/* <TouchableOpacity onPress={handlePrevCategory}>
+                <Icon name="chevron-left" size={28} color={colors.white} />
+              </TouchableOpacity> */}
+              <TouchableOpacity >
                 <Icon name="chevron-left" size={28} color={colors.white} />
               </TouchableOpacity>
               <AppText variant="bold" style={styles.sidebarTitle} numberOfLines={1}>
                 {currentCategoryName.toUpperCase()}
               </AppText>
-              <TouchableOpacity onPress={handleNextCategory}>
+              {/* <TouchableOpacity onPress={handleNextCategory}>
+                <Icon name="chevron-right" size={28} color={colors.white} />
+              </TouchableOpacity> */}
+              <TouchableOpacity >
                 <Icon name="chevron-right" size={28} color={colors.white} />
               </TouchableOpacity>
             </View>

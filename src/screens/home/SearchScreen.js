@@ -306,8 +306,13 @@ const SearchScreen = ({ navigation }) => {
             <TouchableOpacity
               onPress={searchQuery.length > 0 ? clearSearch : null}
             >
-              <Icon
+              {/* <Icon
                 name={searchQuery.length > 0 ? 'close' : 'mic'}
+                size={24}
+                color={colors.textSecondary}
+              /> */}
+                 <Icon
+                name={searchQuery.length > 0 ? 'close' : ''}
                 size={24}
                 color={colors.textSecondary}
               />
