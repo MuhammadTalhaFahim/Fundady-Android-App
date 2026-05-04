@@ -195,9 +195,7 @@ const HomeScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <View>
-                <Text>for testing</Text>
-            </View>
+           
             <MainHeader scrollY={scrollY} variant="home" />
 
             {/* Sticky Overlay Filter Bar - Shows only when scrolled enough */}

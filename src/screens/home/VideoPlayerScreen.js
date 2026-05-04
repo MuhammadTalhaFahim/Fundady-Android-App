@@ -22,8 +22,9 @@ import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 
+import { moderateScale, isTablet, isTV, SCREEN_WIDTH } from '../../utils/responsive';
+
 const VideoPlayerScreen = ({ route, navigation }) => {
-    const { width: SCREEN_WIDTH } = useWindowDimensions();
     const {
         videoUrl: initialVideoUrl,
         dualaudioUrl: initialDualAudioUrl,
@@ -71,6 +72,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     useFocusEffect(
         useCallback(() => {
+            // Force landscape for everyone when playing video
             Orientation.lockToLandscape();
             StatusBar.setHidden(true, 'fade');
 
@@ -96,7 +98,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             }
 
             return () => {
-                Orientation.lockToPortrait();
+                // ONLY lock back to portrait on phones
+                if (!isTablet && !isTV) {
+                    Orientation.lockToPortrait();
+                }
+                
                 StatusBar.setHidden(false, 'fade');
 
                 const restoreNav = async () => {

@@ -17,7 +17,7 @@ export const movieService = {
         return await apiClient.get('/tvshows/tv_serials');
     },
     getTVShows: async () => {
-        return await apiClient.get('/tvshows/tv_shows?genre=reality');
+        return await apiClient.get('/tvshows/tv_shows');
     },
     search: async (query) => {
         return await apiClient.get('https://fundady.com/api/v1/search', { title: query });
