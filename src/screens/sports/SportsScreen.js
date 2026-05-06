@@ -9,6 +9,7 @@ import {
     ActivityIndicator,
     Platform,
     useWindowDimensions,
+    ScrollView as RNScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Orientation from 'react-native-orientation-locker';
@@ -20,16 +21,18 @@ import MainHeader from '../../components/headers/MainHeader';
 import MovieCard from '../../components/cards/MovieCard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CategoryModal from '../../components/common/CategoryModal';
+import { moderateScale, isTablet, isTV, SCREEN_WIDTH } from '../../utils/responsive';
 import { movieService } from '../../services/movieService';
 import { SPORTS_POSTER_BASE_URL } from '../../utils/constants';
+import { getTimeAgo } from '../../utils/helpers';
 
-const TABS = ['WWE', 'Cricket', 'Football'];
+const TABS = ['WWE', 'Cricket', 'UFC', 'AEW'];
 
 const SportsScreen = () => {
     const navigation = useNavigation();
-    const { width, height } = useWindowDimensions();
+    const { width } = useWindowDimensions();
     const scrollY = React.useRef(new Animated.Value(0)).current;
-    
+
     const [activeTab, setActiveTab] = useState(TABS[0]);
     const [allData, setAllData] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -37,16 +40,16 @@ const SportsScreen = () => {
     const [showCategoryModal, setShowCategoryModal] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Lock orientation to portrait when screen is focused
+    // Lock orientation to portrait when screen is focused (Phones only)
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
-            if (width < 600) {
+            if (!isTablet && !isTV) {
                 Orientation.lockToPortrait();
             }
         });
 
         return unsubscribe;
-    }, [navigation, width]);
+    }, [navigation]);
 
     useEffect(() => {
         fetchData();
@@ -59,7 +62,8 @@ const SportsScreen = () => {
             let dataPromise;
             if (activeTab === 'WWE') dataPromise = movieService.getWWE();
             else if (activeTab === 'Cricket') dataPromise = movieService.getCricket();
-            else dataPromise = movieService.getFootball();
+            else if (activeTab === 'UFC') dataPromise = movieService.getUFC();
+            else if (activeTab === 'AEW') dataPromise = movieService.getAEW();
 
             const [dataRes, catsRes] = await Promise.all([
                 dataPromise,
@@ -70,6 +74,9 @@ const SportsScreen = () => {
                 const tabKey = activeTab.toLowerCase();
                 const extractedData =
                     dataRes.data?.[tabKey]?.data ||
+                    dataRes.data?.[tabKey] ||
+                    dataRes[tabKey]?.data ||
+                    dataRes[tabKey] ||
                     dataRes.data?.data ||
                     dataRes.data ||
                     (Array.isArray(dataRes) ? dataRes : []);
@@ -103,24 +110,30 @@ const SportsScreen = () => {
             <MainHeader variant="home" title="Sports" scrollY={scrollY} />
 
             <View style={styles.tabsContainer}>
-                {TABS.map(tab => (
-                    <TouchableOpacity
-                        key={tab}
-                        style={[styles.tab, activeTab === tab && styles.activeTab]}
-                        onPress={() => {
-                            setActiveTab(tab);
-                            setSelectedCategory(null);
-                        }}
-                    >
-                        <AppText
-                            variant={activeTab === tab ? 'bold' : 'medium'}
-                            size="md"
-                            color={activeTab === tab ? colors.textPrimary : colors.textSecondary}
+                <RNScrollView 
+                    horizontal 
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.tabsScrollContent}
+                >
+                    {TABS.map(tab => (
+                        <TouchableOpacity
+                            key={tab}
+                            style={[styles.tab, activeTab === tab && styles.activeTab]}
+                            onPress={() => {
+                                setActiveTab(tab);
+                                setSelectedCategory(null);
+                            }}
                         >
-                            {tab}
-                        </AppText>
-                    </TouchableOpacity>
-                ))}
+                            <AppText
+                                variant={activeTab === tab ? 'bold' : 'medium'}
+                                size="md"
+                                color={activeTab === tab ? colors.textPrimary : colors.textSecondary}
+                            >
+                                {tab}
+                            </AppText>
+                        </TouchableOpacity>
+                    ))}
+                </RNScrollView>
             </View>
 
             {loading ? (
@@ -131,24 +144,32 @@ const SportsScreen = () => {
                 <Animated.FlatList
                     data={filteredData}
                     renderItem={({ item }) => {
-                        const stableWidth = width > 600 ? width : Math.min(width, height);
-                        const cardWidth = (stableWidth - spacing.md * 2) / 2 - 8;
+                        const numCols = (isTablet || isTV) ? 4 : 2;
+                        const cardWidth = (width - spacing.md * 2) / numCols - 8;
+                        
+                        // Use video_title directly as it already contains the date from the API
+                        const displayTitle = item.video_title || item.title || item.name || '';
+                        const timeAgo = getTimeAgo(item.release_date || item.created_at || item.updated_at || item.date);
+
                         return (
                             <MovieCard
                                 imageUrl={`${SPORTS_POSTER_BASE_URL}${item.poster}`}
-                                onPress={() => navigation.navigate('MovieDetail', { 
-                                    id: item.id, 
+                                onPress={() => navigation.navigate('MovieDetail', {
+                                    id: item.id,
                                     contentType: activeTab.toLowerCase(),
                                     movieDataFallback: item
                                 })}
                                 width={cardWidth}
                                 height={cardWidth * 0.5625}
-                                style={{ margin: 4 }}
+                                title={displayTitle}
+                                subtitle={timeAgo}
+                                style={{ margin: 4, marginBottom: 12 }}
                             />
                         );
                     }}
                     keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-                    numColumns={2}
+                    numColumns={(isTablet || isTV) ? 4 : 2}
+                    key={(isTablet || isTV) ? 'tablet' : 'phone'}
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     onScroll={Animated.event(
@@ -181,12 +202,14 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
     },
     tabsContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: spacing.md,
         paddingTop: spacing.xxl + 50,
         backgroundColor: colors.background,
         borderBottomWidth: 1,
         borderBottomColor: colors.backgroundCard,
+    },
+    tabsScrollContent: {
+        flexDirection: 'row',
+        paddingHorizontal: spacing.md,
     },
     tab: {
         paddingVertical: spacing.md,
