@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   Image,
   Animated,
   Platform,
   StatusBar,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from '../common/SvgIcon';
 import { colors } from '../../theme/colors';
 import { spacing, iconSizes } from '../../theme/spacing';
 import AppText from '../common/AppText';
 import { useNavigation } from '@react-navigation/native';
+import { isTV } from '../../utils/responsive';
 
 const MainHeader = ({
   onSearchPress,
@@ -23,6 +24,8 @@ const MainHeader = ({
   showSearch = true,
 }) => {
   const navigation = useNavigation();
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [backFocused, setBackFocused] = useState(false);
 
   const backgroundColor = scrollY
     ? scrollY.interpolate({
@@ -36,32 +39,15 @@ const MainHeader = ({
 
   const iconColor = variant === 'inner' ? colors.white : colors.textPrimary;
 
-  const handleBack = () => {
-    navigation.goBack();
+  const handleBack = () => navigation.goBack();
+
+  const handleRightIconPress = () => {
+    if (onSearchPress) {
+      onSearchPress();
+    } else {
+      navigation.navigate('Search');
+    }
   };
-
-  // const handleRightIconPress = () => {
-  //   if (variant === 'inner') {
-  //     console.log('Download pressed');
-  //   } else {
-  //     if (onSearchPress) {
-  //       onSearchPress();
-  //     } else {
-  //       navigation.navigate('Search');
-  //     }
-  //   }
-  // };
-
-  
-    const handleRightIconPress = () => {
-        console.log('Search icon pressed');
-        if (onSearchPress) {
-            onSearchPress();
-        } else {
-            navigation.navigate('Search');
-        }
-    };
-
 
   return (
     <Animated.View
@@ -69,46 +55,58 @@ const MainHeader = ({
         styles.container,
         { backgroundColor },
         variant === 'inner' && styles.innerContainer,
+        // TV pe position relative — spatial engine confuse nahi hoga
+        isTV && styles.containerTV,
+        isTV && variant === 'inner' && styles.innerContainerTV,
       ]}
     >
-      
       <StatusBar
         translucent
         backgroundColor="transparent"
         barStyle="light-content"
       />
+
       <View style={styles.leftContainer}>
         {variant === 'home' ? (
           <View style={styles.homeLeft}>
             <Image
               source={require('../../assets/images/fundady_logo.png')}
-              style={styles.logo}
+              style={[styles.logo, isTV && styles.logoTV]}
               resizeMode="contain"
             />
-            {/* <AppText variant="medium" size="lg" style={[styles.homeText]}>
-              {title || 'Home'}
-            </AppText> */}
           </View>
         ) : (
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Icon name="arrow-back" size={iconSizes.lg} color={iconColor} />
-          </TouchableOpacity>
+          <Pressable
+            onPress={handleBack}
+            onFocus={() => setBackFocused(true)}
+            onBlur={() => setBackFocused(false)}
+            style={[
+              styles.backButton,
+              backFocused && styles.iconButtonFocused,
+            ]}
+          >
+            <Icon name="arrow-back" size={iconSizes.lg} color={backFocused ? colors.primary : iconColor} />
+          </Pressable>
         )}
       </View>
 
       <View style={styles.rightContainer}>
         {showSearch && (
-          <TouchableOpacity
+          <Pressable
             onPress={handleRightIconPress}
-            style={styles.iconButton}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+            style={[
+              styles.iconButton,
+              searchFocused && styles.iconButtonFocused,
+            ]}
           >
             <Icon
-              // name={variant === 'inner' ? '' : 'search'}
               name="search"
-              size={iconSizes.lg}
-              color={iconColor}
+              size={isTV ? iconSizes.xl : iconSizes.lg}
+              color={searchFocused ? colors.primary : iconColor}
             />
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
     </Animated.View>
@@ -117,23 +115,38 @@ const MainHeader = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: Platform.OS === 'ios' ? 100 : 90,
+    height: Platform.OS === 'ios' ? 100 : 100,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
     paddingTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight,
-    position: 'absolute',
+    position: 'absolute',   // phone/tablet pe pehle jaisa
     top: 0,
     left: 0,
     right: 0,
     zIndex: 100,
+  },
+  // TV pe relative — gallery banner overlap nahi karega
+  containerTV: {
+    position: 'relative',
+    top: undefined,
+    left: undefined,
+    right: undefined,
+    zIndex: 1,
+    paddingTop: spacing.sm,
+    height: 70,
+    backgroundColor: 'rgba(0,0,0,0.85)',
   },
   innerContainer: {
     position: 'relative',
     backgroundColor: colors.black,
     paddingTop: 0,
     height: 50,
+  },
+  innerContainerTV: {
+    height: 60,
+    paddingTop: 0,
   },
   leftContainer: {
     flexDirection: 'row',
@@ -145,16 +158,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 120,
+    width: 190,
     height: 60,
   },
-  homeText: {
-    color: colors.textPrimary,
-    marginLeft: spacing.sm,
-    fontSize: 18,
+  logoTV: {
+    width: 160,
+    height: 50,
   },
   backButton: {
     padding: spacing.xs,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   rightContainer: {
     flexDirection: 'row',
@@ -163,6 +178,14 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: spacing.xs,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  // D-pad focus — translucent bg + red border
+  iconButtonFocused: {
+    borderColor: colors.primary,
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
 });
 

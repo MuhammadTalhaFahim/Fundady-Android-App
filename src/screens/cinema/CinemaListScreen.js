@@ -12,17 +12,19 @@ import {
     ScrollView as RNScrollView,
     Platform,
     useWindowDimensions,
+    RefreshControl
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import MainHeader from '../../components/headers/MainHeader';
 import MovieCard from '../../components/cards/MovieCard';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from '../../components/common/SvgIcon';
 import AppText from '../../components/common/AppText';
 import CategoryModal from '../../components/common/CategoryModal';
 import { MOVIES_POSTER_BASE_URL } from '../../utils/constants';
 import Orientation from 'react-native-orientation-locker';
 
+import { moderateScale, isTablet, isTV, SCREEN_WIDTH } from '../../utils/responsive';
 import { movieService } from '../../services/movieService';
 
 
@@ -33,10 +35,11 @@ const CinemaListScreen = ({ navigation }) => {
 
     useFocusEffect(
         useCallback(() => {
-            if (width < 600) {
+            // Only lock portrait on phones.
+            if (!isTablet && !isTV) {
                 Orientation.lockToPortrait();
             }
-        }, [width])
+        }, [])
     );
     const [movies, setMovies] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -50,13 +53,18 @@ const CinemaListScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [isFiltering, setIsFiltering] = useState(false);
     const [isOpeningModal, setIsOpeningModal] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         fetchData();
     }, []);
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchData = async (isRefresh = false) => {
+        if (isRefresh) {
+            setRefreshing(true);
+        } else {
+            setLoading(true);
+        }
         try {
             const [moviesRes, categoriesRes, yearsRes, genresRes] = await Promise.all([
                 movieService.getMovies(),
@@ -86,8 +94,13 @@ const CinemaListScreen = ({ navigation }) => {
             console.error('Error fetching cinema data:', error);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
+
+    const onRefresh = useCallback(() => {
+        fetchData(true);
+    }, []);
 
     const handleMoviePress = movie => {
         navigation.navigate('MovieDetail', { id: movie.id });
@@ -146,7 +159,7 @@ const CinemaListScreen = ({ navigation }) => {
                                     </>
                                 )}
                             </TouchableOpacity>
-
+                            
                             <TouchableOpacity
                                 style={[styles.filterTab, selectedYear && styles.activeFilterTab]}
                                 onPress={() => {
@@ -178,10 +191,10 @@ const CinemaListScreen = ({ navigation }) => {
                                 {isOpeningModal && modalType === 'genre' ? (
                                     <ActivityIndicator size="small" color={colors.textPrimary} />
                                 ) : (
-                                    <>
+                                    <> 
                                         <AppText variant="medium" size="md" color={colors.textPrimary}>
                                             {selectedGenre || 'Genre'}
-                                        </AppText>
+                                        </AppText>  
                                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
                                     </>
                                 )}
@@ -189,7 +202,7 @@ const CinemaListScreen = ({ navigation }) => {
                         </RNScrollView>
                     </View>
 
-                    {isFiltering ? (
+                    {isFiltering ? ( 
                         <View style={styles.filterLoadingContainer}>
                             <ActivityIndicator size="large" color={colors.primary} />
                             <AppText variant="medium" style={{ marginTop: spacing.md }} color={colors.textSecondary}></AppText>
@@ -198,8 +211,8 @@ const CinemaListScreen = ({ navigation }) => {
                         <Animated.FlatList
                             data={filteredMovies}
                             renderItem={({ item }) => {
-                                const stableWidth = width > 600 ? width : Math.min(width, height);
-                                const cardWidth = (stableWidth - spacing.md * 2) / 3 - 8;
+                                const numCols = (isTablet || isTV) ? 5 : 3;
+                                const cardWidth = (width - spacing.md * 2) / numCols - 8;
                                 return (
                                     <MovieCard
                                         imageUrl={`${MOVIES_POSTER_BASE_URL}${item.poster}`}
@@ -211,13 +224,23 @@ const CinemaListScreen = ({ navigation }) => {
                                 );
                             }}
                             keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-                            numColumns={3}
+                            numColumns={(isTablet || isTV) ? 5 : 3}
+                            key={(isTablet || isTV) ? 'tablet' : 'phone'}
                             contentContainerStyle={styles.scrollContent}
                             showsVerticalScrollIndicator={false}
                             onScroll={Animated.event(
                                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                                 { useNativeDriver: false }
                             )}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={refreshing}
+                                    onRefresh={onRefresh}
+                                    tintColor={colors.primary}
+                                    colors={[colors.primary]}
+                                    progressBackgroundColor={colors.backgroundLight}
+                                />
+                            }
                             scrollEventThrottle={16}
                             ListEmptyComponent={
                                 <View style={styles.emptyContainer}>
@@ -259,7 +282,7 @@ const CinemaListScreen = ({ navigation }) => {
             />
         </View>
     );
-};
+};  
 
 const styles = StyleSheet.create({
     container: {
@@ -287,14 +310,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     stickyFilterContainer: {
-        paddingTop: Platform.OS === 'ios' ? 100 : 90,
+        // paddingTop: 100, // Matches the header height
+        backgroundColor: colors.background,
         zIndex: 10,
     },
     filterBar: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        paddingVertical: spacing.sm,
+        paddingVertical: spacing.md,
         paddingHorizontal: spacing.md,
         backgroundColor: colors.background,
     },

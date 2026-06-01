@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-    TouchableOpacity,
+    Pressable,
     Image,
     StyleSheet,
     View,
+    Platform,
 } from 'react-native';
 import { borderRadius, spacing } from '../../theme/spacing';
 import { colors } from '../../theme/colors';
 import AppText from '../common/AppText';
+
+const isTV = Platform.isTV;
 
 const MovieCard = ({
     imageUrl,
@@ -20,11 +23,19 @@ const MovieCard = ({
     subtitle,
     subtitleColor = colors.primary,
 }) => {
+    const [isFocused, setIsFocused] = useState(false);
+
     return (
-        <TouchableOpacity
-            activeOpacity={0.8}
+        <Pressable
             onPress={onPress}
-            style={[styles.container, { width }, style]}>
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            style={[
+                styles.container,
+                { width },
+                style,
+                isFocused && styles.containerFocused,
+            ]}>
             <View style={[styles.imageContainer, { height }]}>
                 <Image
                     source={{ uri: imageUrl }}
@@ -57,7 +68,7 @@ const MovieCard = ({
                     )}
                 </View>
             )}
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 
@@ -65,13 +76,17 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: colors.backgroundCard,
         borderRadius: borderRadius.sm,
-        borderWidth: 1,
-        borderColor: colors.primary,
-        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: colors.textPrimary,   // default — same as before
+    },
+    containerFocused: {
+        borderColor: colors.primary,       // red on D-pad focus
+        // transform: [{ scale: 1.05 }],
     },
     imageContainer: {
         backgroundColor: colors.backgroundCard,
         overflow: 'hidden',
+         borderRadius: borderRadius.sm,
     },
     image: {
         width: '100%',
