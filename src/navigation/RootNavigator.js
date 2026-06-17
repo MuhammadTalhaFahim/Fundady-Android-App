@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Orientation from 'react-native-orientation-locker';
+import { isTV, isTablet } from '../utils/responsive';
 import TabNavigator from './TabNavigator';
 import AuthNavigator from './AuthNavigator';
 import SearchScreen from '../screens/home/SearchScreen';
+import NotificationScreen from '../screens/home/NotificationScreen';
 import MovieDetailScreen from '../screens/home/MovieDetailScreen';
 import VideoPlayerScreen from '../screens/home/VideoPlayerScreen';
 import CinemaDetailScreen from '../screens/cinema/CinemaDetailScreen';
@@ -19,6 +22,17 @@ const RootNavigator = () => {
     // Mock authentication state - change this to true to see the main app
     const [isAuthenticated, setIsAuthenticated] = useState(true);
 
+    useEffect(() => {
+        // Global Orientation Management
+        if (isTV || isTablet) {
+            // Tablets and TVs are always in Landscape
+            Orientation.lockToLandscape();
+        } else {
+            // Phones default to Portrait
+            Orientation.lockToPortrait();
+        }
+    }, []);
+
     if (showSplash) {
         return <SplashScreen onFinish={() => setShowSplash(false)} />;
     }
@@ -26,19 +40,26 @@ const RootNavigator = () => {
     return (
         <NavigationContainer>
             {isAuthenticated ? (
-                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Navigator 
+                    screenOptions={{ 
+                        headerShown: false,
+                        // Default orientation based on device
+                        orientation: (isTV || isTablet) ? 'landscape' : 'portrait'
+                    }}
+                >
                     <Stack.Screen 
                         name="TabStack" 
                         component={TabNavigator} 
                         options={({ route }) => {
                             const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
-                            // If the active tab inside TabStack is TvOn, tell the parent stack we are currently landscape!
+                            // Dynamic orientation for Phones
                             return {
-                                orientation: routeName === 'TvOn' ? 'landscape' : 'portrait',
+                                orientation: (isTV || isTablet) || routeName === 'TvOn' ? 'landscape' : 'portrait',
                             };
                         }}
                     />
                     <Stack.Screen name="Search" component={SearchScreen} />
+                    <Stack.Screen name="Notifications" component={NotificationScreen} />
                     <Stack.Screen name="MovieDetail" component={MovieDetailScreen} />
                     <Stack.Screen 
                         name="VideoPlayer" 
@@ -51,7 +72,7 @@ const RootNavigator = () => {
                     <Stack.Screen 
                         name="LiveTvPlayer" 
                         component={LiveTvPlayerScreen}
-                        options={{ orientation: 'landscape', animation: 'fade' }} // Force navigation-level landscape and fade animation
+                        options={{ orientation: 'landscape', animation: 'fade' }} // Force navigation-level landscape
                     />
                 </Stack.Navigator>
             ) : (

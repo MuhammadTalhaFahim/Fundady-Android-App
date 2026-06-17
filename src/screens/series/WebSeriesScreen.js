@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Pressable,
   ActivityIndicator,
   Modal,
   Dimensions,
@@ -12,26 +13,59 @@ import {
   Animated,
   Platform,
   useWindowDimensions,
+  RefreshControl
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 import MovieCard from '../../components/cards/MovieCard';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from '../../components/common/SvgIcon';
 import CategoryModal from '../../components/common/CategoryModal';
 import { TV_SHOWS_POSTER_BASE_URL } from '../../utils/constants';
 import Orientation from 'react-native-orientation-locker';
+import { isTablet, isTV } from '../../utils/responsive';
 
 import { movieService } from '../../services/movieService';
 
-
-
 const TABS = ['Web Series', 'TV Shows', 'TV Serials'];
+
+const TabButton = ({ tab, activeTab, onPress }) => {
+    const [isFocused, setIsFocused] = useState(false);
+    return (
+        <Pressable
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onPress={onPress}
+            style={[
+                styles.tab,
+                activeTab === tab && styles.activeTab,
+                isFocused && {
+                    borderColor: colors.primary,
+                    borderBottomWidth: 3,
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    transform: [{ scale: 1.05 }]
+                }
+            ]}
+        >
+            <AppText
+                variant={activeTab === tab || isFocused ? 'bold' : 'medium'}
+                size="md"
+                color={activeTab === tab || isFocused ? colors.textPrimary : colors.textSecondary}
+            >
+                {tab}
+            </AppText>
+        </Pressable>
+    );
+};
 
 const WebSeriesScreen = ({ navigation }) => {
   const { width, height } = useWindowDimensions();
   const scrollY = React.useRef(new Animated.Value(0)).current;
+
+  const [isCategoryFocused, setIsCategoryFocused] = useState(false);
+  const [isYearFocused, setIsYearFocused] = useState(false);
+  const [isGenreFocused, setIsGenreFocused] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -54,6 +88,7 @@ const WebSeriesScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
   const [isOpeningModal, setIsOpeningModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -90,9 +125,13 @@ const WebSeriesScreen = ({ navigation }) => {
     filterData();
   }, [activeTab, allData, selectedCategory, selectedYear, selectedGenre]);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setAllData([]); // Clear previous data
+  const fetchData = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+      setAllData([]); // Clear previous data
+    }
     try {
       let response;
       if (activeTab === 'Web Series') {
@@ -104,16 +143,21 @@ const WebSeriesScreen = ({ navigation }) => {
       }
 
       if (response.status) {
-        // Handle different data structures if necessary
-        const data = response.data?.tvshows?.data || response.data || [];
-        setAllData(data);
+        // Correct extraction for your API: response.data.tvshows is the array
+        const data = response.data?.tvshows || response.tvshows || (Array.isArray(response.data) ? response.data : []);
+        setAllData(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error('Error fetching series data:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    fetchData(true);
+  }, [activeTab]);
 
   const filterData = () => {
     if (!allData.length) {
@@ -160,19 +204,12 @@ const WebSeriesScreen = ({ navigation }) => {
 
       <View style={styles.tabsContainer}>
         {TABS.map(tab => (
-          <TouchableOpacity
+          <TabButton
             key={tab}
-            style={[styles.tab, activeTab === tab && styles.activeTab]}
+            tab={tab}
+            activeTab={activeTab}
             onPress={() => setActiveTab(tab)}
-          >
-            <AppText
-              variant={activeTab === tab ? 'bold' : 'medium'}
-              size="md"
-              color={activeTab === tab ? colors.textPrimary : colors.textSecondary}
-            >
-              {tab}
-            </AppText>
-          </TouchableOpacity>
+          />
         ))}
       </View>
 
@@ -182,8 +219,19 @@ const WebSeriesScreen = ({ navigation }) => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterBar}
         >
-          <TouchableOpacity
-            style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
+          <Pressable
+            onFocus={() => setIsCategoryFocused(true)}
+            onBlur={() => setIsCategoryFocused(false)}
+            style={[
+              styles.filterTab,
+              selectedCategory && styles.activeFilterTab,
+              isCategoryFocused && {
+                borderColor: colors.primary,
+                borderWidth: 2,
+                transform: [{ scale: 1.08 }],
+                backgroundColor: 'rgba(255, 255, 255, 0.08)'
+              }
+            ]}
             onPress={() => {
               setModalType('category');
               setIsOpeningModal(true);
@@ -200,10 +248,21 @@ const WebSeriesScreen = ({ navigation }) => {
                 <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
               </>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
-            style={[styles.filterTab, selectedYear && styles.activeFilterTab]}
+          <Pressable
+            onFocus={() => setIsYearFocused(true)}
+            onBlur={() => setIsYearFocused(false)}
+            style={[
+              styles.filterTab,
+              selectedYear && styles.activeFilterTab,
+              isYearFocused && {
+                borderColor: colors.primary,
+                borderWidth: 2,
+                transform: [{ scale: 1.08 }],
+                backgroundColor: 'rgba(255, 255, 255, 0.08)'
+              }
+            ]}
             onPress={() => {
               setModalType('year');
               setIsOpeningModal(true);
@@ -220,10 +279,21 @@ const WebSeriesScreen = ({ navigation }) => {
                 <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
               </>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
-            style={[styles.filterTab, selectedGenre && styles.activeFilterTab]}
+          <Pressable
+            onFocus={() => setIsGenreFocused(true)}
+            onBlur={() => setIsGenreFocused(false)}
+            style={[
+              styles.filterTab,
+              selectedGenre && styles.activeFilterTab,
+              isGenreFocused && {
+                borderColor: colors.primary,
+                borderWidth: 2,
+                transform: [{ scale: 1.08 }],
+                backgroundColor: 'rgba(255, 255, 255, 0.08)'
+              }
+            ]}
             onPress={() => {
               setModalType('genre');
               setIsOpeningModal(true);
@@ -240,7 +310,7 @@ const WebSeriesScreen = ({ navigation }) => {
                 <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
               </>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </RNScrollView>
       </View>
 
@@ -257,8 +327,9 @@ const WebSeriesScreen = ({ navigation }) => {
         <Animated.FlatList
           data={filteredData}
           renderItem={({ item }) => {
+            const numCols = (isTablet || isTV) ? 4 : 2;
             const stableWidth = width > 600 ? width : Math.min(width, height);
-            const cardWidth = (stableWidth - spacing.md * 2) / 2 - 8;
+            const cardWidth = (stableWidth - spacing.md * 2) / numCols - 8;
             return (
               <MovieCard
                 imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
@@ -275,13 +346,24 @@ const WebSeriesScreen = ({ navigation }) => {
             );
           }}
           keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-          numColumns={2}
+          numColumns={(isTablet || isTV) ? 4 : 2}
+          key={(isTablet || isTV) ? 'tablet' : 'phone'}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews={false}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             { useNativeDriver: false },
           )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.backgroundLight}
+            />
+          }
           scrollEventThrottle={16}
 
           ListEmptyComponent={
@@ -296,6 +378,11 @@ const WebSeriesScreen = ({ navigation }) => {
         isVisible={showModal}
         onClose={() => setShowModal(false)}
         onShow={() => setIsOpeningModal(false)}
+        title={
+            modalType === 'category' ? 'All Categories' :
+                modalType === 'year' ? 'All Years' :
+                    'All Genres'
+        }
         categories={
           modalType === 'category' ? categories :
             modalType === 'year' ? years :
@@ -332,7 +419,7 @@ const styles = StyleSheet.create({
   tabsContainer: {
     flexDirection: 'row',
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.xxl + 50, // Offset for absolute header
+    paddingTop: isTV ? 0 : spacing.xxl + 50, // Offset for absolute header
     backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.backgroundCard,
