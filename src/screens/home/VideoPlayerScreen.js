@@ -223,6 +223,9 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         if (showControls && !paused && !isLocked) {
             startControlTimer();
         }
+        return () => {
+            if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
+        };
     }, [showControls, paused, isLocked]);
 
     // ── TV: keep a ref so the sentinel knows the latest showControls value ────
@@ -230,7 +233,12 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     useEffect(() => { showControlsRef.current = showControls; }, [showControls]);
 
     const startControlTimer = () => {
-        // Auto-hide timer disabled per user request to keep controls focused
+        if (controlTimerRef.current) {
+            clearTimeout(controlTimerRef.current);
+        }
+        controlTimerRef.current = setTimeout(() => {
+            setShowControls(false);
+        }, 5000);
     };
 
     const toggleControls = () => {

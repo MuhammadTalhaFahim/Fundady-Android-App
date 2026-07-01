@@ -3,7 +3,7 @@ import {
     View,
     StyleSheet,
     Modal,
-    TouchableOpacity,
+    Pressable,
     Dimensions,
     ScrollView,
 } from 'react-native';
@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from './AppText';
+import { isTV } from '../../utils/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -32,56 +33,78 @@ const CategoryModal = ({
             onRequestClose={onClose}
         >
             <View style={styles.modalOverlay}>
-                <ScrollView contentContainerStyle={styles.modalContent}>
-                    <TouchableOpacity
-                        style={styles.categoryItem}
+                <ScrollView contentContainerStyle={styles.modalContent} showsVerticalScrollIndicator={false}>
+                    <Pressable
+                        focusable={true}
+                        hasTVPreferredFocus={isTV && !selectedCategory}
+                        style={({ focused }) => [
+                            styles.categoryItem,
+                            focused && styles.categoryItemFocused
+                        ]}
                         onPress={() => {
                             onSelectCategory(null);
                             onClose();
                         }}
                     >
-                        <AppText
-                            variant="medium"
-                            size="lg"
-                            style={[
-                                styles.categoryText,
-                                !selectedCategory && styles.activeCategoryText
-                            ]}
-                        >
-                            All Categories
-                        </AppText>
-                    </TouchableOpacity>
-
-                    {categories.map((cat) => (
-                        <TouchableOpacity
-                            key={cat.id}
-                            style={styles.categoryItem}
-                            onPress={() => {
-                                onSelectCategory(cat.name);
-                                onClose();
-                            }}
-                        >
+                        {({ focused }) => (
                             <AppText
                                 variant="medium"
                                 size="lg"
                                 style={[
                                     styles.categoryText,
-                                    selectedCategory === cat.name && styles.activeCategoryText
+                                    !selectedCategory && styles.activeCategoryText,
+                                    focused && styles.categoryTextFocused
                                 ]}
                             >
-                                {cat.name}
+                                All Categories
                             </AppText>
-                        </TouchableOpacity>
+                        )}
+                    </Pressable>
+
+                    {categories.map((cat) => (
+                        <Pressable
+                            key={cat.id}
+                            focusable={true}
+                            hasTVPreferredFocus={isTV && selectedCategory === cat.name}
+                            style={({ focused }) => [
+                                styles.categoryItem,
+                                focused && styles.categoryItemFocused
+                            ]}
+                            onPress={() => {
+                                onSelectCategory(cat.name);
+                                onClose();
+                            }}
+                        >
+                            {({ focused }) => (
+                                <AppText
+                                    variant="medium"
+                                    size="lg"
+                                    style={[
+                                        styles.categoryText,
+                                        selectedCategory === cat.name && styles.activeCategoryText,
+                                        focused && styles.categoryTextFocused
+                                    ]}
+                                >
+                                    {cat.name}
+                                </AppText>
+                            )}
+                        </Pressable>
                     ))}
                 </ScrollView>
-                <TouchableOpacity
+                <Pressable
+                    focusable={true}
                     style={styles.closeButton}
                     onPress={onClose}
                 >
-                    <View style={styles.closeButtonInner}>
-                        <Icon name="close" size={30} color={colors.black} />
-                    </View>
-                </TouchableOpacity>
+                    {({ focused }) => (
+                        <View style={[
+                            styles.closeButtonInner,
+                            focused && styles.closeButtonInnerFocused
+                        ]}>
+                            <Icon name="close" size={30} color={focused ? colors.primary : colors.black} />
+                        </View>
+                    )}
+                </Pressable>
             </View>
         </Modal>
     );
@@ -102,12 +125,24 @@ const styles = StyleSheet.create({
     },
     categoryItem: {
         paddingVertical: spacing.md,
-        width: '100%',
+        width: '90%',
         alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: 'transparent',
+        marginVertical: 2,
+    },
+    categoryItemFocused: {
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        borderColor: colors.primary,
+        borderRadius: 8,
     },
     categoryText: {
         color: colors.white,
         fontSize: 18,
+    },
+    categoryTextFocused: {
+        color: colors.primary,
+        fontWeight: 'bold',
     },
     activeCategoryText: {
         color: colors.primary,
@@ -124,6 +159,12 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'transparent',
+    },
+    closeButtonInnerFocused: {
+        borderColor: colors.primary,
+        backgroundColor: colors.white,
     },
 });
 
