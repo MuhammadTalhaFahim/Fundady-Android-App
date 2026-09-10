@@ -199,33 +199,74 @@ const MovieDetailScreen = ({ route, navigation }) => {
     const executeDownload = async (url) => {
         try {
             if (Platform.OS === 'android') {
-                const granted = await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                    {
-                        title: 'Storage Permission Required',
-                        message: 'Fundady needs access to your storage to download the movie.',
-                        buttonPositive: 'OK',
-                    }
-                );
+                if (Platform.Version < 33) {
+                    const granted = await PermissionsAndroid.request(
+                        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                        {
+                            title: 'Storage Permission Required',
+                            message: 'Fundady needs access to your storage to download the movie.',
+                            buttonPositive: 'OK',
+                        }
+                    );
 
-                if (granted !== PermissionsAndroid.RESULTS.GRANTED && Platform.Version < 33) {
-                    alert('Storage Permission Denied');
-                    return;
+                    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+                        alert('Storage Permission Denied');
+                        return;
+                    }
+                } else {
+                    const hasNotificationPermission = await PermissionsAndroid.check(
+                        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+                    );
+                    if (!hasNotificationPermission) {
+                        await PermissionsAndroid.request(
+                            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+                            {
+                                title: 'Notification Permission Required',
+                                message: 'Fundady needs notification permission to show download progress in your status bar.',
+                                buttonPositive: 'OK',
+                            }
+                        );
+                    }
                 }
             }
 
-            const fileName = url.substring(url.lastIndexOf('/') + 1) || `${movie.title.replace(/\s+/g, '_')}.mp4`;
+            let fileName = url.substring(url.lastIndexOf('/') + 1).split('?')[0];
+            if (!fileName) {
+                fileName = `${movie.title.replace(/\s+/g, '_')}.mp4`;
+            }
+            fileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const lowerFileName = fileName.toLowerCase();
+            if (!lowerFileName.endsWith('.mp4') && !lowerFileName.endsWith('.mkv') && !lowerFileName.endsWith('.avi') && !lowerFileName.endsWith('.mov')) {
+                fileName = `${fileName}.mp4`;
+            }
 
-            ReactNativeBlobUtil.config({
-                addAndroidDownloads: {
-                    useDownloadManager: true, // native download manager
-                    notification: true, // show system tray notification
-                    title: `${movie.title} - Fundady`,
-                    description: 'Downloading movie...',
-                    mime: 'video/mp4',
-                    mediaScannable: true,
+            if (Platform.OS === 'android') {
+                ToastAndroid.show('Download started...', ToastAndroid.SHORT);
+            } else {
+                Alert.alert('Download', 'Download started in the background.');
+            }
+
+            const { fs } = ReactNativeBlobUtil;
+            const configOptions = Platform.select({
+                ios: {
+                    fileCache: true,
+                    path: `${fs.dirs.DocumentDir}/${fileName}`,
+                },
+                android: {
+                    path: `${fs.dirs.DownloadDir}/${fileName}`,
+                    addAndroidDownloads: {
+                        useDownloadManager: true, // native download manager
+                        notification: true, // show system tray notification
+                        title: `${movie.title} - Fundady`,
+                        description: 'Downloading movie...',
+                        mime: 'video/mp4',
+                        mediaScannable: true,
+                        path: `${fs.dirs.DownloadDir}/${fileName}`,
+                    }
                 }
-            })
+            });
+
+            ReactNativeBlobUtil.config(configOptions)
                 .fetch('GET', url)
                 .then((res) => {
                     if (Platform.OS === 'ios') {
