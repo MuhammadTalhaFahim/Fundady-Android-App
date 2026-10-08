@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Video from 'react-native-video';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';

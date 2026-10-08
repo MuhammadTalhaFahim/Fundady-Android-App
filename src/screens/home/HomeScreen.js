@@ -913,6 +913,7 @@ const styles = StyleSheet.create({
   topTenNumberOutline: {
     position: 'absolute',
     color: 'rgba(255, 255, 255, 0.6)',
+    opacity:0.5
   },
   topTenSeriesCardContainer: {
     flexDirection: 'row',

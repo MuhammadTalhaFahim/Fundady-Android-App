@@ -1144,16 +1144,6 @@ const styles = StyleSheet.create({
     cancelCountdownButton: {
         padding: 10,
     },
-    episodeItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 15,
-        paddingHorizontal: 10,
-        borderWidth: 1.5,
-        borderColor: 'transparent',
-        borderRadius: 8,
-    },
     episodeItemFocused: {
         borderColor: colors.primary,
         backgroundColor: 'rgba(229,9,20,0.15)',
