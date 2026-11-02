@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Image, StyleSheet, Dimensions } from 'react-native';
+import { TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import CachedImage from './CachedImage';
 import { useNavigation } from '@react-navigation/native';
 import { spacing } from '../../theme/spacing';
 
@@ -17,7 +18,7 @@ const MovieGridItem = ({ item }) => {
             style={styles.container}
             onPress={() => navigation.navigate('MovieDetail', { id: item.id })}
         >
-            <Image
+            <CachedImage
                 source={{ uri: `${POSTER_BASE_URL}${item.poster}` }}
                 style={styles.poster}
                 resizeMode="cover"

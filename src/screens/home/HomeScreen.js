@@ -7,9 +7,7 @@ import {
   ImageBackground,
   Dimensions,
   FlatList,
-<<<<<<< HEAD
   Platform,
-  Image,
   Text,
   useWindowDimensions,
   ViewBase,
@@ -22,37 +20,21 @@ import {
 } from 'react-native';
 import Toast from '../../components/common/Toast';
 import Loader from '../../components/common/Loader';
-=======
-  ActivityIndicator,
-  Platform,
-  Image,
-  Text,
-  Pressable,
-  useWindowDimensions,
-  Modal,
-  TouchableOpacity,
-  ScrollView as RNScrollView,
-  RefreshControl,
-} from 'react-native';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import MainHeader from '../../components/headers/MainHeader';
 import CategoryModal from '../../components/common/CategoryModal';
 import MovieCard from '../../components/cards/MovieCard';
-<<<<<<< HEAD
+import CachedImage from '../../components/common/CachedImage';
 import ContinueWatchingCard from '../../components/cards/ContinueWatchingCard';
 import { useContinueWatching } from '../../hooks/useContinueWatching';
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import Icon from '../../components/common/SvgIcon';
 import Orientation from 'react-native-orientation-locker';
 import UpdateModal from '../../components/modals/UpdateModal';
 import { VERSION_CONFIG } from '../../config/versionConfig';
 
 import { movieService } from '../../services/movieService';
-<<<<<<< HEAD
 import { adService } from '../../services/adService';
 import AdBanner from '../../components/ads/AdBanner';
 
@@ -70,15 +52,10 @@ import Svg, {
   LinearGradient,
   Stop,
 } from 'react-native-svg';
-=======
-
-import { moderateScale, isTablet, isTV } from '../../utils/responsive';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
 const MOVIES_POSTER_BASE_URL = 'https://fundady.com/MoviesPoster/';
 const GALLERY_POSTER_BASE_URL = 'https://fundady.com/FrontGallery/';
 const TV_SHOWS_POSTER_BASE_URL = 'https://fundady.com/TvShowPoster/';
-<<<<<<< HEAD
 // ─────────────────────────────────────────────────────────────────────────────
 
 const GalleryItemComponent = ({ item, onPress, onPlayPress, bannerWidth }) => {
@@ -119,7 +96,7 @@ const GalleryItemComponent = ({ item, onPress, onPlayPress, bannerWidth }) => {
             onBlur={() => setIsFocused(false)}
             style={{ width: '100%', height: '100%' }}
           >
-            <Image
+            <CachedImage
               source={{ uri: `${GALLERY_POSTER_BASE_URL}${item.poster}` }}
               style={styles.bannerImage}
               resizeMode="cover"
@@ -168,56 +145,10 @@ const GalleryItemComponent = ({ item, onPress, onPlayPress, bannerWidth }) => {
           </Pressable>
         </View>
       </View>
-=======
-
-// ─── TV-optimized Gallery Item ─────────────────────────────────────────────────
-const GalleryItemComponent = ({ item, bannerWidth, onPress, onPlayPress }) => {
-  const [isFocused, setIsFocused] = useState(false);
-
-  return (
-    <View style={{ width: bannerWidth }}>
-      <Pressable
-        onPress={onPress}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        style={[
-          styles.galleryItemCard,
-          isFocused && styles.galleryItemCardFocused,
-        ]}
-      >
-        <View style={styles.bannerContainer}>
-          <Image
-            source={{ uri: `${GALLERY_POSTER_BASE_URL}${item.poster}` }}
-            style={styles.bannerImage}
-            resizeMode="cover"
-          />
-
-          <Pressable
-            style={[
-              styles.featuredPlayIconContainer,
-              isFocused && styles.featuredPlayIconFocused,
-            ]}
-            onPress={onPlayPress}
-          >
-            <Icon
-              name="play-arrow"
-              size={moderateScale(28)}
-              color={colors.white}
-            />
-          </Pressable>
-
-          <View style={styles.gradientOverlay} />
-          <View style={styles.featuredInfoSection}>
-            <View style={styles.buttonRow} />
-          </View>
-        </View>
-      </Pressable>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     </View>
   );
 };
 
-<<<<<<< HEAD
 const TopTenItemComponent = ({ item, index, onPress }) => {
   const [isFocused, setIsFocused] = useState(false);
   const isDoubleDigit = index >= 9; // 10th item (index 9) is "10"
@@ -332,70 +263,12 @@ const TopTenItemComponent = ({ item, index, onPress }) => {
 const TopTenSeriesItemComponent = ({ item, index, onPress }) => {
   const [isFocused, setIsFocused] = useState(false);
   const isDoubleDigit = index >= 9;
-=======
-// ─── TV-optimized Top Ten Movie Item ──────────────────────────────────────────
-
-const TopTenItemComponent = ({ item, index, onPress }) => {
-  const [isFocused, setIsFocused] = useState(false);
-
-  return (
-    // Outer View — yahan number aur card dono sibling hain
-    <View style={[
-      styles.topTenCardContainer,
-      isTV && { width: moderateScale(200) },
-    ]}>
-      
-      {/* Card — zIndex low */}
-      <View style={{ zIndex: 1 }}>
-        <MovieCard
-          imageUrl={`${MOVIES_POSTER_BASE_URL}${item.poster}`}
-          onPress={onPress}
-          width={moderateScale(110)}
-          height={moderateScale(160)}
-          style={[
-            styles.topTenMovieCard,
-            isFocused && { borderColor: colors.primary },
-          ]}
-        />
-      </View>
-
-      {/* Number — position absolute, zIndex high, Pressable bahar */}
-      <View
-        pointerEvents="none"
-        style={[
-          styles.topTenNumberContainer,
-          index === 0 && { left: moderateScale(20) },
-        ]}
-      >
-        <Text style={[styles.topTenNumber, styles.topTenNumberOutline, { transform: [{ translateX: -1.5 }, { translateY: -1.5 }] }]}>{index + 1}</Text>
-        <Text style={[styles.topTenNumber, styles.topTenNumberOutline, { transform: [{ translateX: 1.5 }, { translateY: -1.5 }] }]}>{index + 1}</Text>
-        <Text style={[styles.topTenNumber, styles.topTenNumberOutline, { transform: [{ translateX: -1.5 }, { translateY: 1.5 }] }]}>{index + 1}</Text>
-        <Text style={[styles.topTenNumber, styles.topTenNumberOutline, { transform: [{ translateX: 1.5 }, { translateY: 1.5 }] }]}>{index + 1}</Text>
-        <Text style={styles.topTenNumber}>{index + 1}</Text>
-      </View>
-
-      {/* Pressable — poore area pe, transparent, sabse upar */}
-      <Pressable
-        onPress={onPress}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        style={StyleSheet.absoluteFillObject}
-      />
-    </View>
-  );
-};
-
-// ─── TV-optimized Top Ten Series Item ─────────────────────────────────────────
-const TopTenSeriesItemComponent = ({ item, index, onPress }) => {
-  const [isFocused, setIsFocused] = useState(false);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
   return (
     <Pressable
       onPress={onPress}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
-<<<<<<< HEAD
       style={[
         styles.topTenSeriesCardContainer,
         index === 0 && { width: moderateScale(185) },
@@ -476,10 +349,6 @@ const TopTenSeriesItemComponent = ({ item, index, onPress }) => {
           </Svg>
         )}
       </View>
-=======
-      style={[styles.topTenSeriesCardContainer]}
-    >
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       <MovieCard
         imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
         onPress={onPress}
@@ -487,7 +356,6 @@ const TopTenSeriesItemComponent = ({ item, index, onPress }) => {
         height={moderateScale(101)}
         style={[
           styles.topTenSeriesCard,
-<<<<<<< HEAD
           index === 0 && { marginLeft: moderateScale(18) },
           isDoubleDigit && { marginLeft: moderateScale(38) },
           isFocused && {
@@ -499,70 +367,15 @@ const TopTenSeriesItemComponent = ({ item, index, onPress }) => {
           },
         ]}
       />
-=======
-          isFocused && { borderColor: colors.primary }, // ← focus border sirf MovieCard pe
-        ]}
-      />
-      <View
-        style={[
-          styles.topTenNumberContainer,
-          index === 0 && { left: moderateScale(20) },
-        ]}
-      >
-        <Text
-          style={[
-            styles.topTenNumber,
-            styles.topTenNumberOutline,
-            { transform: [{ translateX: -1.5 }, { translateY: -1.5 }] },
-          ]}
-        >
-          {index + 1}
-        </Text>
-        <Text
-          style={[
-            styles.topTenNumber,
-            styles.topTenNumberOutline,
-            { transform: [{ translateX: 1.5 }, { translateY: -1.5 }] },
-          ]}
-        >
-          {index + 1}
-        </Text>
-        <Text
-          style={[
-            styles.topTenNumber,
-            styles.topTenNumberOutline,
-            { transform: [{ translateX: -1.5 }, { translateY: 1.5 }] },
-          ]}
-        >
-          {index + 1}
-        </Text>
-        <Text
-          style={[
-            styles.topTenNumber,
-            styles.topTenNumberOutline,
-            { transform: [{ translateX: 1.5 }, { translateY: 1.5 }] },
-          ]}
-        >
-          {index + 1}
-        </Text>
-        <Text style={styles.topTenNumber}>{index + 1}</Text>
-      </View>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     </Pressable>
   );
 };
 
-<<<<<<< HEAD
 const HomeScreen = ({ navigation }) => {
   const { width: currentWidth, height: currentHeight } = useWindowDimensions();
 
   // On Phones, we always want the portrait width for the banner to prevent stretching
   // during orientation transitions (like when coming back from the video player).
-=======
-// ─── HomeScreen ────────────────────────────────────────────────────────────────
-const HomeScreen = ({ navigation }) => {
-  const { width: currentWidth, height: currentHeight } = useWindowDimensions();
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   const portraitWidth =
     currentWidth < currentHeight ? currentWidth : currentHeight;
   const bannerWidth = isTablet || isTV ? currentWidth : portraitWidth;
@@ -571,16 +384,12 @@ const HomeScreen = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-<<<<<<< HEAD
       // Only lock portrait on phones. RootNavigator handles Tablet/TV landscape.
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       if (!isTablet && !isTV) {
         Orientation.lockToPortrait();
       }
     }, []),
   );
-<<<<<<< HEAD
   const [indianMovies, setIndianMovies] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [internationalMovies, setInternationalMovies] = useState([]);
@@ -594,14 +403,6 @@ const HomeScreen = ({ navigation }) => {
   const [webSeries, setWebSeries] = useState([]);
   const [tvShows, setTvShows] = useState([]);
   const [tvSerials, setTvSerials] = useState([]);
-=======
-
-  const [movies, setMovies] = useState([]);
-  const [gallery, setGallery] = useState([]);
-  const [topTenMovies, setTopTenMovies] = useState([]);
-  const [topTenSeries, setTopTenSeries] = useState([]);
-  const [webSeries, setWebSeries] = useState([]);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -614,7 +415,6 @@ const HomeScreen = ({ navigation }) => {
   const galleryRef = useRef(null);
   const autoPlayTimer = useRef(null);
 
-<<<<<<< HEAD
   // Continue Watching (local storage) — placed before the `if (loading)` early return
   const { items: continueWatching, remove: removeContinueWatching } =
     useContinueWatching();
@@ -662,41 +462,30 @@ const HomeScreen = ({ navigation }) => {
     }
 
     try {
-      await Promise.all([
+      // Every fetcher handles its own errors, so these promises never reject.
+      // Rows render as soon as their own data arrives instead of waiting for
+      // the slowest request (important on slower public connections).
+      const requests = [
+        fetchGallery(),
+        fetchTopTenMovies(),
         fetchNewArrivals(),
         fetchIndianMovies(),
         fetchInternationalMovies(),
         fetchSouthPrimeMovies(),
-        fetchGallery(),
         fetchCategories(),
         fetchWebSeries(),
         fetchTVShows(),
         fetchTVSerials(),
-        fetchTopTenMovies(),
         fetchTopTenWebSeries(),
         fetchTopTenTvShows(),
         fetchTopTenTvSerials(),
         fetchAds(),
-      ]);
+      ];
+      // Drop the full-screen loader as soon as the first section is ready
+      await Promise.race(requests);
+      setLoading(false);
+      await Promise.all(requests);
       // Check for updates after data is loaded
-=======
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    try {
-      await Promise.all([
-        fetchMovies(),
-        fetchGallery(),
-        fetchCategories(),
-        fetchWebSeries(),
-        fetchTopTenMovies(),
-        fetchTopTenSeries(),
-      ]);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       checkForUpdates();
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -708,10 +497,7 @@ const HomeScreen = ({ navigation }) => {
 
   const onRefresh = useCallback(() => {
     fetchData(true);
-<<<<<<< HEAD
     // eslint-disable-next-line react-hooks/exhaustive-deps
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   }, []);
 
   const checkForUpdates = async () => {
@@ -719,17 +505,12 @@ const HomeScreen = ({ navigation }) => {
       const res = await movieService.checkUpdate();
       if (res.status && res.data) {
         const latest = res.data;
-<<<<<<< HEAD
         // Compare version codes from API
         if (latest.versionCode > VERSION_CONFIG.currentVersionCode) {
           setUpdateData({
             ...latest,
             forceUpdate: latest.forceUpdate === 1, // Convert 0/1 to boolean
           });
-=======
-        if (latest.versionCode > VERSION_CONFIG.currentVersionCode) {
-          setUpdateData({ ...latest, forceUpdate: latest.forceUpdate === 1 });
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           setShowUpdateModal(true);
         }
       }
@@ -738,7 +519,6 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-<<<<<<< HEAD
   const fetchAds = async () => {
     try {
       setAds(await adService.getAds());
@@ -826,34 +606,15 @@ const HomeScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Error fetching South Prime movies:', error);
-=======
-  const fetchMovies = async () => {
-    try {
-      const json = await movieService.getMovies();
-      if (json.status) {
-        const sorted = json.data.sort(
-          (a, b) =>
-            new Date(b.updated_at || b.created_at) -
-            new Date(a.updated_at || a.created_at),
-        );
-        setMovies(sorted);
-      }
-    } catch (error) {
-      console.error('Error fetching movies:', error);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     }
   };
 
   const fetchGallery = async () => {
     try {
       const json = await movieService.getGallery();
-<<<<<<< HEAD
       if (json.status) {
         setGallery(json.data);
       }
-=======
-      if (json.status) setGallery(json.data);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     } catch (error) {
       console.error('Error fetching gallery:', error);
     }
@@ -862,13 +623,9 @@ const HomeScreen = ({ navigation }) => {
   const fetchCategories = async () => {
     try {
       const json = await movieService.getCategories();
-<<<<<<< HEAD
       if (json.status) {
         setCategories(json.data);
       }
-=======
-      if (json.status) setCategories(json.data);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -878,16 +635,12 @@ const HomeScreen = ({ navigation }) => {
     try {
       const json = await movieService.getWebSeries();
       if (json.status) {
-<<<<<<< HEAD
         // Correct extraction for your API structure: json.data.tvshows is the array
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         const seriesData =
           json.data?.tvshows ||
           json.tvshows ||
           (Array.isArray(json.data) ? json.data : []);
         const dataArray = Array.isArray(seriesData) ? seriesData : [];
-<<<<<<< HEAD
 
         // Sort by latest (handles null dates safely)
         const sorted = [...dataArray].sort((a, b) => {
@@ -895,13 +648,6 @@ const HomeScreen = ({ navigation }) => {
           const timeB = new Date(b.updated_at || b.created_at || 0).getTime();
           return timeB - timeA;
         });
-=======
-        const sorted = [...dataArray].sort(
-          (a, b) =>
-            new Date(b.updated_at || b.created_at || 0) -
-            new Date(a.updated_at || a.created_at || 0),
-        );
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         setWebSeries(sorted);
       }
     } catch (error) {
@@ -909,7 +655,6 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-<<<<<<< HEAD
   const fetchTVShows = async () => {
     try {
       const json = await movieService.getTVShows();
@@ -960,19 +705,11 @@ const HomeScreen = ({ navigation }) => {
       if (json.status && json.data?.movies) {
         setTopTenMovies(json.data.movies.slice(0, 10));
       }
-=======
-  const fetchTopTenMovies = async () => {
-    try {
-      const json = await movieService.getTopTenMovies();
-      if (json.status && json.data?.movies)
-        setTopTenMovies(json.data.movies.slice(0, 10));
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     } catch (error) {
       console.error('Error fetching top ten movies:', error);
     }
   };
 
-<<<<<<< HEAD
   const fetchTopTenWebSeries = async () => {
     try {
       const json = await movieService.getTopTenSeries('web_series');
@@ -1103,84 +840,10 @@ const HomeScreen = ({ navigation }) => {
     return () => stopAutoPlay();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gallery]);
-=======
-  const fetchTopTenSeries = async () => {
-    try {
-      const json = await movieService.getTopTenSeries();
-      if (json.status && json.data?.series)
-        setTopTenSeries(json.data.series.slice(0, 10));
-    } catch (error) {
-      console.error('Error fetching top ten series:', error);
-    }
-  };
-
-  const handleGalleryPlay = async item => {
-    const category = item.category || '';
-    const isSeries =
-      category.toLowerCase().includes('series') ||
-      category.toLowerCase().includes('show') ||
-      category.toLowerCase().includes('serial');
-    setIsActionLoading(true);
-    try {
-      let response;
-      const id = item.movie_id;
-      if (isSeries) {
-        if (category.toLowerCase().includes('serial'))
-          response = await movieService.getTVSerialById(id);
-        else if (category.toLowerCase().includes('show'))
-          response = await movieService.getTVShowById(id);
-        else response = await movieService.getWebSeriesById(id);
-      } else {
-        response = await movieService.getMovieById(id);
-      }
-      if (response.status && response.data) {
-        const media = isSeries
-          ? response.data?.tvshows?.[0] ||
-            response.data?.tvshows?.data?.[0] ||
-            (Array.isArray(response.data) ? response.data[0] : response.data)
-          : Array.isArray(response.data)
-          ? response.data[0]
-          : response.data;
-        if (media && media.links && media.links.length > 0) {
-          const ep = media.links[0];
-          const videoUrl = isSeries ? ep.tvShow_link : ep.movie_link;
-          const dualaudioUrl = isSeries ? ep.dual_link : ep.dualaudio_link;
-          if (videoUrl) {
-            navigation.navigate('VideoPlayer', {
-              videoUrl,
-              dualaudioUrl,
-              movieTitle: media.title,
-              isSeries,
-              episodes: isSeries ? media.links : [],
-              initialIndex: 0,
-              posterUrl: isSeries
-                ? `${TV_SHOWS_POSTER_BASE_URL}${media.poster}`
-                : `${MOVIES_POSTER_BASE_URL}${media.poster}`,
-            });
-          } else alert('Video link not available');
-        } else alert('Media content not found.');
-      } else alert('Could not retrieve media details.');
-    } catch (error) {
-      console.error('Error fetching banner media:', error);
-      alert('Failed to load video.');
-    } finally {
-      setIsActionLoading(false);
-    }
-  };
-
-  const handleMoviePress = movie =>
-    navigation.navigate('MovieDetail', { id: movie.id });
-
-  useEffect(() => {
-    if (gallery.length > 1) startAutoPlay();
-    return () => stopAutoPlay();
-  }, [gallery, galleryIndex]);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
   const startAutoPlay = () => {
     stopAutoPlay();
     autoPlayTimer.current = setInterval(() => {
-<<<<<<< HEAD
       const nextIndex = (galleryIndexRef.current + 1) % gallery.length;
       galleryRef.current?.scrollToIndex({
         index: nextIndex,
@@ -1383,158 +1046,21 @@ const HomeScreen = ({ navigation }) => {
       />
     ),
     [navigation],
-=======
-      const nextIndex = (galleryIndex + 1) % gallery.length;
-      galleryRef.current?.scrollToIndex({ index: nextIndex, animated: true });
-      setGalleryIndex(nextIndex);
-    }, 5000);
-  };
-
-  const stopAutoPlay = () => {
-    if (autoPlayTimer.current) clearInterval(autoPlayTimer.current);
-  };
-
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) setGalleryIndex(viewableItems[0].index);
-  }).current;
-
-  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 }).current;
-
-  const getFilteredMovies = () => {
-    const featuredMovieIds = gallery.map(g => g.movie_id);
-    let filtered = movies.filter(m => !featuredMovieIds.includes(m.id));
-    if (selectedCategory) {
-      filtered = filtered.filter(m =>
-        m.categories
-          ?.split(',')
-          .map(c => c.trim())
-          .includes(selectedCategory),
-      );
-    }
-    return filtered;
-  };
-
-  const currentFilteredMovies = getFilteredMovies();
-
-  const bollywoodMovies = currentFilteredMovies
-    .filter(m => m.categories?.toLowerCase().includes('hindi'))
-    .sort(
-      (a, b) =>
-        new Date(b.updated_at || b.created_at) -
-        new Date(a.updated_at || a.created_at),
-    )
-    .slice(0, 20);
-
-  const hollywoodMovies = currentFilteredMovies
-    .filter(m => !m.categories?.toLowerCase().includes('hindi'))
-    .sort(
-      (a, b) =>
-        new Date(b.updated_at || b.created_at) -
-        new Date(a.updated_at || a.created_at),
-    )
-    .slice(0, 20);
-
-  const latestWebSeries = webSeries.slice(0, 20);
-
-  // ── Render functions ──────────────────────────────────────────────────────
-  const renderMovieItem = ({ item }) => (
-    <MovieCard
-      imageUrl={`${MOVIES_POSTER_BASE_URL}${item.poster}`}
-      onPress={() => handleMoviePress(item)}
-      width={moderateScale(110)}
-      height={moderateScale(160)}
-      style={styles.movieCard}
-    />
-  );
-
-  const renderWebSeriesItem = ({ item }) => (
-    <MovieCard
-      imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
-      onPress={() =>
-        navigation.navigate('SeriesDetail', {
-          id: item.id,
-          contentType: 'web_series',
-        })
-      }
-      width={moderateScale(180)}
-      height={moderateScale(101)}
-      style={styles.movieCard}
-    />
-  );
-
-  const renderGalleryItem = ({ item }) => {
-    const category = item.category || '';
-    const isSeries =
-      category.toLowerCase().includes('series') ||
-      category.toLowerCase().includes('show') ||
-      category.toLowerCase().includes('serial');
-
-    return (
-      <GalleryItemComponent
-        item={item}
-        bannerWidth={bannerWidth}
-        onPress={() =>
-          navigation.navigate(isSeries ? 'SeriesDetail' : 'MovieDetail', {
-            id: item.movie_id,
-            contentType: isSeries
-              ? category.toLowerCase().includes('serial')
-                ? 'tv_serial'
-                : category.toLowerCase().includes('show')
-                ? 'tv_show'
-                : 'web_series'
-              : undefined,
-          })
-        }
-        onPlayPress={() => handleGalleryPlay(item)}
-      />
-    );
-  };
-
-  const renderTopTenItem = ({ item, index }) => (
-    <TopTenItemComponent
-      item={item}
-      index={index}
-      onPress={() => handleMoviePress(item)}
-    />
-  );
-
-  const renderTopTenSeriesItem = ({ item, index }) => (
-    <TopTenSeriesItemComponent
-      item={item}
-      index={index}
-      onPress={() =>
-        navigation.navigate('SeriesDetail', {
-          id: item.id,
-          contentType: 'web_series',
-        })
-      }
-    />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   );
 
   if (loading) {
     return (
       <View style={[styles.container, styles.centered]}>
-<<<<<<< HEAD
         <Loader />
-=======
-        <ActivityIndicator size="large" color={colors.primary} />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-<<<<<<< HEAD
       <MainHeader scrollY={scrollY} variant="home" title="Home" />
 
       {/* Sticky Overlay Filter Bar - Shows only when scrolled enough */}
-=======
-      {/* TV pe header relative flow mein, phone/tablet pe absolute overlay */}
-      <MainHeader scrollY={scrollY} variant="home" />
-
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       <Animated.View
         style={[
           styles.stickyFilterContainer,
@@ -1556,7 +1082,6 @@ const HomeScreen = ({ navigation }) => {
           },
         ]}
         pointerEvents="box-none"
-<<<<<<< HEAD
       >
         {/* <View style={styles.filterBar}>
                     <TouchableOpacity
@@ -1583,31 +1108,11 @@ const HomeScreen = ({ navigation }) => {
             progressBackgroundColor={colors.backgroundLight}
             progressViewOffset={Platform.OS === 'ios' ? 140 : 120}
           />
-=======
-      />
-
-      <Animated.ScrollView
-        style={styles.scrollView}
-        bounces={!isTV}
-        removeClippedSubviews={false} // ← TV spatial nav fix
-        refreshControl={
-          !isTV ? (
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={colors.primary}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.backgroundLight}
-              progressViewOffset={Platform.OS === 'ios' ? 140 : 120}
-            />
-          ) : undefined
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         }
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false },
         )}
-<<<<<<< HEAD
         scrollEventThrottle={32}
         contentContainerStyle={{ paddingTop: 0 }}
         removeClippedSubviews={true}
@@ -1638,15 +1143,6 @@ const HomeScreen = ({ navigation }) => {
                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
                     </TouchableOpacity>
                 </View> */}
-=======
-        scrollEventThrottle={16}
-        contentContainerStyle={{ paddingTop: 0 }}
-      >
-        {/* Header spacer — TV pe chota, phone pe bada */}
-        <View
-          style={{ height: isTV ? 0 : Platform.OS === 'ios' ? 110 : 100 }}
-        />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
         {/* Featured Gallery Carousel */}
         {gallery.length > 0 && (
@@ -1655,7 +1151,6 @@ const HomeScreen = ({ navigation }) => {
               ref={galleryRef}
               data={gallery}
               renderItem={renderGalleryItem}
-<<<<<<< HEAD
               keyExtractor={(item, index) =>
                 item
                   ? `gallery-${item.movie_id || item.id || index}`
@@ -1670,25 +1165,13 @@ const HomeScreen = ({ navigation }) => {
               initialNumToRender={2}
               maxToRenderPerBatch={2}
               windowSize={3}
-=======
-              keyExtractor={item => `gallery-${item.id}`}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              removeClippedSubviews={false} // ← TV spatial nav fix
-              onViewableItemsChanged={onViewableItemsChanged}
-              viewabilityConfig={viewabilityConfig}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               getItemLayout={(data, index) => ({
                 length: bannerWidth,
                 offset: bannerWidth * index,
                 index,
               })}
             />
-<<<<<<< HEAD
             {/* Pagination Dots */}
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             {gallery.length > 1 && (
               <View style={styles.paginationDots}>
                 {gallery.map((_, i) => (
@@ -1710,11 +1193,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.content}>
           {topTenMovies.length > 0 && (
             <View style={styles.topTenSection}>
-<<<<<<< HEAD
               <AppText variant="bold" size="xl" style={[styles.sectionTitle]}>
-=======
-              <AppText variant="bold" size="xl" style={styles.sectionTitle}>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 Top 10 Movies in Pakistan Today
               </AppText>
               <FlatList
@@ -1723,26 +1202,16 @@ const HomeScreen = ({ navigation }) => {
                 renderItem={renderTopTenItem}
                 keyExtractor={item => `top-${item.id}`}
                 showsHorizontalScrollIndicator={false}
-<<<<<<< HEAD
                 contentContainerStyle={styles.topTenListContent}
                 style={styles.topTenFlatList}
                 removeClippedSubviews={true}
                 initialNumToRender={4}
                 maxToRenderPerBatch={4}
                 windowSize={5}
-=======
-                removeClippedSubviews={false} // ← TV spatial nav fix
-                contentContainerStyle={[
-                  styles.topTenListContent,
-                  { overflow: 'visible' }, // ← border show hogi
-                ]}
-                style={{ overflow: 'visible' }}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               />
             </View>
           )}
 
-<<<<<<< HEAD
           {newArrivals.length > 0 && (
             <>
               <AppText
@@ -1811,16 +1280,10 @@ const HomeScreen = ({ navigation }) => {
                 size="xl"
                 style={[styles.sectionTitle, { marginTop: spacing.lg }]}
               >
-=======
-          {bollywoodMovies.length > 0 && (
-            <>
-              <AppText variant="bold" size="xl" style={styles.sectionTitle}>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 Bollywood
               </AppText>
               <FlatList
                 horizontal
-<<<<<<< HEAD
                 data={indianMovies}
                 renderItem={renderMovieItem}
                 keyExtractor={item => `indian-${item.id}`}
@@ -1830,23 +1293,11 @@ const HomeScreen = ({ navigation }) => {
                 initialNumToRender={5}
                 maxToRenderPerBatch={5}
                 windowSize={5}
-=======
-                data={bollywoodMovies}
-                renderItem={renderMovieItem}
-                keyExtractor={item => `bolly-${item.id}`}
-                showsHorizontalScrollIndicator={false}
-                removeClippedSubviews={false} // ← TV spatial nav fix
-                contentContainerStyle={styles.listContent}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               />
             </>
           )}
 
-<<<<<<< HEAD
           {internationalMovies.length > 0 && (
-=======
-          {hollywoodMovies.length > 0 && (
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             <>
               <AppText
                 variant="bold"
@@ -1857,7 +1308,6 @@ const HomeScreen = ({ navigation }) => {
               </AppText>
               <FlatList
                 horizontal
-<<<<<<< HEAD
                 data={internationalMovies}
                 renderItem={renderMovieItem}
                 keyExtractor={item => `intl-${item.id}`}
@@ -1867,19 +1317,10 @@ const HomeScreen = ({ navigation }) => {
                 initialNumToRender={5}
                 maxToRenderPerBatch={5}
                 windowSize={5}
-=======
-                data={hollywoodMovies}
-                renderItem={renderMovieItem}
-                keyExtractor={item => `holly-${item.id}`}
-                showsHorizontalScrollIndicator={false}
-                removeClippedSubviews={false} // ← TV spatial nav fix
-                contentContainerStyle={styles.listContent}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               />
             </>
           )}
 
-<<<<<<< HEAD
           {/* Ad slots 2, 3, 4 — Hollywood section */}
           {/* {['ad 2', 'ad 3', 'ad 4'].map(slot =>
             ads[slot]?.length > 0 ? (
@@ -1982,8 +1423,6 @@ const HomeScreen = ({ navigation }) => {
             <AdBanner ads={ads['ad 4']} width={bannerWidth} />
           )}
 
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           {latestWebSeries.length > 0 && (
             <>
               <AppText
@@ -1999,7 +1438,6 @@ const HomeScreen = ({ navigation }) => {
                 renderItem={renderWebSeriesItem}
                 keyExtractor={item => `web-${item.id}`}
                 showsHorizontalScrollIndicator={false}
-<<<<<<< HEAD
                 contentContainerStyle={styles.listContent}
                 removeClippedSubviews={true}
                 initialNumToRender={5}
@@ -2050,13 +1488,6 @@ const HomeScreen = ({ navigation }) => {
               />
             </>
           )}  */}
-=======
-                removeClippedSubviews={false} // ← TV spatial nav fix
-                contentContainerStyle={styles.listContent}
-              />
-            </>
-          )}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         </View>
       </Animated.ScrollView>
 
@@ -2070,11 +1501,7 @@ const HomeScreen = ({ navigation }) => {
 
       {isActionLoading && (
         <View style={styles.actionOverlay}>
-<<<<<<< HEAD
           <Loader />
-=======
-          <ActivityIndicator size="large" color={colors.primary} />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         </View>
       )}
 
@@ -2088,7 +1515,6 @@ const HomeScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -2113,35 +1539,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.5,
     shadowRadius: 10,
-=======
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollView: { flex: 1 },
-  galleryWrapper: { width: '100%', marginTop: isTV ? 0 : spacing.sm },
-  galleryItemCard: {
-    marginHorizontal: isTV ? 0 : spacing.md,
-    backgroundColor: colors.backgroundLight,
-    borderRadius: isTV ? 0 : 16,
-    overflow: 'hidden',
-    elevation: 6,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  // ← TV focus pe gallery banner glow
-  galleryItemCardFocused: {
-    borderColor: colors.primary,
-    // transform: [{ scale: 1.01 }],
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   },
   paginationDots: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: spacing.sm,
-<<<<<<< HEAD
     gap: 5,
   },
   dot: {
@@ -2173,24 +1576,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-=======
-    gap: 6,
-  },
-  dot: { height: 6, borderRadius: 3 },
-  activeDot: { width: 20, backgroundColor: colors.primary },
-  inactiveDot: { width: 6, backgroundColor: 'rgba(255,255,255,0.3)' },
-  bannerContainer: {
-    width: '100%',
-    aspectRatio: isTablet || isTV ? 16 / 7 : 16 / 10,
-  },
-  bannerImage: { width: '100%', height: '100%' },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   gradientOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-<<<<<<< HEAD
     height: '60%',
     backgroundColor: 'transparent',
     // Multi-stop gradient effect using layered shadows
@@ -2237,13 +1627,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 3,
     letterSpacing: 0.2,
-=======
-    height: '50%',
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: -20 },
-    shadowOpacity: 1,
-    shadowRadius: 30,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   },
   featuredInfoSection: {
     position: 'absolute',
@@ -2254,7 +1637,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
   },
-<<<<<<< HEAD
   featuredTitle: {
     textAlign: 'center',
     marginBottom: spacing.xs,
@@ -2270,14 +1652,11 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(13),
     fontWeight: '600',
   },
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   buttonRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: spacing.sm,
   },
-<<<<<<< HEAD
   netflixPlayButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2311,38 +1690,12 @@ const styles = StyleSheet.create({
   content: {
     paddingVertical: spacing.md,
   },
-=======
-  featuredPlayIconContainer: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: moderateScale(25),
-    width: moderateScale(47),
-    height: moderateScale(47),
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: colors.textPrimary,
-    zIndex: 10,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
-  },
-  featuredPlayIconFocused: {
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-  },
-  content: { paddingVertical: spacing.md },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   sectionTitle: {
     paddingHorizontal: spacing.md,
     marginBottom: spacing.sm,
     color: colors.textPrimary,
     fontSize: moderateScale(18, 0.3),
   },
-<<<<<<< HEAD
   listContent: {
     paddingHorizontal: spacing.md,
   },
@@ -2389,11 +1742,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-=======
-  listContent: { paddingHorizontal: spacing.md },
-  movieCard: { marginRight: spacing.sm },
-  centered: { justifyContent: 'center', alignItems: 'center' },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   stickyFilterContainer: {
     paddingTop: Platform.OS === 'ios' ? 100 : 90,
     backgroundColor: colors.background,
@@ -2404,82 +1752,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-<<<<<<< HEAD
-=======
-  actionOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  },
-  topTenSection: { marginBottom: spacing.lg },
-  topTenListContent: { paddingHorizontal: spacing.md, paddingLeft: spacing.md },
-  topTenCardContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: spacing.md,
-    height: moderateScale(160) + 4,
-    width: moderateScale(160),
-    overflow: 'visible', // ← ZAROORI — border clip nahi hogi
-    paddingVertical: 2, // ← top/bottom border show hogi
-    paddingHorizontal: 2,
-    // borderRadius: 8, borderWidth: 2, borderColor: 'transparent',
-  },
-  // ← TV focus pe Top Ten card glow
-  topTenCardFocused: {
-    // borderColor: colors.primary,
-    // transform: [{ scale: 1.05 }],
-  },
-  topTenMovieCard: {
-    marginLeft: moderateScale(45),
-    elevation: 0,
-    zIndex: 1,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-  },
-  topTenNumberContainer: {
-    position: 'absolute',
-    left: 0,
-    bottom: -moderateScale(15),
-    zIndex: 999, // ← uncomment aur zyada karo
-    elevation: 999,
-  },
-  topTenNumber: {
-    fontSize: isTV ? moderateScale(90) : moderateScale(120),
-    fontWeight: '900',
-    color: colors.background,
-    includeFontPadding: false,
-    letterSpacing: -5,
-    zIndex: 10,
-  },
-  topTenNumberOutline: {
-    position: 'absolute',
-    color: 'rgba(255, 255, 255, 0.6)',
-    opacity:0.5
-  },
-  topTenSeriesCardContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: spacing.md,
-    height: moderateScale(110),
-    width: moderateScale(220),
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  topTenSeriesCard: {
-    marginLeft: moderateScale(35),
-    elevation: 5,
-    zIndex: 1,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-  },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   inlineFilterBar: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -2504,7 +1776,6 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.xs,
     backgroundColor: 'rgba(0,0,0,0.2)',
   },
-<<<<<<< HEAD
   featuredContent: {
     width: '100%',
     alignItems: 'center',
@@ -2543,13 +1814,10 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
 
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   activeFilterTab: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
-<<<<<<< HEAD
   topTenSection: {
     paddingVertical: 4,
     overflow: 'visible',
@@ -2635,8 +1903,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 3,
   },
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 });
 
 export default HomeScreen;

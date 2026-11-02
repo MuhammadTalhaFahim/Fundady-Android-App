@@ -3,23 +3,13 @@ import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-naviga
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Orientation from 'react-native-orientation-locker';
 import { isTV, isTablet } from '../utils/responsive';
-<<<<<<< HEAD
 import DrawerNavigator from './DrawerNavigator';
-=======
-import TabNavigator from './TabNavigator';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import AuthNavigator from './AuthNavigator';
 import SearchScreen from '../screens/home/SearchScreen';
 import NotificationScreen from '../screens/home/NotificationScreen';
 import MovieDetailScreen from '../screens/home/MovieDetailScreen';
 import VideoPlayerScreen from '../screens/home/VideoPlayerScreen';
-<<<<<<< HEAD
 import SeriesDetailScreen from '../screens/series/SeriesDetailScreen';
-=======
-import CinemaDetailScreen from '../screens/cinema/CinemaDetailScreen';
-import SeriesDetailScreen from '../screens/series/SeriesDetailScreen';
-import ChannelDetailScreen from '../screens/tvon/ChannelDetailScreen';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import LiveTvPlayerScreen from '../screens/tvon/LiveTvPlayerScreen';
 import SplashScreen from '../screens/splash/SplashScreen';
 
@@ -57,11 +47,7 @@ const RootNavigator = () => {
                 >
                     <Stack.Screen 
                         name="TabStack" 
-<<<<<<< HEAD
                         component={DrawerNavigator} 
-=======
-                        component={TabNavigator} 
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                         options={({ route }) => {
                             const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
                             // Dynamic orientation for Phones
@@ -78,13 +64,7 @@ const RootNavigator = () => {
                         component={VideoPlayerScreen} 
                         options={{ orientation: 'landscape', animation: 'fade' }}
                     />
-<<<<<<< HEAD
                     <Stack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
-=======
-                    <Stack.Screen name="CinemaDetail" component={CinemaDetailScreen} />
-                    <Stack.Screen name="SeriesDetail" component={SeriesDetailScreen} />
-                    <Stack.Screen name="ChannelDetail" component={ChannelDetailScreen} />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     <Stack.Screen 
                         name="LiveTvPlayer" 
                         component={LiveTvPlayerScreen}

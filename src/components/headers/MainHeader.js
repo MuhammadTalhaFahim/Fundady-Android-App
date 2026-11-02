@@ -22,7 +22,6 @@ const MainHeader = ({
   title,
   showLogo = false,
   showSearch = true,
-<<<<<<< HEAD
   showBell = true,
 }) => {
   const navigation = useNavigation();
@@ -30,12 +29,6 @@ const MainHeader = ({
   const [isBellFocused, setIsBellFocused] = useState(false);
   const [isBackFocused, setIsBackFocused] = useState(false);
   const [isMenuFocused, setIsMenuFocused] = useState(false);
-=======
-}) => {
-  const navigation = useNavigation();
-  const [searchFocused, setSearchFocused] = useState(false);
-  const [backFocused, setBackFocused] = useState(false);
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
   const backgroundColor = scrollY
     ? scrollY.interpolate({
@@ -49,13 +42,9 @@ const MainHeader = ({
 
   const iconColor = variant === 'inner' ? colors.white : colors.textPrimary;
 
-<<<<<<< HEAD
   const handleBack = () => {
     navigation.goBack();
   };
-=======
-  const handleBack = () => navigation.goBack();
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
   const handleRightIconPress = () => {
     if (onSearchPress) {
@@ -71,12 +60,6 @@ const MainHeader = ({
         styles.container,
         { backgroundColor },
         variant === 'inner' && styles.innerContainer,
-<<<<<<< HEAD
-=======
-        // TV pe position relative — spatial engine confuse nahi hoga
-        isTV && styles.containerTV,
-        isTV && variant === 'inner' && styles.innerContainerTV,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       ]}
     >
       <StatusBar
@@ -84,7 +67,6 @@ const MainHeader = ({
         backgroundColor="transparent"
         barStyle="light-content"
       />
-<<<<<<< HEAD
       <View style={styles.leftContainer}>
         {variant === 'home' ? (
           <View style={styles.homeLeft}>
@@ -107,20 +89,10 @@ const MainHeader = ({
             <Image
               source={require('../../assets/images/fundady_logo.png')}
               style={styles.logo}
-=======
-
-      <View style={styles.leftContainer}>
-        {variant === 'home' ? (
-          <View style={styles.homeLeft}>
-            <Image
-              source={require('../../assets/images/fundady_logo.png')}
-              style={[styles.logo, isTV && styles.logoTV]}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               resizeMode="contain"
             />
           </View>
         ) : (
-<<<<<<< HEAD
           <Pressable 
             onPress={handleBack}
             onFocus={() => setIsBackFocused(true)}
@@ -135,24 +107,11 @@ const MainHeader = ({
               size={iconSizes.lg} 
               color={isBackFocused ? colors.primary : iconColor} 
             />
-=======
-          <Pressable
-            onPress={handleBack}
-            onFocus={() => setBackFocused(true)}
-            onBlur={() => setBackFocused(false)}
-            style={[
-              styles.backButton,
-              backFocused && styles.iconButtonFocused,
-            ]}
-          >
-            <Icon name="arrow-back" size={iconSizes.lg} color={backFocused ? colors.primary : iconColor} />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           </Pressable>
         )}
       </View>
 
       <View style={styles.rightContainer}>
-<<<<<<< HEAD
          {showBell && (
           <Pressable
             onPress={() => navigation.navigate('Notifications')}
@@ -182,27 +141,12 @@ const MainHeader = ({
             style={[
               styles.iconButton,
               isSearchFocused && styles.buttonFocused
-=======
-        {showSearch && (
-          <Pressable
-            onPress={handleRightIconPress}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            style={[
-              styles.iconButton,
-              searchFocused && styles.iconButtonFocused,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             ]}
           >
             <Icon
               name="search"
-<<<<<<< HEAD
               size={iconSizes.lg}
               color={isSearchFocused ? colors.primary : iconColor}
-=======
-              size={isTV ? iconSizes.xl : iconSizes.lg}
-              color={searchFocused ? colors.primary : iconColor}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             />
           </Pressable>
         )}
@@ -213,55 +157,24 @@ const MainHeader = ({
 
 const styles = StyleSheet.create({
   container: {
-<<<<<<< HEAD
     height: isTV ? 80 : 100,
-=======
-    height: Platform.OS === 'ios' ? 100 : 100,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-<<<<<<< HEAD
     paddingTop: isTV ? 10 : (Platform.OS === 'ios' ? 40 : StatusBar.currentHeight),
     position: isTV ? 'relative' : 'absolute',
-=======
-    paddingTop: Platform.OS === 'ios' ? 40 : StatusBar.currentHeight,
-    position: 'absolute',   // phone/tablet pe pehle jaisa
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     top: 0,
     left: 0,
     right: 0,
     zIndex: 100,
-<<<<<<< HEAD
     },
-=======
-  },
-  // TV pe relative — gallery banner overlap nahi karega
-  containerTV: {
-    position: 'relative',
-    top: undefined,
-    left: undefined,
-    right: undefined,
-    zIndex: 1,
-    paddingTop: spacing.sm,
-    height: 70,
-    backgroundColor: 'rgba(0,0,0,0.85)',
-  },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   innerContainer: {
     position: 'relative',
     backgroundColor: colors.black,
     paddingTop: 0,
     height: 50,
   },
-<<<<<<< HEAD
-=======
-  innerContainerTV: {
-    height: 60,
-    paddingTop: 0,
-  },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   leftContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -275,7 +188,6 @@ const styles = StyleSheet.create({
     width: 190,
     height: 60,
   },
-<<<<<<< HEAD
   homeText: {
     color: colors.textPrimary,
     marginLeft: spacing.sm,
@@ -292,18 +204,6 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     transform: [{ scale: 1.1 }],
   },
-=======
-  logoTV: {
-    width: 160,
-    height: 50,
-  },
-  backButton: {
-    padding: spacing.xs,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   rightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -311,7 +211,6 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: spacing.xs,
-<<<<<<< HEAD
     borderRadius: 20,
     borderWidth: 2,
     borderColor: 'transparent',
@@ -328,17 +227,3 @@ const styles = StyleSheet.create({
 });
 
 export default MainHeader;
-=======
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  // D-pad focus — translucent bg + red border
-  iconButtonFocused: {
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-});
-
-export default MainHeader;
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04

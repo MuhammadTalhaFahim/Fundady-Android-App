@@ -3,7 +3,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   StyleSheet,
-<<<<<<< HEAD
   FlatList,
   StatusBar,
   Image,
@@ -11,32 +10,17 @@ import {
   Pressable,
   TouchableOpacity,
   TVEventHandler,
-=======
-  TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
-  StatusBar,
-  Image,
-  TextInput,
-  Keyboard,
-  Pressable,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import NavigationBar from 'react-native-system-navigation-bar';
 import Video from 'react-native-video';
-<<<<<<< HEAD
 import { CastButton, useRemoteMediaClient, useMediaStatus, MediaPlayerState, MediaStreamType } from 'react-native-google-cast';
 import Icon from '../../components/common/SvgIcon';
-=======
-import Icon from 'react-native-vector-icons/MaterialIcons';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 import { movieService } from '../../services/movieService';
 import { CHANNELS_POSTER_BASE_URL } from '../../utils/constants';
-<<<<<<< HEAD
 import { isTV } from '../../utils/responsive';
 import Loader from '../../components/common/Loader';
 
@@ -143,8 +127,6 @@ const ChannelPlaylistItem = ({ item, index, isActive, onPress }) => {
     </Pressable>
   );
 };
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
 const LiveTvPlayerScreen = ({ route, navigation }) => {
   // We assume route.params contains the initially selected channel
@@ -267,15 +249,11 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
   };
 
   const handleChannelSelect = (channel) => {
-<<<<<<< HEAD
     if (activeChannel?.id === channel.id) {
       setVideoLoading(true);
       setActiveChannel(null);
       setTimeout(() => setActiveChannel(channel), 100);
     } else {
-=======
-    if (activeChannel?.id !== channel.id) {
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       setVideoLoading(true);
       setActiveChannel(channel);
     }
@@ -285,7 +263,6 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
     if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
     controlsTimerRef.current = setTimeout(() => {
       setShowControls(false);
-<<<<<<< HEAD
     }, 5000);
   };
 
@@ -321,11 +298,6 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
     }
   }, []);
 
-=======
-    }, 4000);
-  };
-
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   const toggleControls = () => {
     setShowControls(!showControls);
     if (!showControls) startControlsTimer();
@@ -333,7 +305,6 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     if (showControls) startControlsTimer();
-<<<<<<< HEAD
     const currentTimer = controlsTimerRef.current;
     return () => {
       if (currentTimer) clearTimeout(currentTimer);
@@ -401,13 +372,6 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
     startControlsTimer();
   };
 
-=======
-    return () => {
-      if (controlsTimerRef.current) clearTimeout(controlsTimerRef.current);
-    };
-  }, [showControls]);
-
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   const toggleMaximize = () => {
     setIsMaximized(!isMaximized);
     // When maximizing, hide controls after a delay
@@ -429,7 +393,6 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
     return date.toLocaleDateString('en-US', options);
   };
 
-<<<<<<< HEAD
 
   const renderChannelItem = ({ item, index }) => {
     const isActive = activeChannel?.id === item.id;
@@ -443,44 +406,11 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
     );
   };
   
-=======
-  const renderChannelItem = ({ item, index }) => {
-    const isActive = activeChannel?.id === item.id;
-    return (
-      <TouchableOpacity
-        style={[styles.channelItem, isActive && styles.activeChannelItem]}
-        onPress={() => handleChannelSelect(item)}
-      >
-        <AppText style={[styles.channelNumber, isActive && styles.activeText]} variant="bold">
-          {index + 1}
-        </AppText>
-        <View style={styles.channelLogoContainer}>
-          <Image
-            source={{ uri: `${CHANNELS_POSTER_BASE_URL}${item.poster}` }}
-            style={styles.channelLogoList}
-            resizeMode="contain"
-          />
-        </View>
-        <View style={styles.channelDetails}>
-          <AppText style={styles.channelName} color={isActive ? colors.white : colors.textPrimary} variant={isActive ? "bold" : "regular"}>
-            {item.name}
-          </AppText>
-          <AppText style={styles.programText} color={isActive ? 'rgba(255,255,255,0.7)' : colors.textMuted} size="xs">
-            {isActive ? "Now Playing" : "Tap to play"}
-          </AppText>
-        </View>
-        {isActive && <View style={styles.activeIndicatorEdge} />}
-      </TouchableOpacity>
-    );
-  };
-
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   return (
     <View style={styles.container}>
       {/* Top Header Layer - Absolutely Positioned to float over content */}
       {(showControls || !isMaximized) ? (
         isMaximized ? (
-<<<<<<< HEAD
           <FocusableButton
             style={styles.floatingBackButton}
             focusedStyle={styles.floatingBackButtonFocused}
@@ -490,29 +420,15 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
               <Icon name="close" size={32} color={isFocused ? colors.primary : colors.white} />
             )}
           </FocusableButton>
-=======
-          <TouchableOpacity 
-            style={styles.floatingBackButton} 
-            onPress={() => navigation.goBack()}
-          >
-            <Icon name="close" size={32} color={colors.white} />
-          </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         ) : (
           <View style={styles.header}>
             {isSearchVisible ? (
               <View style={styles.searchHeaderContainer}>
-<<<<<<< HEAD
                 <FocusableButton style={styles.backButton} focusedStyle={styles.backButtonFocused} onPress={() => { setIsSearchVisible(false); setSearchQuery(''); }}>
                   {(isFocused) => (
                     <Icon name="close" size={28} color={isFocused ? colors.primary : colors.white} />
                   )}
                 </FocusableButton>
-=======
-                <TouchableOpacity style={styles.backButton} onPress={() => { setIsSearchVisible(false); setSearchQuery(''); }}>
-                  <Icon name="close" size={28} color={colors.white} />
-                </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 <View style={styles.searchInputWrapper}>
                   <Icon name="search" size={22} color={colors.textMuted} />
                   <TextInput
@@ -524,22 +440,15 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
                     autoFocus
                   />
                   {searchQuery.length > 0 && (
-<<<<<<< HEAD
                     <FocusableButton onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
                       <Icon name="close" size={22} color={colors.textMuted} />
                     </FocusableButton>
-=======
-                    <TouchableOpacity onPress={() => setSearchQuery('')}>
-                      <Icon name="close" size={22} color={colors.textMuted} />
-                    </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                   )}
                 </View>
               </View>
             ) : (
               <>
                 <View style={styles.headerLeft}>
-<<<<<<< HEAD
                   <FocusableButton 
                     style={styles.backButton} 
                     focusedStyle={styles.backButtonFocused}
@@ -552,30 +461,15 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
                   <Image source={require('../../assets/images/fundady_logo.png')} style={styles.logo} resizeMode="contain" />
                   {/* <View style={styles.divider} /> */}
                   {/* <AppText variant="bold" style={styles.headerTitle}>Live</AppText> */}
-=======
-                  <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Icon name="close" size={28} color={colors.white} />
-                  </TouchableOpacity>
-                  <Image source={require('../../assets/images/fundady_logo.png')} style={styles.logo} resizeMode="contain" />
-                  <View style={styles.divider} />
-                  <AppText variant="bold" style={styles.headerTitle}>Live</AppText>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 </View>
 
                 <View style={styles.headerRight}>
                   <AppText style={styles.timeText} variant="bold">{formatTime(currentTime)}</AppText>
-<<<<<<< HEAD
                   <AppText style={styles.dateText}>{formatDate(currentTime)}</AppText>
                   {/* <TouchableOpacity style={styles.iconButton} onPress={() => setIsSearchVisible(true)}>
                     <Icon name="search" size={28} color={colors.white} />
                   </TouchableOpacity> */}
                  
-=======
-                  {/* <AppText style={styles.dateText}>{formatDate(currentTime)}</AppText> */}
-                  {/* <TouchableOpacity style={styles.iconButton} onPress={() => setIsSearchVisible(true)}>
-                    <Icon name="search" size={28} color={colors.white} />
-                  </TouchableOpacity> */}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 </View>
               </>
             )}
@@ -588,7 +482,6 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
         {!isMaximized && (
           <View style={styles.sidebar}>
             <View style={styles.sidebarHeader}>
-<<<<<<< HEAD
               <FocusableButton
                 onPress={handlePrevCategory}
                 style={styles.chevronButton}
@@ -608,32 +501,11 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
                   <Icon name="chevron-right" size={28} color={isFocused ? colors.primary : colors.white} />
                 )}
               </FocusableButton>
-=======
-              {/* <TouchableOpacity onPress={handlePrevCategory}>
-                <Icon name="chevron-left" size={28} color={colors.white} />
-              </TouchableOpacity> */}
-              <TouchableOpacity >
-                <Icon name="chevron-left" size={28} color={colors.white} />
-              </TouchableOpacity>
-              <AppText variant="bold" style={styles.sidebarTitle} numberOfLines={1}>
-                {currentCategoryName.toUpperCase()}
-              </AppText>
-              {/* <TouchableOpacity onPress={handleNextCategory}>
-                <Icon name="chevron-right" size={28} color={colors.white} />
-              </TouchableOpacity> */}
-              <TouchableOpacity >
-                <Icon name="chevron-right" size={28} color={colors.white} />
-              </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             </View>
 
             {loading ? (
               <View style={styles.loaderContainer}>
-<<<<<<< HEAD
                 <Loader />
-=======
-                <ActivityIndicator size="large" color={colors.primary} />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               </View>
             ) : (
               <FlatList
@@ -650,16 +522,11 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
               />
             )}
           </View>
-<<<<<<< HEAD
         )}     
-=======
-        )}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
         {/* Right Side - Video Player */}
         <View style={[styles.playerContainer, isMaximized && { width: '100%' }]}>
           {activeChannel ? (
-<<<<<<< HEAD
             <TouchableOpacity
               style={[
                 styles.videoWrapper,
@@ -724,36 +591,10 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
               )}
 
               {/* Controls Overlay — always visible, buttons sit on top of tap overlay */}
-=======
-            <View style={styles.videoWrapper}>
-              <Video
-                ref={videoRef}
-                source={{ uri: activeChannel.channel_id ? String(activeChannel.channel_id) : '' }}
-                style={styles.video}
-                resizeMode="contain"
-                onLoadStart={() => setVideoLoading(true)}
-                onReadyForDisplay={() => setVideoLoading(false)}
-                onBuffer={({ isBuffering }) => setVideoLoading(isBuffering)}
-                controls={false}
-                paused={paused}
-                muted={isMuted}
-                playInBackground={false}
-                playWhenInactive={false}
-                repeat={true}
-              />
-
-              {/* Invisible pressable overlay to toggle controls */}
-              <Pressable 
-                style={StyleSheet.absoluteFill} 
-                onPress={toggleControls} 
-              />
-
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               {showControls && (
                 <View style={styles.controlsOverlay} pointerEvents="box-none">
                   {/* Center Play/Pause */}
                   <View style={styles.centerControls} pointerEvents="box-none">
-<<<<<<< HEAD
                     <FocusableButton
                       style={styles.playPauseButton}
                       focusedStyle={styles.playPauseButtonFocused}
@@ -768,24 +609,10 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
                         />
                       )}
                     </FocusableButton>
-=======
-                    <TouchableOpacity 
-                      style={styles.playPauseButton} 
-                      onPress={() => { setPaused(!paused); startControlsTimer(); }}
-                      activeOpacity={0.7}
-                    >
-                      <Icon 
-                        name={paused ? "play-arrow" : "pause"} 
-                        size={50} 
-                        color={colors.white} 
-                      />
-                    </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                   </View>
 
                   {/* Bottom Controls Bar */}
                   <View style={styles.bottomControlsBar} pointerEvents="box-none">
-<<<<<<< HEAD
                     <View style={styles.bottomLeftControls} pointerEvents="box-none">
                       <FocusableButton
                         style={styles.controlIconCircle}
@@ -820,62 +647,23 @@ const LiveTvPlayerScreen = ({ route, navigation }) => {
                         />
                       )}
                     </FocusableButton>
-=======
-                    <TouchableOpacity 
-                      style={styles.controlIconCircle} 
-                      onPress={() => { setIsMuted(!isMuted); startControlsTimer(); }}
-                      activeOpacity={0.7}
-                    >
-                      <Icon 
-                        name={isMuted ? "volume-off" : "volume-up"} 
-                        size={24} 
-                        color={colors.white} 
-                      />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                      style={styles.maximizeButton} 
-                      onPress={toggleMaximize}
-                      activeOpacity={0.7}
-                    >
-                      <Icon 
-                        name={isMaximized ? "fullscreen-exit" : "fullscreen"} 
-                        size={32} 
-                        color={colors.white} 
-                      />
-                    </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                   </View>
                 </View>
               )}
               {videoLoading && (
                 <View style={styles.videoLoaderOverlay}>
-<<<<<<< HEAD
                  <Loader />
                 </View>
               )}
               {/* Optional: Floating Channel Badge */}
               {/* <View style={styles.watermark}>
-=======
-                  <ActivityIndicator size="large" color={colors.primary} />
-                </View>
-              )}
-
-              {/* Optional: Floating Channel Badge */}
-              <View style={styles.watermark}>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 <View style={styles.liveBadge}>
                   <View style={styles.liveDot} />
                   <AppText size="xs" variant="bold" color={colors.white}>LIVE</AppText>
                 </View>
                 <AppText variant="bold" color={colors.white} style={styles.watermarkText}>{activeChannel.name}</AppText>
-<<<<<<< HEAD
               </View> */}
             </TouchableOpacity>
-=======
-              </View>
-            </View>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           ) : (
             <View style={styles.emptyPlayerContainer}>
               {!loading && <AppText color={colors.textMuted}>Select a channel to start watching</AppText>}
@@ -911,7 +699,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: spacing.md,
-<<<<<<< HEAD
     alignItems: 'center',
     padding: 5,
     borderRadius: 8,
@@ -921,12 +708,6 @@ const styles = StyleSheet.create({
   logo: {
     height: 60,
     width: 190,
-=======
-  },
-  logo: {
-    height: 60,
-    width: 120,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     marginRight: spacing.md,
   },
   divider: {
@@ -1075,12 +856,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'relative',
-<<<<<<< HEAD
-=======
-    // Added padding to prevent the video edges from cutting off
-    paddingHorizontal: 35,
-    paddingVertical: 15,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   },
   video: {
     width: '100%',
@@ -1124,11 +899,7 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: colors.primary,
-<<<<<<< HEAD
     marginRight: 4, 
-=======
-    marginRight: 4,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   },
   watermarkText: {
     fontSize: 16,
@@ -1173,7 +944,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
   },
-<<<<<<< HEAD
   bottomLeftControls: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1185,8 +955,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
   },
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   maximizeButton: {
     backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 25,
@@ -1201,7 +969,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: spacing.xl,
     left: spacing.xl,
-<<<<<<< HEAD
     padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -1244,13 +1011,3 @@ const styles = StyleSheet.create({
 });
 
 export default LiveTvPlayerScreen;
-=======
-    padding: spacing.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  }
-});
-
-export default LiveTvPlayerScreen;
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04

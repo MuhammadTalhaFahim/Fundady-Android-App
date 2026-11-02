@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import CachedImage from '../common/CachedImage';
 import { borderRadius } from '../../theme/spacing';
 import { colors } from '../../theme/colors';
 
@@ -10,7 +11,7 @@ const SeriesCard = ({ imageUrl, onPress, width = 140, height = 200 }) => {
             onPress={onPress}
             style={[styles.container, { width, height }]}
         >
-            <Image
+            <CachedImage
                 source={{ uri: imageUrl }}
                 style={[styles.image, { width, height }]}
                 resizeMode="cover"

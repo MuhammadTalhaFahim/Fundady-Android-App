@@ -14,11 +14,7 @@ export const IMAGE_BASE_URL = MOVIES_POSTER_BASE_URL; // Default fallback
 
 export const CATEGORIES = {
     TRENDING: 'Trending Now',
-<<<<<<< HEAD
     POPULAR: 'Popular on Fundady',
-=======
-    POPULAR: 'Popular on Netflix',
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     NEW_RELEASES: 'New Releases',
     MY_LIST: 'My List',
     ACTION: 'Action Movies',

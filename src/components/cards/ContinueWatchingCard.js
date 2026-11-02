@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import React, { useState } from 'react';
-import { View, Pressable, Image, StyleSheet } from 'react-native';
-=======
-import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
+import { View, Pressable, StyleSheet } from 'react-native';
+import CachedImage from '../common/CachedImage';
 import { borderRadius, spacing } from '../../theme/spacing';
 import { colors } from '../../theme/colors';
 import AppText from '../common/AppText';
@@ -12,16 +8,12 @@ import AppText from '../common/AppText';
 const ContinueWatchingCard = ({
     imageUrl,
     onPress,
-<<<<<<< HEAD
     onLongPress,
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     progress = 0.5,
     title = '',
     width = 160,
     height = 100
 }) => {
-<<<<<<< HEAD
     const [isFocused, setIsFocused] = useState(false);
     const safeProgress = Math.min(Math.max(progress, 0), 1);
     return (
@@ -38,26 +30,13 @@ const ContinueWatchingCard = ({
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
             <View style={[styles.imageWrapper, { height, width }, isFocused && styles.imageWrapperFocused]}>
-                <Image
+                <CachedImage
                     source={{ uri: imageUrl }}
                     style={styles.image}
-=======
-    return (
-        <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={onPress}
-            style={[styles.container, { width }]}
-        >
-            <View style={{ height, width }}>
-                <Image
-                    source={{ uri: imageUrl }}
-                    style={[styles.image, { height, width }]}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     resizeMode="cover"
                 />
                 {/* Progress Bar */}
                 <View style={styles.progressBarContainer}>
-<<<<<<< HEAD
                     <View style={[styles.progressBar, { width: `${safeProgress * 100}%` }]} />
                 </View>
             </View>
@@ -70,15 +49,6 @@ const ContinueWatchingCard = ({
                 {title}
             </AppText>
         </Pressable>
-=======
-                    <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
-                </View>
-            </View>
-            <AppText variant="medium" size="sm" style={styles.title} numberOfLines={1}>
-                {title}
-            </AppText>
-        </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     );
 };
 
@@ -87,7 +57,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
         marginRight: spacing.md,
     },
-<<<<<<< HEAD
     pressed: {
         opacity: 0.8,
     },
@@ -103,10 +72,6 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
-=======
-    image: {
-        borderRadius: borderRadius.sm,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     progressBarContainer: {
         height: 3,
@@ -121,15 +86,11 @@ const styles = StyleSheet.create({
     },
     title: {
         marginTop: spacing.xs,
-<<<<<<< HEAD
         color: colors.textPrimary,
         fontSize:12
     },
     titleFocused: {
         color: colors.white,
-=======
-        color: colors.textSecondary,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
 });
 

@@ -1,10 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-<<<<<<< HEAD
 import Icon from './SvgIcon';
-=======
-import Icon from 'react-native-vector-icons/MaterialIcons';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import { colors } from '../../theme/colors';
 import { spacing, iconSizes } from '../../theme/spacing';
 import AppText from './AppText';

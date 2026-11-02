@@ -4,7 +4,6 @@ import {
     StyleSheet,
     ScrollView,
     Image,
-<<<<<<< HEAD
     TouchableOpacity,
     Pressable,
     Platform,
@@ -23,21 +22,6 @@ import ReactNativeBlobUtil from 'react-native-blob-util';
 import Icon from '../../components/common/SvgIcon';
 import Video from 'react-native-video';
 import TrailerPlayer from '../../components/common/TrailerPlayer';
-=======
-    Dimensions,
-    TouchableOpacity,
-    Platform,
-    StatusBar,
-    FlatList,
-    Modal,
-    Linking,
-    PermissionsAndroid,
-    Share,
-    ActivityIndicator,
-} from 'react-native';
-import ReactNativeBlobUtil from 'react-native-blob-util';
-import Icon from 'react-native-vector-icons/MaterialIcons';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
@@ -47,7 +31,6 @@ import { movieService } from '../../services/movieService';
 import { MOVIES_POSTER_BASE_URL as POSTER_BASE_URL, SPORTS_POSTER_BASE_URL } from '../../utils/constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-<<<<<<< HEAD
 import { moderateScale, isTablet, isTV, SCREEN_WIDTH } from '../../utils/responsive';
 import { getTimeAgo } from '../../utils/helpers';
 import { makeProgressKey } from '../../utils/watchProgress';
@@ -121,23 +104,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
     useEffect(() => {
         const fetchMovieData = async () => {
             setIsTrailerEnded(false);
-=======
-const { width } = Dimensions.get('window');
-
-const MovieDetailScreen = ({ route, navigation }) => {
-    const insets = useSafeAreaInsets();
-    const { id, contentType, movieDataFallback } = route.params;
-    const [movie, setMovie] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [showVideo, setShowVideo] = useState(true);
-    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-    const [isInMyList, setIsInMyList] = useState(false);
-    const [similarMovies, setSimilarMovies] = useState([]);
-    const [isDownloadModalVisible, setIsDownloadModalVisible] = useState(false);
-
-    useEffect(() => {
-        const fetchMovieData = async () => {
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             setLoading(true);
             try {
                 // Determine which APIs to call based on contentType
@@ -150,15 +116,12 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 } else if (contentType === 'wwe') {
                     detailPromise = movieService.getWWEById(id);
                     similarPromise = movieService.getWWE();
-<<<<<<< HEAD
                 } else if (contentType === 'ufc') {
                     detailPromise = movieService.getUFCById(id);
                     similarPromise = movieService.getUFC();
                 } else if (contentType === 'aew') {
                     detailPromise = movieService.getAEWById(id);
                     similarPromise = movieService.getAEW();
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 } else if (contentType === 'football') {
                     detailPromise = movieService.getFootballById(id);
                     similarPromise = movieService.getFootball();
@@ -183,13 +146,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
                 // Robust extraction for different response structures
                 let movieData = null;
-<<<<<<< HEAD
                 const isSportsType = ['cricket', 'wwe', 'ufc', 'aew', 'football'].includes(contentType);
 
                 if (isSportsType) {
-=======
-                if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     // Sports might be nested or direct
                     let directData = (responseData?.[contentType]?.data?.[0] || responseData?.data?.[0] || (Array.isArray(responseData) ? responseData[0] : responseData));
 
@@ -218,13 +177,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 const allData = (allMoviesRes && allMoviesRes.data) ? allMoviesRes.data : allMoviesRes;
                 if (allData) {
                     let availableData = [];
-<<<<<<< HEAD
                     const isSportsType = ['cricket', 'wwe', 'ufc', 'aew', 'football'].includes(contentType);
 
                     if (isSportsType) {
-=======
-                    if (contentType === 'cricket' || contentType === 'wwe' || contentType === 'football') {
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                         availableData = allData?.[contentType]?.data || allData?.data || (Array.isArray(allData) ? allData : []);
                     } else {
                         availableData = allData?.data || (Array.isArray(allData) ? allData : []);
@@ -260,7 +215,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
         }
     }, [id]);
 
-<<<<<<< HEAD
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         try {
@@ -310,27 +264,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
         }
     }, [id, contentType]);
 
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     const fetchSimilarMovies = () => {
         // This is now handled within the main useEffect for speed
     };
 
     // Derived values (handle null movie)
-<<<<<<< HEAD
-=======
-    // Sports use video_link directly, Movies use links array or movie_url
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     const streamLink = movie?.video_link || movie?.movie_url || (movie?.links && movie.links.length > 0 ? movie.links[0].movie_link : null);
     const dualStreamLink = movie?.links && movie.links.length > 0 ? movie.links[0].dualaudio_link : null;
     const downloadLink = movie?.download_link || (movie?.links && movie.links.length > 0 ? movie.links[0].download_link : null);
     const dualDownloadLink = movie?.links && movie.links.length > 0 ? movie.links[0].dual_download_link : null;
 
     const descriptionText = movie?.description || '';
-<<<<<<< HEAD
-=======
-    const shouldShowMore = descriptionText.length > 150;
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
     const handleDownloadPress = () => {
         if (!downloadLink && !dualDownloadLink) {
@@ -339,29 +283,17 @@ const MovieDetailScreen = ({ route, navigation }) => {
         }
 
         if (dualDownloadLink && dualDownloadLink !== '') {
-<<<<<<< HEAD
             setIsDownloadModalVisible(true);
         } else if (downloadLink) {
-=======
-            // Show modal if we have a dual audio download link
-            setIsDownloadModalVisible(true);
-        } else if (downloadLink) {
-            // Directly download if only one link exists
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             executeDownload(downloadLink);
         }
     };
 
-<<<<<<< HEAD
     const handlePlayPress = (forcedLang) => {
-=======
-    const handlePlayPress = () => {
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         if (!streamLink && !dualStreamLink) {
             alert('Live stream not available');
             return;
         }
-<<<<<<< HEAD
         const isSports = ['cricket', 'wwe', 'ufc', 'aew', 'football'].includes(contentType);
 
         const langToUse = forcedLang || selectedLanguage;
@@ -380,16 +312,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
             isSeries: false,
             contentId: movie.id ?? id,
             contentType,
-=======
-
-        const isSports = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football';
-
-        navigation.navigate('VideoPlayer', {
-            videoUrl: streamLink,
-            dualaudioUrl: dualStreamLink,
-            movieTitle: isSports ? (movie.video_title || movie.title) : movie.title,
-            isSeries: false,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             posterUrl: `${isSports ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL}${movie.poster}`
         });
     };
@@ -403,12 +325,9 @@ const MovieDetailScreen = ({ route, navigation }) => {
 
     const executeDownload = async (url) => {
         try {
-<<<<<<< HEAD
             const isSports = ['cricket', 'wwe', 'ufc', 'aew', 'football'].includes(contentType);
             movieService.updateDownloadCount({ id: movie.id, type: isSports ? 'sports' : 'movie' });
 
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             if (Platform.OS === 'android') {
                 if (Platform.Version < 33) {
                     const granted = await PermissionsAndroid.request(
@@ -441,7 +360,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 }
             }
 
-<<<<<<< HEAD
             // Extract and sanitize filename
             let cleanUrl = url.split(/[?#]/)[0];
             let fileName = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
@@ -452,16 +370,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 if (!fileName.endsWith('.mp4') && !fileName.endsWith('.mkv') && !fileName.endsWith('.avi')) {
                     fileName = `${fileName}.mp4`;
                 }
-=======
-            let fileName = url.substring(url.lastIndexOf('/') + 1).split('?')[0];
-            if (!fileName) {
-                fileName = `${movie.title.replace(/\s+/g, '_')}.mp4`;
-            }
-            fileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-            const lowerFileName = fileName.toLowerCase();
-            if (!lowerFileName.endsWith('.mp4') && !lowerFileName.endsWith('.mkv') && !lowerFileName.endsWith('.avi') && !lowerFileName.endsWith('.mov')) {
-                fileName = `${fileName}.mp4`;
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             }
 
             if (Platform.OS === 'android') {
@@ -470,7 +378,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 Alert.alert('Download', 'Download started in the background.');
             }
 
-<<<<<<< HEAD
             if (Platform.OS === 'android') {
                 const downloadPath = `/storage/emulated/0/Download/${fileName}`;
 
@@ -478,24 +385,10 @@ const MovieDetailScreen = ({ route, navigation }) => {
                     addAndroidDownloads: {
                         useDownloadManager: true,
                         notification: true,
-=======
-            const { fs } = ReactNativeBlobUtil;
-            const configOptions = Platform.select({
-                ios: {
-                    fileCache: true,
-                    path: `${fs.dirs.DocumentDir}/${fileName}`,
-                },
-                android: {
-                    path: `${fs.dirs.DownloadDir}/${fileName}`,
-                    addAndroidDownloads: {
-                        useDownloadManager: true, // native download manager
-                        notification: true, // show system tray notification
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                         title: `${movie.title} - Fundady`,
                         description: 'Downloading movie...',
                         mime: 'video/mp4',
                         mediaScannable: true,
-<<<<<<< HEAD
                         path: downloadPath,
                     }
                 })
@@ -522,26 +415,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         alert('Download failed to start.');
                     });
             }
-=======
-                        path: `${fs.dirs.DownloadDir}/${fileName}`,
-                    }
-                }
-            });
-
-            ReactNativeBlobUtil.config(configOptions)
-                .fetch('GET', url)
-                .then((res) => {
-                    if (Platform.OS === 'ios') {
-                        ReactNativeBlobUtil.ios.previewDocument(res.path());
-                    } else {
-                        console.log('Download initiated via System DownloadManager.');
-                    }
-                })
-                .catch((err) => {
-                    console.error("Download Error", err);
-                    alert('Download failed to start.');
-                });
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
         } catch (err) {
             console.warn(err);
@@ -556,14 +429,11 @@ const MovieDetailScreen = ({ route, navigation }) => {
         setIsInMyList(!isInMyList);
     };
 
-<<<<<<< HEAD
     const handleClose = () => {
         const tab = fromTab || 'Home';
         navigation.navigate('TabStack', { screen: tab });
     };
 
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     const handleShare = async () => {
         try {
             await Share.share({
@@ -576,7 +446,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
     };
 
     const renderSimilarMovie = (item, index) => {
-<<<<<<< HEAD
         const isSport = ['cricket', 'wwe', 'ufc', 'aew', 'football'].includes(contentType);
         const numCols = (isTablet || isTV) ? (isSport ? 4 : 5) : (isSport ? 2 : 3);
         const spacingTotal = spacing.md * 2 + (numCols - 1) * spacing.xs;
@@ -586,14 +455,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
         const displayTitle = isSport ? (item.video_title || item.title || item.name || '') : undefined;
         const timeAgo = isSport ? getTimeAgo(item.release_date || item.created_at || item.updated_at || item.date) : undefined;
 
-=======
-        const isSport = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football';
-        const numCols = isSport ? 2 : 3;
-        const spacingTotal = spacing.md * 2 + (numCols - 1) * spacing.xs;
-        const cardWidth = (width - spacingTotal) / numCols - 2;
-        const currentBaseUrl = isSport ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL;
-
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         return (
             <MovieCard
                 key={item.id?.toString() || index.toString()}
@@ -604,14 +465,10 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 })}
                 width={cardWidth}
                 height={isSport ? cardWidth * 0.5625 : cardWidth * 1.5}
-<<<<<<< HEAD
                 title={displayTitle}
                 subtitle={timeAgo}
                 releaseDate={item.release_date}
                 style={[styles.similarMovieCard, isSport && { marginBottom: 16 }]}
-=======
-                style={styles.similarMovieCard}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             />
         );
     };
@@ -620,38 +477,25 @@ const MovieDetailScreen = ({ route, navigation }) => {
     if (loading) {
         return (
             <View style={[styles.container, styles.centered]}>
-<<<<<<< HEAD
                 <Loader />
-=======
-                <ActivityIndicator size="large" color={colors.primary} />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             </View>
         );
     }
 
     if (!movie) return null;
 
-<<<<<<< HEAD
     const isSports = ['cricket', 'wwe', 'ufc', 'aew', 'football'].includes(contentType);
 
-=======
-    const isSports = contentType === 'cricket' || contentType === 'wwe' || contentType === 'football';
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
-<<<<<<< HEAD
                  <MainHeader variant="inner" />
-=======
-                <MainHeader variant="inner" />
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             </View>
             <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xl }}
-<<<<<<< HEAD
                 refreshControl={
                     <RefreshControl
                         refreshing={refreshing}
@@ -675,35 +519,10 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         <View style={[styles.posterWrapper, { width: stableWidth, height: mediaHeight }]}>
                             <Image
                                 source={{ uri: `${isSports ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL}${movie.poster}` }}
-=======
-            >
-                <View style={styles.mediaContainer}>
-                    {showVideo ? (
-                        <Video
-                            source={require('../../assets/videos/intro.mp4')}
-                            style={styles.introVideo}
-                            resizeMode="cover"
-                            muted={false}
-                            onEnd={() => setShowVideo(false)}
-                            onError={e => {
-                                console.log('Video error:', e);
-                                setShowVideo(false);
-                            }}
-                        />
-                    ) : (
-                        <TouchableOpacity
-                            activeOpacity={0.9}
-                            style={styles.posterWrapper}
-                            onPress={handlePlayPress}
-                        >
-                            <Image
-                                source={{ uri: `${contentType === 'cricket' || contentType === 'wwe' || contentType === 'football' ? SPORTS_POSTER_BASE_URL : POSTER_BASE_URL}${movie.poster}` }}
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                 style={styles.poster}
                                 resizeMode="cover"
                             />
                             <View style={styles.playOverlay}>
-<<<<<<< HEAD
                                 {/* <FocusableButton
                                     onPress={handlePlayPress}
                                     autoFocus={true}
@@ -716,13 +535,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 </FocusableButton> */}
                             </View>
                         </View>
-=======
-                                <View style={styles.youtubePlayButton}>
-                                    <Icon name="play-arrow" size={50} color={colors.white} />
-                                </View>
-                            </View>
-                        </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     )}
                 </View>
 
@@ -753,11 +565,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                     </AppText>
                                 </View>
                                 <View style={styles.hdBadge}>
-<<<<<<< HEAD
                                     <AppText color={colors.white} size="xs" variant="bold" numberOfLines={1}>
-=======
-                                    <AppText color={colors.white} size="xs" variant="bold">
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         {movie.qualities || 'HD'}
                                     </AppText>
                                 </View>
@@ -779,7 +587,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 <AppText color={colors.textSecondary} style={styles.infoItem}>
                                     {movie.runtime ? `${movie.runtime} min` : 'N/A'}
                                 </AppText>
-<<<<<<< HEAD
                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: spacing.sm }}>
                                     <Icon name="visibility" size={16} color={colors.textSecondary} style={{ marginRight: 4 }} />
                                     <AppText color={colors.textSecondary} style={{ fontSize: 14 }}>
@@ -794,10 +601,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 </View>
                                 <View style={styles.hdBadge}>
                                     <AppText color={colors.white} size="xs" variant="bold" numberOfLines={1}>
-=======
-                                <View style={styles.hdBadge}>
-                                    <AppText color={colors.white} size="xs" variant="bold">
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         {movie.qualities || 'HD'}
                                     </AppText>
                                 </View>
@@ -805,7 +608,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         )}
                     </View>
 
-<<<<<<< HEAD
                     {/* ── Netflix-style full-width action buttons ─────────── */}
                     <View style={styles.netflixActionStack}>
 
@@ -847,67 +649,13 @@ const MovieDetailScreen = ({ route, navigation }) => {
                         >
                             {descriptionText}
                         </AppText>
-=======
-                    <View style={styles.youtubeActionsRow}>
-                        <TouchableOpacity style={styles.youtubeDownloadButton} onPress={handleDownloadPress}>
-                            <Icon name="file-download" size={20} color={colors.white} />
-                            <AppText variant="bold" style={styles.downloadText}>Download</AppText>
-                        </TouchableOpacity>
-
-                        {/* <TouchableOpacity style={styles.youtubeIconButton} onPress={handleShare}>
-                            <Icon name="share" size={20} color={colors.white} />
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.youtubeIconButton} onPress={toggleMyList}>
-                            <Icon name={isInMyList ? "check" : "add"} size={22} color={colors.white} />
-                        </TouchableOpacity> */}
-                    </View>
-
-                    {/* Action Buttons */}
-                    {/* <TouchableOpacity
-                        style={styles.netflixPlayButton}
-                        onPress={() => {
-                            const videoUrl =
-                                movie.links && movie.links.length > 0
-                                    ? movie.links[0].movie_link
-                                    : null;
-                           if (videoUrl) {
-                                navigation.navigate('VideoPlayer', {
-                                    videoUrl,
-                                    movieTitle: movie.title,
-                                });
-                            } else {
-                                alert('Video link not available');
-                            }
-                        }}
-                    >
-                        <Icon name="play-arrow" size={24} color={colors.black} />
-                        <AppText variant="bold" style={styles.playButtonText}>
-                            Play
-                        </AppText>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.netflixDownloadButton}>
-                        <Icon name="file-download" size={24} color={colors.white} />
-                        <AppText variant="bold" style={styles.downloadButtonText}>
-                            Download
-                        </AppText>
-                    </TouchableOpacity> */}
-
-                    {/* Description Section */}
-                    <View style={styles.descriptionSection}>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                         <AppText
                             style={styles.description}
                             numberOfLines={isDescriptionExpanded ? undefined : 3}
                         >
                             {descriptionText}
                         </AppText>
-<<<<<<< HEAD
                         {fullTextLines > 3 && (
-=======
-                        {shouldShowMore && (
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                             <TouchableOpacity onPress={toggleDescription}>
                                 <AppText
                                     color={colors.white}
@@ -963,10 +711,7 @@ const MovieDetailScreen = ({ route, navigation }) => {
                 </View>
             </ScrollView>
 
-<<<<<<< HEAD
             {/* ─── Download Modal ─────────────────────────────────────────── */}
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             <Modal
                 visible={isDownloadModalVisible}
                 transparent={true}
@@ -976,7 +721,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-<<<<<<< HEAD
                         <AppText variant="bold" color={colors.white} style={styles.modalTitle}>
                             Select Audio Track
                         </AppText>
@@ -1057,20 +801,6 @@ const MovieDetailScreen = ({ route, navigation }) => {
                                 CANCEL
                             </AppText>
                         </ModalOption>
-=======
-                        {/* <AppText variant="bold" color={colors.white} style={styles.modalTitle}>Select Audio</AppText> */}
-                        <View style={styles.modalOptions}>
-                            <TouchableOpacity style={styles.modalOption} onPress={() => downloadTrack(downloadLink)}>
-                                <AppText color={colors.white} style={styles.modalOptionText}>English (Default)</AppText>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalOption} onPress={() => downloadTrack(dualDownloadLink)}>
-                                <AppText color={colors.white} style={styles.modalOptionText}>Hindi (Dual Audio)</AppText>
-                            </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity style={styles.modalCancelButton} onPress={() => setIsDownloadModalVisible(false)}>
-                            <AppText variant="bold" color="#E50914">CANCEL</AppText>
-                        </TouchableOpacity>
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     </View>
                 </View>
             </Modal>
@@ -1092,45 +822,28 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     posterWrapper: {
-<<<<<<< HEAD
         height: undefined, // height comes from mediaHeight via inline style
-=======
-        width: width,
-        height: 250,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     poster: {
         width: '100%',
         height: '100%',
     },
     mediaContainer: {
-<<<<<<< HEAD
         // height is set inline via mediaHeight (stableWidth * 9/16)
         backgroundColor: colors.black,
     },
     introVideo: {
-=======
-        width: width,
-        height: 250,
-        backgroundColor: colors.black,
-    },
-    introVideo: {
-        width: width,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         height: '100%',
     },
     content: {
         padding: spacing.md,
     },
-<<<<<<< HEAD
     contentLoader: {
         flex: 1,
         minHeight: 300,
         justifyContent: 'center',
         alignItems: 'center',
     },
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     logoAndTitle: {
         marginBottom: spacing.sm,
     },
@@ -1140,10 +853,7 @@ const styles = StyleSheet.create({
     },
     movieTitle: {
         color: colors.white,
-<<<<<<< HEAD
         fontSize: moderateScale(28, 0.4),
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     centered: {
         flex: 1,
@@ -1154,27 +864,14 @@ const styles = StyleSheet.create({
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-<<<<<<< HEAD
         flexWrap: 'wrap',
         rowGap: 6,
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         marginBottom: spacing.md,
     },
     infoItem: {
         marginRight: spacing.sm,
         fontSize: 14,
     },
-<<<<<<< HEAD
-=======
-    // ratingBadge: {
-    //     backgroundColor: '#333',
-    //     paddingHorizontal: 6,
-    //     paddingVertical: 2,
-    //     borderRadius: 2,
-    //     marginRight: spacing.sm,
-    // },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
     playOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -1192,7 +889,6 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: colors.white,
     },
-<<<<<<< HEAD
     youtubePlayButtonFocused: {
         width: 90,
         height: 90,
@@ -1249,14 +945,11 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         letterSpacing: 0.3,
     },
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     youtubeActionsRow: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: spacing.lg,
         gap: spacing.sm,
-<<<<<<< HEAD
         flexWrap: 'wrap',
     },
     youtubePlayNowButton: {
@@ -1272,17 +965,11 @@ const styles = StyleSheet.create({
         color: colors.black,
         fontSize: 14,
         fontWeight: '700',
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     youtubeDownloadButton: {
         flexDirection: 'row',
         alignItems: 'center',
-<<<<<<< HEAD
         backgroundColor: '#272727',
-=======
-        backgroundColor: '#272727', // YouTube dark grey
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         paddingHorizontal: spacing.lg,
         paddingVertical: 10,
         borderRadius: 25,
@@ -1301,7 +988,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-<<<<<<< HEAD
     dropdownButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -1339,8 +1025,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-=======
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     hdBadge: {
         borderWidth: 1,
         borderColor: colors.textSecondary,
@@ -1366,28 +1050,6 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         marginBottom: spacing.sm,
     },
-<<<<<<< HEAD
-=======
-    // playButtonText: {
-    //     color: colors.black,
-    //     marginLeft: spacing.xs,
-    //     fontSize: 16,
-    // },
-    // netflixDownloadButton: {
-    //     backgroundColor: '#333',
-    //     flexDirection: 'row',
-    //     alignItems: 'center',
-    //     justifyContent: 'center',
-    //     paddingVertical: spacing.sm,
-    //     borderRadius: 4,
-    //     marginBottom: spacing.md,
-    // },
-    // downloadButtonText: {
-    //     color: colors.white,
-    //     marginLeft: spacing.xs,
-    //     fontSize: 16,
-    // },
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     descriptionSection: {
         marginBottom: spacing.sm,
     },
@@ -1405,10 +1067,6 @@ const styles = StyleSheet.create({
     },
     userActionRow: {
         flexDirection: 'row',
-<<<<<<< HEAD
-=======
-        // justifyContent: 'space-around',
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         justifyContent: 'flex-start',
         paddingVertical: spacing.sm,
         borderBottomWidth: 1,
@@ -1417,10 +1075,6 @@ const styles = StyleSheet.create({
     },
     actionItem: {
         alignItems: 'center',
-<<<<<<< HEAD
-=======
-        // flex: 1,
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     actionLabel: {
         marginTop: 4,
@@ -1468,7 +1122,6 @@ const styles = StyleSheet.create({
     },
     modalOption: {
         paddingVertical: 14,
-<<<<<<< HEAD
         paddingHorizontal: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#333',
@@ -1481,10 +1134,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(229,9,20,0.25)',
         borderColor: colors.primary,
         borderWidth: 1.5,
-=======
-        borderBottomWidth: 1,
-        borderBottomColor: '#333',
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     modalOptionText: {
         fontSize: 16,
@@ -1495,8 +1144,4 @@ const styles = StyleSheet.create({
     },
 });
 
-<<<<<<< HEAD
 export default MovieDetailScreen;
-=======
-export default MovieDetailScreen;
->>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04

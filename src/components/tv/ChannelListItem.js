@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, View, Image, StyleSheet } from 'react-native';
+import { TouchableOpacity, View, StyleSheet } from 'react-native';
+import CachedImage from '../common/CachedImage';
 import AppText from '../common/AppText';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -13,7 +14,7 @@ const ChannelListItem = ({ item, isActive, onPress }) => {
         >
             <View style={styles.logoContainer}>
                 {item.logo ? (
-                    <Image source={{ uri: item.logo }} style={styles.logo} resizeMode="contain" />
+                    <CachedImage source={{ uri: item.logo }} style={styles.logo} resizeMode="contain" />
                 ) : (
                     <Icon name="live-tv" size={30} color={colors.textMuted} />
                 )}
