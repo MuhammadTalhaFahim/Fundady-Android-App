@@ -13,9 +13,14 @@ import {
   Animated,
   Platform,
   useWindowDimensions,
+<<<<<<< HEAD
   RefreshControl,
 } from 'react-native';
 import Loader from '../../components/common/Loader';
+=======
+  RefreshControl
+} from 'react-native';
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
@@ -29,6 +34,7 @@ import { isTablet, isTV } from '../../utils/responsive';
 
 import { movieService } from '../../services/movieService';
 
+<<<<<<< HEAD
 const formatShowTypeTab = st => {
   const slug = st.toLowerCase().trim();
   let title = st.replace(/_/g, ' ');
@@ -75,6 +81,37 @@ const TabButton = ({ tab, activeTab, onPress }) => {
       </AppText>
     </Pressable>
   );
+=======
+const TABS = ['Web Series', 'TV Shows', 'TV Serials'];
+
+const TabButton = ({ tab, activeTab, onPress }) => {
+    const [isFocused, setIsFocused] = useState(false);
+    return (
+        <Pressable
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onPress={onPress}
+            style={[
+                styles.tab,
+                activeTab === tab && styles.activeTab,
+                isFocused && {
+                    borderColor: colors.primary,
+                    borderBottomWidth: 3,
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    transform: [{ scale: 1.05 }]
+                }
+            ]}
+        >
+            <AppText
+                variant={activeTab === tab || isFocused ? 'bold' : 'medium'}
+                size="md"
+                color={activeTab === tab || isFocused ? colors.textPrimary : colors.textSecondary}
+            >
+                {tab}
+            </AppText>
+        </Pressable>
+    );
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 };
 
 const WebSeriesScreen = ({ navigation }) => {
@@ -90,10 +127,16 @@ const WebSeriesScreen = ({ navigation }) => {
       if (width < 600) {
         Orientation.lockToPortrait();
       }
+<<<<<<< HEAD
     }, [width]),
   );
   const [tabs, setTabs] = useState(DEFAULT_TABS);
   const [activeTab, setActiveTab] = useState(DEFAULT_TABS[0]);
+=======
+    }, [width])
+  );
+  const [activeTab, setActiveTab] = useState(TABS[0]);
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   const [allData, setAllData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [years, setYears] = useState([]);
@@ -109,6 +152,7 @@ const WebSeriesScreen = ({ navigation }) => {
   const [isOpeningModal, setIsOpeningModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+<<<<<<< HEAD
   // Fetch dynamic categories for tabs
   useEffect(() => {
     const fetchCategoryTabs = async () => {
@@ -140,6 +184,10 @@ const WebSeriesScreen = ({ navigation }) => {
     if (activeTab) {
       fetchData();
     }
+=======
+  useEffect(() => {
+    fetchData();
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   }, [activeTab]);
 
   useEffect(() => {
@@ -148,7 +196,11 @@ const WebSeriesScreen = ({ navigation }) => {
         const [catsRes, yearsRes, genresRes] = await Promise.all([
           movieService.getSeriesCategories(),
           movieService.getYears(),
+<<<<<<< HEAD
           movieService.getGenres(),
+=======
+          movieService.getGenres()
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         ]);
 
         if (catsRes.status) setCategories(catsRes.data);
@@ -156,7 +208,11 @@ const WebSeriesScreen = ({ navigation }) => {
         if (yearsRes.status) {
           const mappedYears = yearsRes.data.map(y => ({
             id: y.year,
+<<<<<<< HEAD
             name: y.year.toString(),
+=======
+            name: y.year.toString()
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           }));
           setYears(mappedYears);
         }
@@ -174,7 +230,10 @@ const WebSeriesScreen = ({ navigation }) => {
   }, [activeTab, allData, selectedCategory, selectedYear, selectedGenre]);
 
   const fetchData = async (isRefresh = false) => {
+<<<<<<< HEAD
     if (!activeTab) return;
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     if (isRefresh) {
       setRefreshing(true);
     } else {
@@ -183,6 +242,7 @@ const WebSeriesScreen = ({ navigation }) => {
     }
     try {
       let response;
+<<<<<<< HEAD
       if (activeTab.slug === 'web_series') {
         response = await movieService.getWebSeries();
       } else if (activeTab.slug === 'tv_shows') {
@@ -215,6 +275,23 @@ const WebSeriesScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Error fetching series data:', error);
       setAllData([]);
+=======
+      if (activeTab === 'Web Series') {
+        response = await movieService.getWebSeries();
+      } else if (activeTab === 'TV Shows') {
+        response = await movieService.getTVShows();
+      } else {
+        response = await movieService.getTVSerials();
+      }
+
+      if (response.status) {
+        // Correct extraction for your API: response.data.tvshows is the array
+        const data = response.data?.tvshows || response.tvshows || (Array.isArray(response.data) ? response.data : []);
+        setAllData(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Error fetching series data:', error);
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -225,6 +302,7 @@ const WebSeriesScreen = ({ navigation }) => {
     fetchData(true);
   }, [activeTab]);
 
+<<<<<<< HEAD
   const numCols = isTablet || isTV ? 4 : 2;
   const stableWidth = width > 600 ? width : Math.min(width, height);
   const cardWidth = (stableWidth - spacing.md * 2) / numCols - 8;
@@ -252,6 +330,8 @@ const WebSeriesScreen = ({ navigation }) => {
     [cardWidth, activeTab?.slug, navigation],
   );
 
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   const filterData = () => {
     if (!allData.length) {
       setFilteredData([]);
@@ -272,10 +352,16 @@ const WebSeriesScreen = ({ navigation }) => {
 
     // Filter by selected year
     if (selectedYear) {
+<<<<<<< HEAD
       filtered = filtered.filter(
         item =>
           item.date?.startsWith(selectedYear) ||
           item.release_date?.startsWith(selectedYear),
+=======
+      filtered = filtered.filter(item =>
+        item.date?.startsWith(selectedYear) ||
+        item.release_date?.startsWith(selectedYear)
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       );
     }
 
@@ -297,6 +383,7 @@ const WebSeriesScreen = ({ navigation }) => {
       <MainHeader variant="home" title="Series" scrollY={scrollY} />
 
       <View style={styles.tabsContainer}>
+<<<<<<< HEAD
         <RNScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -316,6 +403,16 @@ const WebSeriesScreen = ({ navigation }) => {
             />
           ))}
         </RNScrollView>
+=======
+        {TABS.map(tab => (
+          <TabButton
+            key={tab}
+            tab={tab}
+            activeTab={activeTab}
+            onPress={() => setActiveTab(tab)}
+          />
+        ))}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
       </View>
 
       <View style={styles.filterBarContainer}>
@@ -334,8 +431,13 @@ const WebSeriesScreen = ({ navigation }) => {
                 borderColor: colors.primary,
                 borderWidth: 2,
                 transform: [{ scale: 1.08 }],
+<<<<<<< HEAD
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
               },
+=======
+                backgroundColor: 'rgba(255, 255, 255, 0.08)'
+              }
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             ]}
             onPress={() => {
               setModalType('category');
@@ -350,12 +452,16 @@ const WebSeriesScreen = ({ navigation }) => {
                 <AppText variant="medium" size="md" color={colors.textPrimary}>
                   {selectedCategory || 'Categories'}
                 </AppText>
+<<<<<<< HEAD
                 <Icon
                   name="keyboard-arrow-down"
                   size={20}
                   color={colors.textPrimary}
                   style={{ marginLeft: 4 }}
                 />
+=======
+                <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               </>
             )}
           </Pressable>
@@ -370,8 +476,13 @@ const WebSeriesScreen = ({ navigation }) => {
                 borderColor: colors.primary,
                 borderWidth: 2,
                 transform: [{ scale: 1.08 }],
+<<<<<<< HEAD
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
               },
+=======
+                backgroundColor: 'rgba(255, 255, 255, 0.08)'
+              }
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             ]}
             onPress={() => {
               setModalType('year');
@@ -386,12 +497,16 @@ const WebSeriesScreen = ({ navigation }) => {
                 <AppText variant="medium" size="md" color={colors.textPrimary}>
                   {selectedYear || 'Year'}
                 </AppText>
+<<<<<<< HEAD
                 <Icon
                   name="keyboard-arrow-down"
                   size={20}
                   color={colors.textPrimary}
                   style={{ marginLeft: 4 }}
                 />
+=======
+                <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               </>
             )}
           </Pressable>
@@ -406,8 +521,13 @@ const WebSeriesScreen = ({ navigation }) => {
                 borderColor: colors.primary,
                 borderWidth: 2,
                 transform: [{ scale: 1.08 }],
+<<<<<<< HEAD
                 backgroundColor: 'rgba(255, 255, 255, 0.08)',
               },
+=======
+                backgroundColor: 'rgba(255, 255, 255, 0.08)'
+              }
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             ]}
             onPress={() => {
               setModalType('genre');
@@ -422,12 +542,16 @@ const WebSeriesScreen = ({ navigation }) => {
                 <AppText variant="medium" size="md" color={colors.textPrimary}>
                   {selectedGenre || 'Genre'}
                 </AppText>
+<<<<<<< HEAD
                 <Icon
                   name="keyboard-arrow-down"
                   size={20}
                   color={colors.textPrimary}
                   style={{ marginLeft: 4 }}
                 />
+=======
+                <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
               </>
             )}
           </Pressable>
@@ -436,16 +560,25 @@ const WebSeriesScreen = ({ navigation }) => {
 
       {loading ? (
         <View style={styles.centered}>
+<<<<<<< HEAD
           <Loader />
         </View>
       ) : isFiltering ? (
         <View style={styles.centered}>
           <Loader />
+=======
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : isFiltering ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colors.primary} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           {/* <AppText variant="medium" style={{ marginTop: spacing.md }} color={colors.textSecondary}>Applying filters...</AppText> */}
         </View>
       ) : (
         <Animated.FlatList
           data={filteredData}
+<<<<<<< HEAD
           renderItem={renderMovieItem}
           keyExtractor={(item, index) =>
             item.id?.toString() || index.toString()
@@ -463,6 +596,33 @@ const WebSeriesScreen = ({ navigation }) => {
             offset: (cardWidth * 0.5625 + 8) * Math.floor(index / numCols),
             index,
           })}
+=======
+          renderItem={({ item }) => {
+            const numCols = (isTablet || isTV) ? 4 : 2;
+            const stableWidth = width > 600 ? width : Math.min(width, height);
+            const cardWidth = (stableWidth - spacing.md * 2) / numCols - 8;
+            return (
+              <MovieCard
+                imageUrl={`${TV_SHOWS_POSTER_BASE_URL}${item.poster}`}
+                onPress={() => {
+                  let type = 'web_series';
+                  if (activeTab === 'TV Shows') type = 'tv_show';
+                  if (activeTab === 'TV Serials') type = 'tv_serial';
+                  navigation.navigate('SeriesDetail', { id: item.id, contentType: type });
+                }}
+                width={cardWidth}
+                height={cardWidth * 0.5625}
+                style={{ margin: 4 }}
+              />
+            );
+          }}
+          keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+          numColumns={(isTablet || isTV) ? 4 : 2}
+          key={(isTablet || isTV) ? 'tablet' : 'phone'}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          removeClippedSubviews={false}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
             { useNativeDriver: false },
@@ -477,11 +637,18 @@ const WebSeriesScreen = ({ navigation }) => {
             />
           }
           scrollEventThrottle={16}
+<<<<<<< HEAD
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <AppText color={colors.textSecondary}>
                 No content found for {activeTab?.title || 'this section'}
               </AppText>
+=======
+
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <AppText color={colors.textSecondary}>No content found for {activeTab}</AppText>
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             </View>
           }
         />
@@ -492,6 +659,7 @@ const WebSeriesScreen = ({ navigation }) => {
         onClose={() => setShowModal(false)}
         onShow={() => setIsOpeningModal(false)}
         title={
+<<<<<<< HEAD
           modalType === 'category'
             ? 'All Categories'
             : modalType === 'year'
@@ -513,6 +681,23 @@ const WebSeriesScreen = ({ navigation }) => {
             : selectedGenre
         }
         onSelectCategory={async value => {
+=======
+            modalType === 'category' ? 'All Categories' :
+                modalType === 'year' ? 'All Years' :
+                    'All Genres'
+        }
+        categories={
+          modalType === 'category' ? categories :
+            modalType === 'year' ? years :
+              genres
+        }
+        selectedCategory={
+          modalType === 'category' ? selectedCategory :
+            modalType === 'year' ? selectedYear :
+              selectedGenre
+        }
+        onSelectCategory={async (value) => {
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
           setShowModal(false);
           setIsFiltering(true);
 
@@ -536,15 +721,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   tabsContainer: {
+<<<<<<< HEAD
+=======
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     paddingTop: isTV ? 0 : spacing.xxl + 50, // Offset for absolute header
     backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.backgroundCard,
   },
+<<<<<<< HEAD
   tabsScrollContent: {
     flexDirection: 'row',
     paddingHorizontal: spacing.md,
   },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   tab: {
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
@@ -591,6 +784,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.4)',
     backgroundColor: 'rgba(0,0,0,0.2)',
     marginHorizontal: 3,
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
   },
   activeFilterTab: {
     backgroundColor: colors.primary,
@@ -598,4 +795,8 @@ const styles = StyleSheet.create({
   },
 });
 
+<<<<<<< HEAD
 export default WebSeriesScreen;
+=======
+export default WebSeriesScreen;
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04

@@ -5,27 +5,40 @@ import {
     StyleSheet,
     TouchableOpacity,
     StatusBar,
+<<<<<<< HEAD
+=======
+    ActivityIndicator,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     Dimensions,
     Pressable,
     Modal,
     Platform,
     FlatList,
     PanResponder,
+<<<<<<< HEAD
     AppState,
     useWindowDimensions,
     findNodeHandle,
     TVEventHandler,
+=======
+    useWindowDimensions,
+    findNodeHandle,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 } from 'react-native';
 import Video from 'react-native-video';
 import Orientation from 'react-native-orientation-locker';
 import NavigationBar from 'react-native-system-navigation-bar';
+<<<<<<< HEAD
 import { CastButton, useRemoteMediaClient, useStreamPosition, useMediaStatus, MediaPlayerState, MediaPlayerIdleReason } from 'react-native-google-cast';
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 import Icon from '../../components/common/SvgIcon';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import AppText from '../../components/common/AppText';
 
 import { moderateScale, isTablet, isTV, SCREEN_WIDTH } from '../../utils/responsive';
+<<<<<<< HEAD
 import Loader from '../../components/common/Loader';
 import {
     makeProgressKey,
@@ -36,6 +49,8 @@ import {
 } from '../../utils/watchProgress';
 
 const PROGRESS_SAVE_INTERVAL_MS = 1000;
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
 // Focus-aware pressable button
 const FocusableButton = React.forwardRef(({ onPress, onFocus, style, focusedStyle, children, autoFocus = false, hasTVPreferredFocus = false }, ref) => {
@@ -67,9 +82,13 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         posterUrl,
         isSeries = false,
         episodes: rawEpisodes = [],
+<<<<<<< HEAD
         initialIndex = 0,
         contentId,
         contentType,
+=======
+        initialIndex = 0
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     } = route.params;
 
     // Sort episodes naturally to ensure correct order
@@ -77,7 +96,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         const sA = parseInt(a.season?.match(/\d+/)?.[0] || 0);
         const sB = parseInt(b.season?.match(/\d+/)?.[0] || 0);
         if (sA !== sB) return sA - sB;
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         const eA = parseInt(a.episode?.match(/\d+/)?.[0] || 0);
         const eB = parseInt(b.episode?.match(/\d+/)?.[0] || 0);
         return eA - eB;
@@ -95,11 +118,18 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     const currentTimeRef = useRef(0);
     const speedButtonRef = useRef(null);
     const episodesButtonRef = useRef(null);
+<<<<<<< HEAD
     const seekDebounceTimeoutRef = useRef(null);
 
     const [loading, setLoading] = useState(true);
     const [paused, setPaused] = useState(false);
     const [showControls, setShowControls] = useState(false); // hidden by default (Netflix-style)
+=======
+
+    const [loading, setLoading] = useState(true);
+    const [paused, setPaused] = useState(false);
+    const [showControls, setShowControls] = useState(true);
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -108,6 +138,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     const [isEpisodesModalVisible, setIsEpisodesModalVisible] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
     const [isSeeking, setIsSeeking] = useState(false);
+<<<<<<< HEAD
     const [playIntro, setPlayIntro] = useState(true);
 
     // initialIndex points into the list as it was passed in; map it to the sorted list
@@ -115,6 +146,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     // Series State
     const [currentIndex, setCurrentIndex] = useState(startIndex);
+=======
+
+    // Series State
+    const [currentIndex, setCurrentIndex] = useState(initialIndex);
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     const [currentVideoUrl, setCurrentVideoUrl] = useState(initialVideoUrl);
     const [currentDualAudioUrl, setCurrentDualAudioUrl] = useState(initialDualAudioUrl);
     const [showCountdown, setShowCountdown] = useState(false);
@@ -146,8 +182,13 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     const getDynamicSkipAmount = useCallback(() => {
         const now = Date.now();
+<<<<<<< HEAD
         // If the next skip happens within 500ms, consider it a continuous hold (TV remote repeats are often around 250-300ms)
         if (now - lastSkipTimeRef.current < 500) {
+=======
+        // If the next skip happens within 400ms, consider it a continuous hold
+        if (now - lastSkipTimeRef.current < 400) {
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             consecutiveSkipsRef.current += 1;
         } else {
             consecutiveSkipsRef.current = 1;
@@ -155,6 +196,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         lastSkipTimeRef.current = now;
 
         const skips = consecutiveSkipsRef.current;
+<<<<<<< HEAD
         const totalDuration = durationRef.current || 7200; // default to 2 hours if not loaded
         
         // Base skip starts at 10s or 0.5% of total duration, whichever is larger
@@ -173,6 +215,12 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         }
 
         return baseSkip * multiplier;
+=======
+        if (skips > 15) return 120; // 2 minutes jump per tick after long hold
+        if (skips > 8) return 60;   // 1 minute jump per tick
+        if (skips > 4) return 30;   // 30 seconds jump per tick
+        return 10;                  // Default 10 seconds
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     }, []);
 
     const handleLeftFocus = useCallback(() => {
@@ -248,21 +296,35 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
                 if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
                 if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+<<<<<<< HEAD
                 if (seekDebounceTimeoutRef.current) clearTimeout(seekDebounceTimeoutRef.current);
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             };
         }, [])
     );
 
     useEffect(() => {
+<<<<<<< HEAD
         if (showControls && !isLocked) {
             startControlTimer();
         }
     }, [showControls, isLocked]);
+=======
+        if (showControls && !paused && !isLocked) {
+            startControlTimer();
+        }
+        return () => {
+            if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
+        };
+    }, [showControls, paused, isLocked]);
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
     // ── TV: keep a ref so the sentinel knows the latest showControls value ────
     const showControlsRef = useRef(showControls);
     useEffect(() => { showControlsRef.current = showControls; }, [showControls]);
 
+<<<<<<< HEAD
     const showAndResetTimerRef = useRef(null);
     useEffect(() => {
         showAndResetTimerRef.current = showAndResetTimer;
@@ -304,12 +366,19 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     const showAndResetTimer = () => {
         setShowControls(true);
         if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
+=======
+    const startControlTimer = () => {
+        if (controlTimerRef.current) {
+            clearTimeout(controlTimerRef.current);
+        }
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         controlTimerRef.current = setTimeout(() => {
             setShowControls(false);
         }, 5000);
     };
 
     const toggleControls = () => {
+<<<<<<< HEAD
         if (showControls) {
             // Already visible — hide immediately
             if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
@@ -330,12 +399,21 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         }
         setPaused(next);
         showAndResetTimer();
+=======
+        setShowControls(prev => !prev);
+    };
+
+    const handlePlayPause = () => {
+        setPaused(!paused);
+        if (showControls) startControlTimer();
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     };
 
     const handleSkip = (seconds) => {
         if (videoRef.current) {
             setIsSeeking(true);
             const newTime = Math.max(0, Math.min(durationRef.current, currentTimeRef.current + seconds));
+<<<<<<< HEAD
             
             // Update UI immediately for responsive feedback
             setCurrentTime(newTime);
@@ -430,11 +508,29 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     useEffect(() => () => { persistProgressRef.current?.(); }, []);
 
+=======
+            console.log('[VideoPlayerScreen] handleSkip called:', seconds, 'currentTime:', currentTimeRef.current, 'newTime:', newTime, 'duration:', durationRef.current);
+            videoRef.current.seek(newTime);
+            setCurrentTime(newTime);
+            currentTimeRef.current = newTime;
+            
+            if (controlTimerRef.current) clearTimeout(controlTimerRef.current);
+            startControlTimer();
+
+            // Ignore progress updates for 1 second to let the player stabilize
+            setTimeout(() => {
+                setIsSeeking(false);
+            }, 1000);
+        }
+    };
+
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     const onProgress = (data) => {
         if (!isSeeking) {
             setCurrentTime(data.currentTime);
             currentTimeRef.current = data.currentTime;
         }
+<<<<<<< HEAD
         // User scrubbed back after the video had ended — start tracking again
         if (endedRef.current && data.currentTime < durationRef.current - 1) {
             endedRef.current = false;
@@ -444,12 +540,17 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             lastSavedAtRef.current = now;
             persistProgress();
         }
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     };
 
     const onLoad = (data) => {
         setDuration(data.duration);
         durationRef.current = data.duration;
+<<<<<<< HEAD
         switchingEpisodeRef.current = false;
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         setLoading(false);
         if (resumeTimeRef.current > 0 && videoRef.current) {
             videoRef.current.seek(resumeTimeRef.current);
@@ -467,6 +568,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     }, [dynamicWidth]);
 
     const onVideoEnd = () => {
+<<<<<<< HEAD
         if (switchingEpisodeRef.current) return;
         endedRef.current = true;
         if (isSeries && episodes && currentIndex < episodes.length - 1) {
@@ -487,6 +589,10 @@ const VideoPlayerScreen = ({ route, navigation }) => {
             removeProgress(progressKey);
             // Video fully finished — show the paused state (play icon) instead of the pause icon
             setPaused(true);
+=======
+        if (isSeries && episodes && currentIndex < episodes.length - 1) {
+            startCountdown();
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         }
     };
 
@@ -517,8 +623,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     const playEpisode = (index) => {
         if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+<<<<<<< HEAD
         endedRef.current = false;
         switchingEpisodeRef.current = true;
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         setShowCountdown(false);
         setCurrentIndex(index);
 
@@ -553,6 +662,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         return `S${s}-${e} ${movieTitle}`;
     };
 
+<<<<<<< HEAD
     // ── Chromecast: send current stream to the TV once a session connects ──
     const castClient = useRemoteMediaClient();
     const wasCastingRef = useRef(false);
@@ -636,6 +746,8 @@ const VideoPlayerScreen = ({ route, navigation }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [castClient, castFinished]);
 
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     const openSpeedModal = () => {
         setPaused(true);
         setIsSpeedModalVisible(true);
@@ -658,6 +770,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     const selectSpeed = (rate) => {
         setPlaybackSpeed(rate);
+<<<<<<< HEAD
         // While casting the local player is paused, so the new rate has to be sent
         // to the receiver too — otherwise the TV keeps playing at the old speed.
         if (castClient) {
@@ -665,6 +778,8 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 .setPlaybackRate(rate)
                 .catch((err) => console.warn('[Cast] setPlaybackRate failed', err));
         }
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         closeSpeedModal();
     };
 
@@ -712,7 +827,16 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
     const toggleLock = () => {
         setIsLocked(!isLocked);
+<<<<<<< HEAD
         showAndResetTimer();
+=======
+        if (!isLocked) {
+            setShowControls(false); // Hide everything else when locking
+        } else {
+            setShowControls(true);
+            startControlTimer();
+        }
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     };
 
     const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -739,11 +863,15 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                     if (finalProgress > 1) finalProgress = 1;
                     
                     const finalTime = finalProgress * durationRef.current;
+<<<<<<< HEAD
                     if (castClientRef.current) {
                         castClientRef.current.seek({ position: finalTime }).catch((err) => console.warn('[Cast] seek failed', err));
                     } else {
                         videoRef.current.seek(finalTime);
                     }
+=======
+                    videoRef.current.seek(finalTime);
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     setCurrentTime(finalTime);
                     currentTimeRef.current = finalTime;
 
@@ -754,11 +882,19 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                 } else {
                     setIsSeeking(false);
                 }
+<<<<<<< HEAD
                 showAndResetTimer();
             },
             onPanResponderTerminate: () => {
                 setIsSeeking(false);
                 showAndResetTimer();
+=======
+                startControlTimer();
+            },
+            onPanResponderTerminate: () => {
+                setIsSeeking(false);
+                startControlTimer();
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             },
         })
     ).current;
@@ -791,6 +927,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.videoWrapper}>
+<<<<<<< HEAD
                 {/* ── Intro Video — plays first before the actual content ── */}
                 {playIntro && (
                     <Video
@@ -809,12 +946,18 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
                 {/* ── Main Video — renders underneath intro, visible after intro ends ── */}
                 {!playIntro && (
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 <Video
                     ref={videoRef}
                     source={{ uri: currentVideoUrl }}
                     style={styles.video}
                     resizeMode="contain"
+<<<<<<< HEAD
                     paused={paused || !!castClient}
+=======
+                    paused={paused}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     rate={playbackSpeed}
                     onLoad={onLoad}
                     onProgress={onProgress}
@@ -827,6 +970,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                     playInBackground={false}
                     playWhenInactive={false}
                 />
+<<<<<<< HEAD
                 )}
 
                 {/* Loading indicator — pointerEvents none so it never blocks D-pad */}
@@ -838,6 +982,18 @@ const VideoPlayerScreen = ({ route, navigation }) => {
 
                 {/* Touch-only tap-to-toggle (phone/tablet only) */}
                 {!isTV && !playIntro && (
+=======
+
+                {/* Loading indicator — pointerEvents none so it never blocks D-pad */}
+                {loading && !showCountdown && (
+                    <View style={[StyleSheet.absoluteFill, styles.loaderContainer]} pointerEvents="none">
+                        <ActivityIndicator size="large" color="#E50914" />
+                    </View>
+                )}
+
+                {/* Touch-only tap-to-toggle (phone/tablet only) */}
+                {!isTV && (
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     <Pressable
                         style={StyleSheet.absoluteFill}
                         onPress={toggleControls}
@@ -851,18 +1007,30 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                   Its onFocus callback shows the controls, then it disappears and
                   hasTVPreferredFocus moves to the real Play button.
                 */}
+<<<<<<< HEAD
                 {isTV && !showControls && !playIntro && (
+=======
+                {isTV && !showControls && (
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     <Pressable
                         style={StyleSheet.absoluteFill}
                         focusable={true}
                         hasTVPreferredFocus={true}
+<<<<<<< HEAD
                         onFocus={() => {}}
                         onPress={() => showAndResetTimer()}
+=======
+                        onFocus={() => setShowControls(true)}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     />
                 )}
 
                 {/* Next Episode Countdown Overlay */}
+<<<<<<< HEAD
                  {showCountdown && (
+=======
+                {/* {showCountdown && (
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     <View style={styles.countdownOverlay}>
                         <AppText variant="bold" size="lg" color={colors.white} style={styles.countdownText}>
                             Next Episode Playing in {countdownValue}...
@@ -875,10 +1043,17 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                             <AppText color={colors.white}>CANCEL</AppText>
                         </TouchableOpacity>
                     </View>
+<<<<<<< HEAD
                 )} 
 
                 {/* Controls Overlay */}
                 {!playIntro && showControls && (
+=======
+                )} */}
+
+                {/* Controls Overlay */}
+                {(showControls || isLocked) && (
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     <View style={styles.overlay} pointerEvents="box-none">
 
                         {/* Lock State UI */}
@@ -908,7 +1083,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                 <View style={styles.topBar}>
                                     <FocusableButton 
                                         onPress={() => navigation.goBack()} 
+<<<<<<< HEAD
                                         onFocus={showAndResetTimer}
+=======
+                                        onFocus={startControlTimer}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         style={styles.iconButton}
                                         focusedStyle={styles.iconButtonFocused}
                                     >
@@ -920,6 +1099,7 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                         {getDisplayTitle()}
                                     </AppText>
                                     <View style={styles.topRightIcons}>
+<<<<<<< HEAD
                                         {!isTV && (
                                             <View style={styles.iconButton}>
                                                 <CastButton style={styles.castButton} tintColor={colors.white} />
@@ -929,6 +1109,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                         <FocusableButton
                                             onPress={toggleLock}
                                             onFocus={showAndResetTimer}
+=======
+                                        <FocusableButton 
+                                            onPress={toggleLock}
+                                            onFocus={startControlTimer}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                             style={styles.iconButton}
                                             focusedStyle={styles.iconButtonFocused}
                                         >
@@ -946,33 +1131,57 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                 <View style={styles.centerControls}>
                                     <FocusableButton 
                                         onPress={() => handleSkip(-10)} 
+<<<<<<< HEAD
                                         onFocus={showAndResetTimer}
+=======
+                                        onFocus={startControlTimer}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         style={styles.centerIcon}
                                         focusedStyle={styles.centerIconFocused}
                                     >
                                         {(isFocused) => (
+<<<<<<< HEAD
                                             <Icon name="replay-10" size={isTV ? 35 : 50} color={isFocused ? colors.primary : colors.white} />
+=======
+                                            <Icon name="replay-10" size={50} color={isFocused ? colors.primary : colors.white} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         )}
                                     </FocusableButton>
                                     <FocusableButton 
                                         onPress={handlePlayPause} 
+<<<<<<< HEAD
                                         onFocus={showAndResetTimer}
+=======
+                                        onFocus={startControlTimer}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         style={styles.playIconContainer}
                                         focusedStyle={styles.playIconContainerFocused}
                                         hasTVPreferredFocus={isTV && showControls}
                                     >
                                         {(isFocused) => (
+<<<<<<< HEAD
                                             <Icon name={paused ? "play-arrow" : "pause"} size={isTV ? 55 : 80} color={isFocused ? colors.primary : colors.white} />
+=======
+                                            <Icon name={paused ? "play-arrow" : "pause"} size={80} color={isFocused ? colors.primary : colors.white} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         )}
                                     </FocusableButton>
                                     <FocusableButton 
                                         onPress={() => handleSkip(10)} 
+<<<<<<< HEAD
                                         onFocus={showAndResetTimer}
+=======
+                                        onFocus={startControlTimer}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         style={styles.centerIcon}
                                         focusedStyle={styles.centerIconFocused}
                                     >
                                         {(isFocused) => (
+<<<<<<< HEAD
                                             <Icon name="forward-10" size={isTV ? 35 : 50} color={isFocused ? colors.primary : colors.white} />
+=======
+                                            <Icon name="forward-10" size={50} color={isFocused ? colors.primary : colors.white} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         )}
                                     </FocusableButton>
                                 </View>
@@ -1018,7 +1227,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                             }}
                                             onFocus={() => {
                                                 setIsProgressFocused(true);
+<<<<<<< HEAD
                                                 showAndResetTimer();
+=======
+                                                startControlTimer();
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                             }}
                                             onBlur={() => setIsProgressFocused(false)}
                                             onPress={handlePlayPause}
@@ -1056,13 +1269,21 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                         <FocusableButton 
                                             ref={speedButtonRef}
                                             onPress={openSpeedModal}
+<<<<<<< HEAD
                                             onFocus={showAndResetTimer}
+=======
+                                            onFocus={startControlTimer}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                             style={styles.bottomNavItem}
                                             focusedStyle={styles.bottomNavItemFocused}
                                         >
                                             {(isFocused) => (
                                                 <>
+<<<<<<< HEAD
                                                     <Icon name="speed" size={isTV ? 18 : 24} color={isFocused ? colors.primary : colors.white} />
+=======
+                                                    <Icon name="speed" size={24} color={isFocused ? colors.primary : colors.white} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                                     <AppText size="xs" color={isFocused ? colors.primary : colors.white} style={styles.navLabel}>Speed ({playbackSpeed}x)</AppText>
                                                 </>
                                             )}
@@ -1076,7 +1297,11 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                         >
                                             {(isFocused) => (
                                                 <>
+<<<<<<< HEAD
                                                     <Icon name="headset" size={isTV ? 18 : 24} color={isFocused ? colors.primary : colors.white} />
+=======
+                                                    <Icon name="headset" size={24} color={isFocused ? colors.primary : colors.white} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                                     <AppText size="xs" color={isFocused ? colors.primary : colors.white} style={styles.navLabel}>Audio</AppText>
                                                 </>
                                             )}
@@ -1086,13 +1311,21 @@ const VideoPlayerScreen = ({ route, navigation }) => {
                                             <FocusableButton 
                                                 ref={episodesButtonRef}
                                                 onPress={openEpisodesModal}
+<<<<<<< HEAD
                                                 onFocus={showAndResetTimer}
+=======
+                                                onFocus={startControlTimer}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                                 style={styles.bottomNavItem}
                                                 focusedStyle={styles.bottomNavItemFocused}
                                             >
                                                 {(isFocused) => (
                                                     <>
+<<<<<<< HEAD
                                                         <Icon name="collections-bookmark" size={isTV ? 18 : 24} color={isFocused ? colors.primary : colors.white} />
+=======
+                                                        <Icon name="collections-bookmark" size={24} color={isFocused ? colors.primary : colors.white} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                                         <AppText size="xs" color={isFocused ? colors.primary : colors.white} style={styles.navLabel}>Episodes</AppText>
                                                     </>
                                                 )}
@@ -1292,10 +1525,13 @@ const styles = StyleSheet.create({
         fontSize: 10,
         marginTop: 2,
     },
+<<<<<<< HEAD
     castButton: {
         width: 24,
         height: 24,
     },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     unlockButtonFocused: {
         borderColor: colors.primary,
         backgroundColor: 'rgba(229,9,20,0.2)',
@@ -1306,9 +1542,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     centerIcon: {
+<<<<<<< HEAD
         marginHorizontal: isTV ? 40 : 80,
         borderRadius: 50,
         padding: isTV ? 6 : 8,
+=======
+        marginHorizontal: 80,
+        borderRadius: 50,
+        padding: 8,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         borderWidth: 2,
         borderColor: 'transparent',
     },
@@ -1317,7 +1559,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(229,9,20,0.15)',
     },
     playIconContainer: {
+<<<<<<< HEAD
         padding: isTV ? 8 : 10,
+=======
+        padding: 10,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         borderRadius: 50,
         borderWidth: 2,
         borderColor: 'transparent',
@@ -1382,6 +1628,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         paddingHorizontal: 20,
+<<<<<<< HEAD
         gap: isTV ? 6 : 10,
     },
     bottomNavItem: {
@@ -1390,6 +1637,16 @@ const styles = StyleSheet.create({
         marginHorizontal: isTV ? 10 : 15,
         paddingVertical: isTV ? 6 : 8,
         paddingHorizontal: isTV ? 10 : 12,
+=======
+        gap: 10,
+    },
+    bottomNavItem: {
+        alignItems: 'center',
+        minWidth: 80,
+        marginHorizontal: 15,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         borderRadius: 10,
         borderWidth: 2,
         borderColor: 'transparent',
@@ -1400,7 +1657,11 @@ const styles = StyleSheet.create({
     },
     navLabel: {
         marginTop: 6,
+<<<<<<< HEAD
         fontSize: isTV ? 9 : 11,
+=======
+        fontSize: 11,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     // Invisible Pressable used for TV DPAD Left/Right sentinel seeking
     hiddenSentinel: {
@@ -1454,6 +1715,7 @@ const styles = StyleSheet.create({
     cancelCountdownButton: {
         padding: 10,
     },
+<<<<<<< HEAD
     episodeItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -1464,6 +1726,8 @@ const styles = StyleSheet.create({
         borderColor: 'transparent',
         borderRadius: 8,
     },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     episodeItemFocused: {
         borderColor: colors.primary,
         backgroundColor: 'rgba(229,9,20,0.15)',

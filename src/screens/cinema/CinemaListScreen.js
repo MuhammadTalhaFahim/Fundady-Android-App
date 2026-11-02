@@ -5,10 +5,16 @@ import {
     StyleSheet,
     Animated,
     FlatList,
+<<<<<<< HEAD
     Modal,
     ActivityIndicator,
     TouchableOpacity,
     Pressable,
+=======
+    ActivityIndicator,
+    Modal,
+    TouchableOpacity,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     Dimensions,
     ScrollView as RNScrollView,
     Platform,
@@ -27,17 +33,23 @@ import Orientation from 'react-native-orientation-locker';
 
 import { moderateScale, isTablet, isTV, SCREEN_WIDTH } from '../../utils/responsive';
 import { movieService } from '../../services/movieService';
+<<<<<<< HEAD
 import Loader from '../../components/common/Loader';
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
 
 
 const CinemaListScreen = ({ navigation }) => {
     const { width, height } = useWindowDimensions();
     const scrollY = React.useRef(new Animated.Value(0)).current;
+<<<<<<< HEAD
     
     const [isCategoryFocused, setIsCategoryFocused] = useState(false);
     const [isYearFocused, setIsYearFocused] = useState(false);
     const [isGenreFocused, setIsGenreFocused] = useState(false);
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
     useFocusEffect(
         useCallback(() => {
@@ -136,7 +148,11 @@ const CinemaListScreen = ({ navigation }) => {
 
             {loading ? (
                 <View style={styles.centered}>
+<<<<<<< HEAD
                     <Loader/>
+=======
+                    <ActivityIndicator size="large" color={colors.primary} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 </View>
             ) : (
                 <>
@@ -146,6 +162,7 @@ const CinemaListScreen = ({ navigation }) => {
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.filterBar}
                         >
+<<<<<<< HEAD
                             <Pressable
                                 onFocus={() => setIsCategoryFocused(true)}
                                 onBlur={() => setIsCategoryFocused(false)}
@@ -159,6 +176,10 @@ const CinemaListScreen = ({ navigation }) => {
                                         backgroundColor: 'rgba(255, 255, 255, 0.08)'
                                     }
                                 ]}
+=======
+                            <TouchableOpacity
+                                style={[styles.filterTab, selectedCategory && styles.activeFilterTab]}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                 onPress={() => {
                                     setModalType('category');
                                     setIsOpeningModal(true);
@@ -175,6 +196,7 @@ const CinemaListScreen = ({ navigation }) => {
                                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
                                     </>
                                 )}
+<<<<<<< HEAD
                             </Pressable>
 
                             <Pressable
@@ -190,6 +212,12 @@ const CinemaListScreen = ({ navigation }) => {
                                         backgroundColor: 'rgba(255, 255, 255, 0.08)'
                                     }
                                 ]}
+=======
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity
+                                style={[styles.filterTab, selectedYear && styles.activeFilterTab]}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                 onPress={() => {
                                     setModalType('year');
                                     setIsOpeningModal(true);
@@ -206,6 +234,7 @@ const CinemaListScreen = ({ navigation }) => {
                                         <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
                                     </>
                                 )}
+<<<<<<< HEAD
                             </Pressable>
 
                             <Pressable
@@ -221,6 +250,12 @@ const CinemaListScreen = ({ navigation }) => {
                                         backgroundColor: 'rgba(255, 255, 255, 0.08)'
                                     }
                                 ]}
+=======
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.filterTab, selectedGenre && styles.activeFilterTab]}
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                 onPress={() => {
                                     setModalType('genre');
                                     setIsOpeningModal(true);
@@ -230,6 +265,7 @@ const CinemaListScreen = ({ navigation }) => {
                                 {isOpeningModal && modalType === 'genre' ? (
                                     <ActivityIndicator size="small" color={colors.textPrimary} />
                                 ) : (
+<<<<<<< HEAD
                                     <>
                                         <AppText variant="medium" size="md" color={colors.textPrimary}>
                                             {selectedGenre || 'Genre'}
@@ -244,6 +280,22 @@ const CinemaListScreen = ({ navigation }) => {
                     {isFiltering ? (
                         <View style={styles.filterLoadingContainer}>
                             <Loader />
+=======
+                                    <> 
+                                        <AppText variant="medium" size="md" color={colors.textPrimary}>
+                                            {selectedGenre || 'Genre'}
+                                        </AppText>  
+                                        <Icon name="keyboard-arrow-down" size={20} color={colors.textPrimary} style={{ marginLeft: 4 }} />
+                                    </>
+                                )}
+                            </TouchableOpacity>
+                        </RNScrollView>
+                    </View>
+
+                    {isFiltering ? ( 
+                        <View style={styles.filterLoadingContainer}>
+                            <ActivityIndicator size="large" color={colors.primary} />
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                             <AppText variant="medium" style={{ marginTop: spacing.md }} color={colors.textSecondary}></AppText>
                         </View>
                     ) : (
@@ -258,7 +310,10 @@ const CinemaListScreen = ({ navigation }) => {
                                         onPress={() => handleMoviePress(item)}
                                         width={cardWidth}
                                         height={cardWidth * 1.5}
+<<<<<<< HEAD
                                         createdAt={item.created_at}
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                                         style={{ margin: 4 }}
                                     />
                                 );
@@ -268,7 +323,10 @@ const CinemaListScreen = ({ navigation }) => {
                             key={(isTablet || isTV) ? 'tablet' : 'phone'}
                             contentContainerStyle={styles.scrollContent}
                             showsVerticalScrollIndicator={false}
+<<<<<<< HEAD
                             removeClippedSubviews={false}
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                             onScroll={Animated.event(
                                 [{ nativeEvent: { contentOffset: { y: scrollY } } }],
                                 { useNativeDriver: false }
@@ -297,11 +355,14 @@ const CinemaListScreen = ({ navigation }) => {
                 isVisible={showModal}
                 onClose={() => setShowModal(false)}
                 onShow={() => setIsOpeningModal(false)}
+<<<<<<< HEAD
                 title={
                     modalType === 'category' ? 'All Categories' :
                         modalType === 'year' ? 'All Years' :
                             'All Genres'
                 }
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                 categories={
                     modalType === 'category' ? categories :
                         modalType === 'year' ? years :
@@ -328,7 +389,11 @@ const CinemaListScreen = ({ navigation }) => {
             />
         </View>
     );
+<<<<<<< HEAD
 };
+=======
+};  
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
 const styles = StyleSheet.create({
     container: {
@@ -356,7 +421,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     stickyFilterContainer: {
+<<<<<<< HEAD
         paddingTop: isTV ? 0 : 100, // Matches the header height
+=======
+        // paddingTop: 100, // Matches the header height
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         backgroundColor: colors.background,
         zIndex: 10,
     },

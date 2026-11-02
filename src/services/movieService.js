@@ -4,12 +4,15 @@ export const movieService = {
     getMovies: async () => {
         return await apiClient.get('/v1/movies');
     },
+<<<<<<< HEAD
     getMoviesByCategories: async (categories) => {
         const categoryParams = categories
             .map(cat => `category[]=${encodeURIComponent(cat)}`)
             .join('&');
         return await apiClient.get(`/v1/movies?${categoryParams}`);
     },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     getGallery: async () => {
         return await apiClient.get('/v1/gallery');
     },
@@ -25,18 +28,22 @@ export const movieService = {
     getTVShows: async () => {
         return await apiClient.get('/tvshows/tv_shows');
     },
+<<<<<<< HEAD
     getTVShowsCategoriesList: async () => {
         return await apiClient.get('/tvshows/cat');
     },
     getTVShowsByCategory: async (showTypeSlug) => {
         return await apiClient.get(`/tvshows/${showTypeSlug}`);
     },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     search: async (query) => {
         return await apiClient.get('https://fundady.com/api/v1/search', { title: query });
     },
     getSportsCategories: async () => {
         return await apiClient.get('https://fundady.com/api/v1/categories');
     },
+<<<<<<< HEAD
     getSportsCategoriesList: async () => {
         return await apiClient.get('/sports/cat');
     },
@@ -46,6 +53,8 @@ export const movieService = {
     getSportsById: async (categorySlug, id) => {
         return await apiClient.get(`/sports/${categorySlug}`, { id });
     },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     getYears: async () => {
         return await apiClient.get('/v1/years');
     },
@@ -64,12 +73,15 @@ export const movieService = {
     getFootball: async () => {
         return await apiClient.get('/sports/football');
     },
+<<<<<<< HEAD
     getUFC: async () => {
         return await apiClient.get('/sports/ufc');
     },
     getAEW: async () => {
         return await apiClient.get('/sports/aew');
     },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     getTVChannels: async () => {
         return await apiClient.get('/tvon/channel-list');
     },
@@ -107,6 +119,7 @@ export const movieService = {
     },
     getFootballById: async (id) => {
         return await apiClient.get('/sports/football', { id });
+<<<<<<< HEAD
     },
     getUFCById: async (id) => {
         return await apiClient.get('/sports/ufc', { id });
@@ -131,5 +144,7 @@ export const movieService = {
     },
     getPrivacyPolicy: async () => {
         return await apiClient.get('/privacy-policy');
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     }
 };

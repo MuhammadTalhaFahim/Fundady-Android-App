@@ -1,5 +1,9 @@
 <resources>
+<<<<<<< HEAD
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+=======
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
         <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
         <item name="android:navigationBarColor">#141414</item>

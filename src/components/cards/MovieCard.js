@@ -4,11 +4,20 @@ import {
     Image,
     StyleSheet,
     View,
+<<<<<<< HEAD
+=======
+    Platform,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 } from 'react-native';
 import { borderRadius, spacing } from '../../theme/spacing';
 import { colors } from '../../theme/colors';
 import AppText from '../common/AppText';
+<<<<<<< HEAD
 import { isLatestContent } from '../../utils/helpers';
+=======
+
+const isTV = Platform.isTV;
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
 const MovieCard = ({
     imageUrl,
@@ -20,6 +29,7 @@ const MovieCard = ({
     title,
     subtitle,
     subtitleColor = colors.primary,
+<<<<<<< HEAD
     isLatest,
     createdAt,
     showLatestTag,
@@ -28,12 +38,18 @@ const MovieCard = ({
 
     const shouldShowLatest = isLatest || showLatestTag || (createdAt && isLatestContent(createdAt));
 
+=======
+}) => {
+    const [isFocused, setIsFocused] = useState(false);
+
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     return (
         <Pressable
             onPress={onPress}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             style={[
+<<<<<<< HEAD
                 styles.container, 
                 { width }, 
                 style,
@@ -46,6 +62,12 @@ const MovieCard = ({
                     shadowRadius: 8,
                     elevation: 10,
                 }
+=======
+                styles.container,
+                { width },
+                style,
+                isFocused && styles.containerFocused,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             ]}>
             <View style={[styles.imageContainer, { height }]}>
                 <Image
@@ -53,11 +75,14 @@ const MovieCard = ({
                     style={[styles.image, { width, height }, imageStyle]}
                     resizeMode="cover"
                 />
+<<<<<<< HEAD
                 {shouldShowLatest && (
                     <View style={styles.latestBadge}>
                         <AppText style={styles.latestBadgeText}>Latest</AppText>
                     </View>
                 )}
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
             </View>
             {(title || subtitle) && (
                 <View style={styles.textContainer}>
@@ -92,21 +117,35 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: colors.backgroundCard,
         borderRadius: borderRadius.sm,
+<<<<<<< HEAD
         borderWidth: 1,
         // borderColor: colors.textPrimary, // White border always visible
         overflow: 'visible', // Must be visible so top/bottom border not clipped
+=======
+        borderWidth: 2,
+        borderColor: colors.textPrimary,   // default — same as before
+    },
+    containerFocused: {
+        borderColor: colors.primary,       // red on D-pad focus
+        // transform: [{ scale: 1.05 }],
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     imageContainer: {
         backgroundColor: colors.backgroundCard,
         overflow: 'hidden',
+<<<<<<< HEAD
         borderTopLeftRadius: borderRadius.sm,
         borderTopRightRadius: borderRadius.sm,
         position: 'relative',
+=======
+         borderRadius: borderRadius.sm,
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     },
     image: {
         width: '100%',
         height: '100%',
     },
+<<<<<<< HEAD
     latestBadge: {
         position: 'absolute',
         top: 0,
@@ -129,6 +168,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         letterSpacing: 0.5,
     },
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
     textContainer: {
         paddingVertical: spacing.xs,
         paddingHorizontal: spacing.sm,
@@ -140,4 +181,8 @@ const styles = StyleSheet.create({
     },
 });
 
+<<<<<<< HEAD
 export default MovieCard;
+=======
+export default MovieCard;
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04

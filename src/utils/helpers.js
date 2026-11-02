@@ -8,6 +8,7 @@ export const truncateText = (text, length = 100) => {
     if (text.length <= length) return text;
     return text.substring(0, length) + '...';
 };
+<<<<<<< HEAD
 
 export const getTimeAgo = (dateString) => {
     if (!dateString) return '';
@@ -49,3 +50,5 @@ export const isLatestContent = (dateString, days = 7) => {
     return diffInDays >= 0 && diffInDays <= days;
 };
 
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04

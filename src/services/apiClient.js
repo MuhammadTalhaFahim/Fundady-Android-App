@@ -24,6 +24,7 @@ class ApiClient {
         }
     }
 
+<<<<<<< HEAD
     async post(endpoint, body = {}) {
         const isAbsolute = endpoint.startsWith('http');
         const url = isAbsolute ? endpoint : `${this.baseUrl}${endpoint}`;
@@ -45,6 +46,9 @@ class ApiClient {
             throw error;
         }
     }
+=======
+    // Add post, put, delete methods as needed
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

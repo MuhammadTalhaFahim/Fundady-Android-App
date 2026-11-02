@@ -287,7 +287,13 @@ const SeriesDetailScreen = ({ route, navigation }) => {
             }
 
             if (Platform.OS === 'android') {
+<<<<<<< HEAD
                 const downloadPath = `/storage/emulated/0/Download/${fileName}`;
+=======
+                // IMPORTANT: Use dirs.DownloadDir. Hardcoding '/storage/emulated/0/Download' 
+                // causes 0B failures on Android TV DownloadManager due to Scoped Storage.
+                const downloadPath = `${ReactNativeBlobUtil.fs.dirs.DownloadDir}/${fileName}`;
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 
                 ReactNativeBlobUtil.config({
                     addAndroidDownloads: {
@@ -302,12 +308,20 @@ const SeriesDetailScreen = ({ route, navigation }) => {
                 })
                     .fetch('GET', url)
                     .then((res) => {
+<<<<<<< HEAD
+=======
+                        // Trigger media scan so video shows in Files & Gallery right away
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                         ReactNativeBlobUtil.fs.scanFile([{ path: res.path(), mime: 'video/mp4' }]);
                         ToastAndroid.show(`Saved to Downloads: ${fileName}`, ToastAndroid.LONG);
                     })
                     .catch((err) => {
                         console.error('Download Error', err);
+<<<<<<< HEAD
                         Alert.alert('Download Failed', `Could not download the video. Please try again.`);
+=======
+                        Alert.alert('Download Failed', `Could not download the video. Error: ${err?.message || JSON.stringify(err) || err}. Please try again.`);
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
                     });
             } else {
                 // iOS: save to a temp path and let the user preview / share it

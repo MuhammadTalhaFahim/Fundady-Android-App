@@ -35,6 +35,7 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+<<<<<<< HEAD
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_googlecast._tcp</string>
@@ -42,6 +43,8 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Fundady uses the local network to find and cast to Chromecast devices.</string>
+=======
+>>>>>>> 4d1e9e1ca52bb57adfbe55e83256dbf2b3054f04
 	<key>UILaunchStoryboardName</key>
 	<string>BootSplash</string>
 	<key>UIRequiredDeviceCapabilities</key>
